@@ -1,6 +1,7 @@
 {
-	"name": "bdata_adf_email_notify_pl",
+	"name": "bdata_adf_email_notify_plPi",
 	"properties": {
+		"description": "ADF pipeline with Email notifications",
 		"activities": [
 			{
 				"name": "Validate filename list",
