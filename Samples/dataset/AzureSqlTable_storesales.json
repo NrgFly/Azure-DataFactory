@@ -1,0 +1,32 @@
+{
+	"name": "AzureSqlTable_storesales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_LS",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"structure": [
+			{
+				"name": "store_id",
+				"type": "String"
+			},
+			{
+				"name": "date_id",
+				"type": "String"
+			},
+			{
+				"name": "product_id",
+				"type": "String"
+			},
+			{
+				"name": "stock_amt",
+				"type": "String"
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[storeinventory]"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

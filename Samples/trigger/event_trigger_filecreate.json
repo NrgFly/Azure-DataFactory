@@ -1,0 +1,26 @@
+{
+	"name": "event_trigger_filecreate",
+	"properties": {
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "bdata_adf_variable_append_pl",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"FilePath": "@triggerBody().folderPath",
+					"FileName": "@triggerBody().fileName"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/salesdata/blobs/",
+			"scope": "/subscriptions/6c405d27-de5e-483c-9a68-0aaaad20b363/resourceGroups/big_data/providers/Microsoft.Storage/storageAccounts/bdatablob",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

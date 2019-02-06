@@ -1,0 +1,28 @@
+{
+	"name": "AzureSqlTable_bgdata_daily",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_LS",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"structure": [
+			{
+				"name": "Date",
+				"type": "DateTime"
+			},
+			{
+				"name": "Account_ID",
+				"type": "Int32"
+			},
+			{
+				"name": "Sales",
+				"type": "Int32"
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[DailySales]"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

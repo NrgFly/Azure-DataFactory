@@ -1,0 +1,271 @@
+{
+	"name": "bdata_adf_variable_set_pl",
+	"properties": {
+		"activities": [
+			{
+				"name": "Metadata Store 02",
+				"type": "GetMetadata",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "AzureBlob_storesales_store02",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					]
+				}
+			},
+			{
+				"name": "Filenames Store 02",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Metadata Store 02",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Metadata Store 02').output.childitems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Build filename list 02",
+							"type": "AppendVariable",
+							"typeProperties": {
+								"variableName": "var_file_list",
+								"value": {
+									"value": "@concat('store_02/',item().name)",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Validate filename list",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Filenames Store 02",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Filenames Store 03",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Filenames Store 01",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "var_file_list_check",
+					"value": {
+						"value": "@variables('var_file_list')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Metadata Store 03",
+				"type": "GetMetadata",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "AzureBlob_storesales_store03",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					]
+				}
+			},
+			{
+				"name": "Filenames Store 03",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Metadata Store 03",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Metadata Store 03').output.childitems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Build filename list 03",
+							"type": "AppendVariable",
+							"typeProperties": {
+								"variableName": "var_file_list",
+								"value": {
+									"value": "@concat('store_03/',item().name)",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Load data into SQL",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Validate filename list",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('var_file_list')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy Data Blob to SQL",
+							"type": "Copy",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"source": {
+									"type": "BlobSource",
+									"recursive": true
+								},
+								"sink": {
+									"type": "SqlSink",
+									"writeBatchSize": 10000
+								},
+								"enableStaging": false,
+								"dataIntegrationUnits": 0,
+								"translator": {
+									"type": "TabularTranslator",
+									"columnMappings": {
+										"store_id": "store_id",
+										"date_id": "date_id",
+										"product_id": "product_id",
+										"stock_amt": "stock_amt"
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "AzureBlob_storesales_storesall",
+									"type": "DatasetReference",
+									"parameters": {
+										"FilePath": "storesales",
+										"FileName": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureSqlTable_storesales",
+									"type": "DatasetReference"
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Metadata Store 01",
+				"type": "GetMetadata",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "AzureBlob_storesales_store01",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					]
+				}
+			},
+			{
+				"name": "Filenames Store 01",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Metadata Store 01",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Metadata Store 01').output.childitems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Build filename list 01",
+							"type": "AppendVariable",
+							"typeProperties": {
+								"variableName": "var_file_list",
+								"value": {
+									"value": "@concat('store_01/',item().name)",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"var_file_list": {
+				"type": "Array"
+			},
+			"var_file_list_check": {
+				"type": "Array"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

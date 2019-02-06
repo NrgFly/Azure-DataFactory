@@ -1,0 +1,181 @@
+{
+	"name": "bdata_adf_variable_append_pl",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get FeedType",
+				"type": "SetVariable",
+				"typeProperties": {
+					"variableName": "FeedType",
+					"value": {
+						"value": "@replace(pipeline().parameters.FileName, 'Sales.csv','')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "If Daily DataFeed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get FeedType",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(variables('FeedType'), 'Daily')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Copy Data Daily",
+							"type": "Copy",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"source": {
+									"type": "BlobSource",
+									"recursive": true
+								},
+								"sink": {
+									"type": "SqlSink",
+									"writeBatchSize": 10000
+								},
+								"enableStaging": false,
+								"dataIntegrationUnits": 0,
+								"translator": {
+									"type": "TabularTranslator",
+									"columnMappings": {
+										"Date": "Date",
+										"Account ID": "Account_ID",
+										"Sales": "Sales"
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "AzureBlob_bgdata_daily",
+									"type": "DatasetReference",
+									"parameters": {
+										"FilePath": {
+											"value": "@pipeline().parameters.FilePath",
+											"type": "Expression"
+										},
+										"FileName": {
+											"value": "@pipeline().parameters.FileName",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureSqlTable_bgdata_daily",
+									"type": "DatasetReference"
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "If Monthly DataFeed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get FeedType",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(variables('FeedType'), 'Monthly')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Copy Data Monthly",
+							"type": "Copy",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"source": {
+									"type": "BlobSource",
+									"recursive": true
+								},
+								"sink": {
+									"type": "SqlSink",
+									"writeBatchSize": 10000
+								},
+								"enableStaging": false,
+								"dataIntegrationUnits": 0,
+								"translator": {
+									"type": "TabularTranslator",
+									"columnMappings": {
+										"Year": "Year",
+										"Month": "Month",
+										"Account ID": "Account_ID",
+										"Total Sales": "Total_Sales"
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "AzureBlob_bgdata_monthly",
+									"type": "DatasetReference",
+									"parameters": {
+										"FileName": {
+											"value": "@pipeline().parameters.FileName",
+											"type": "Expression"
+										},
+										"FilePath": {
+											"value": "@pipeline().parameters.FilePath",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureSqlTable_bgdata_monthly",
+									"type": "DatasetReference"
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"FilePath": {
+				"type": "String",
+				"defaultValue": "salesdata/"
+			},
+			"FileName": {
+				"type": "String",
+				"defaultValue": "DailySales.csv"
+			}
+		},
+		"variables": {
+			"FeedType": {
+				"type": "String"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,32 @@
+{
+	"name": "AzureSqlTable_bgdata_monthly",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_LS",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"structure": [
+			{
+				"name": "Year",
+				"type": "Int32"
+			},
+			{
+				"name": "Month",
+				"type": "Int32"
+			},
+			{
+				"name": "Account_ID",
+				"type": "Int32"
+			},
+			{
+				"name": "Total_Sales",
+				"type": "Int32"
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[MonthlySales]"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
