@@ -1,5 +1,5 @@
 {
-	"name": "bdata_adf_email_notify_plPi",
+	"name": "bdata_adf_email_notify_pl",
 	"properties": {
 		"description": "ADF pipeline with Email notifications",
 		"activities": [
