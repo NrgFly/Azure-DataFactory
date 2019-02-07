@@ -1,7 +1,7 @@
 {
 	"name": "event_trigger_filecreate",
 	"properties": {
-		"runtimeState": "Started",
+		"runtimeState": "Stopped",
 		"pipelines": [
 			{
 				"pipelineReference": {
