@@ -1,0 +1,161 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "bdatafactory"
+		},
+		"AzureBlobStorage_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage_LS'"
+		},
+		"AzureSqlDatabase_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_LS'"
+		},
+		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().FileName"
+		},
+		"AzureBlob_bgdata_daily_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().FilePath"
+		},
+		"AzureBlob_bgdata_monthly_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().FileName"
+		},
+		"AzureBlob_bgdata_monthly_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().FilePath"
+		},
+		"AzureBlob_storesales_store01_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"AzureBlob_storesales_store01_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "storesales/store_01"
+		},
+		"AzureBlob_storesales_store02_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"AzureBlob_storesales_store02_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "storesales/store_02"
+		},
+		"AzureBlob_storesales_store03_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"AzureBlob_storesales_store03_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "storesales/store_03"
+		},
+		"AzureBlob_storesales_storesall_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().FileName"
+		},
+		"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().FilePath"
+		},
+		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
+			"type": "string",
+			"defaultValue": "@triggerBody().folderPath"
+		},
+		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName": {
+			"type": "string",
+			"defaultValue": "@triggerBody().fileName"
+		},
+		"event_trigger_filecreate_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/6c405d27-de5e-483c-9a68-0aaaad20b363/resourceGroups/big_data/providers/Microsoft.Storage/storageAccounts/bdatablob"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas Token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureBlobStorage_LS_connectionString": {
+						"value": "[parameters('AzureBlobStorage_LS_connectionString')]"
+					},
+					"AzureSqlDatabase_LS_connectionString": {
+						"value": "[parameters('AzureSqlDatabase_LS_connectionString')]"
+					},
+					"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlob_bgdata_daily_properties_typeProperties_fileName')]"
+					},
+					"AzureBlob_bgdata_daily_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlob_bgdata_daily_properties_typeProperties_folderPath')]"
+					},
+					"AzureBlob_bgdata_monthly_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlob_bgdata_monthly_properties_typeProperties_fileName')]"
+					},
+					"AzureBlob_bgdata_monthly_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlob_bgdata_monthly_properties_typeProperties_folderPath')]"
+					},
+					"AzureBlob_storesales_store01_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlob_storesales_store01_properties_typeProperties_fileName')]"
+					},
+					"AzureBlob_storesales_store01_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlob_storesales_store01_properties_typeProperties_folderPath')]"
+					},
+					"AzureBlob_storesales_store02_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlob_storesales_store02_properties_typeProperties_fileName')]"
+					},
+					"AzureBlob_storesales_store02_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlob_storesales_store02_properties_typeProperties_folderPath')]"
+					},
+					"AzureBlob_storesales_store03_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlob_storesales_store03_properties_typeProperties_fileName')]"
+					},
+					"AzureBlob_storesales_store03_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlob_storesales_store03_properties_typeProperties_folderPath')]"
+					},
+					"AzureBlob_storesales_storesall_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_fileName')]"
+					},
+					"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_folderPath')]"
+					},
+					"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
+						"value": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath')]"
+					},
+					"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName": {
+						"value": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName')]"
+					},
+					"event_trigger_filecreate_properties_typeProperties_scope": {
+						"value": "[parameters('event_trigger_filecreate_properties_typeProperties_scope')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

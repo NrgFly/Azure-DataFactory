@@ -1,0 +1,60 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "bdatafactory"
+		},
+		"AzureBlobStorage_LS_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabase_LS_connectionString": {
+			"value": ""
+		},
+		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
+			"value": "@dataset().FileName"
+		},
+		"AzureBlob_bgdata_daily_properties_typeProperties_folderPath": {
+			"value": "@dataset().FilePath"
+		},
+		"AzureBlob_bgdata_monthly_properties_typeProperties_fileName": {
+			"value": "@dataset().FileName"
+		},
+		"AzureBlob_bgdata_monthly_properties_typeProperties_folderPath": {
+			"value": "@dataset().FilePath"
+		},
+		"AzureBlob_storesales_store01_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"AzureBlob_storesales_store01_properties_typeProperties_folderPath": {
+			"value": "storesales/store_01"
+		},
+		"AzureBlob_storesales_store02_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"AzureBlob_storesales_store02_properties_typeProperties_folderPath": {
+			"value": "storesales/store_02"
+		},
+		"AzureBlob_storesales_store03_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"AzureBlob_storesales_store03_properties_typeProperties_folderPath": {
+			"value": "storesales/store_03"
+		},
+		"AzureBlob_storesales_storesall_properties_typeProperties_fileName": {
+			"value": "@dataset().FileName"
+		},
+		"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
+			"value": "@dataset().FilePath"
+		},
+		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
+			"value": "@triggerBody().folderPath"
+		},
+		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"event_trigger_filecreate_properties_typeProperties_scope": {
+			"value": "/subscriptions/6c405d27-de5e-483c-9a68-0aaaad20b363/resourceGroups/big_data/providers/Microsoft.Storage/storageAccounts/bdatablob"
+		}
+	}
+}
