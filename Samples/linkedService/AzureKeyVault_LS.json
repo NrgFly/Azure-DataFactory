@@ -1,0 +1,9 @@
+{
+	"name": "AzureKeyVault_LS",
+	"properties": {
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://azueus2bdatakvt.vault.azure.net/"
+		}
+	}
+}
