@@ -1,5 +1,5 @@
 {
-	"name": "AzureBlobStorageSourceFileStore1",
+	"name": "AzureBlobStorageSourceFileStore",
 	"properties": {
 		"description": "Connection to your source data store.",
 		"linkedServiceName": {

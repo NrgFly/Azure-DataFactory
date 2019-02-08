@@ -1,5 +1,5 @@
 {
-	"name": "AzureBlobStorageSinkFileStore1",
+	"name": "AzureBlobStorageSinkFileStore",
 	"properties": {
 		"description": "Connection to your destination data store.",
 		"linkedServiceName": {

@@ -1,5 +1,5 @@
 {
-	"name": "CopyFilesfromMultipleContainers1",
+	"name": "CopyFilesfromMultipleContainers",
 	"properties": {
 		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another",
 		"activities": [
@@ -16,7 +16,7 @@
 				},
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "AzureBlobStorageSourceFileStore1",
+						"referenceName": "AzureBlobStorageSourceFileStore",
 						"type": "DatasetReference",
 						"parameters": {
 							"folder": {
@@ -84,7 +84,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "AzureBlobStorageSourceFileStore1",
+									"referenceName": "AzureBlobStorageSourceFileStore",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
@@ -96,7 +96,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "AzureBlobStorageSinkFileStore1",
+									"referenceName": "AzureBlobStorageSinkFileStore",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
