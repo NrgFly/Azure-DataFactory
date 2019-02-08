@@ -15,6 +15,18 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_LS'"
 		},
+		"AzureBlobStorageSinkFileStore_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
 		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": "@dataset().FileName"
@@ -63,6 +75,10 @@
 			"type": "string",
 			"defaultValue": "@dataset().FilePath"
 		},
+		"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://azueus2bdatakvt.vault.azure.net/"
+		},
 		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
 			"type": "string",
 			"defaultValue": "@triggerBody().folderPath"
@@ -107,6 +123,18 @@
 					},
 					"AzureSqlDatabase_LS_connectionString": {
 						"value": "[parameters('AzureSqlDatabase_LS_connectionString')]"
+					},
+					"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
+						"value": "[parameters('AzureKeyVault_LS_properties_typeProperties_baseUrl')]"
+					},
+					"AzureBlobStorageSinkFileStore_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_fileName')]"
+					},
+					"AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath')]"
+					},
+					"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath')]"
 					},
 					"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 						"value": "[parameters('AzureBlob_bgdata_daily_properties_typeProperties_fileName')]"
