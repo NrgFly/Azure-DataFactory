@@ -137,7 +137,7 @@
 					"body": {
 						"DataFactoryName": "@{pipeline().DataFactory}",
 						"PipelineName": "@{pipeline().Pipeline}",
-						"ErrorMessage": "Operation finished.",
+						"Message": "Copy Operation finished.",
 						"EmailTo": "@pipeline().parameters.par_email_address"
 					}
 				}
