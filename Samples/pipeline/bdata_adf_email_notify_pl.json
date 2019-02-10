@@ -447,6 +447,9 @@
 			"var_activity_error_message": {
 				"type": "String"
 			}
+		},
+		"folder": {
+			"name": "Samples"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
