@@ -341,7 +341,7 @@
 			}
 		},
 		"folder": {
-			"name": "Samples"
+			"name": "Sample Pipelines"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
