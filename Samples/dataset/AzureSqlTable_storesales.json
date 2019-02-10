@@ -5,6 +5,9 @@
 			"referenceName": "AzureSqlDatabase_LS",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Sample Datasets"
+		},
 		"type": "AzureSqlTable",
 		"structure": [
 			{
