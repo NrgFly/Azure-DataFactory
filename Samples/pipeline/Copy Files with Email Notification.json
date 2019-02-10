@@ -1,5 +1,5 @@
 {
-	"name": "Copy Files between Blob containers and Email Notification",
+	"name": "Copy Files with Email Notification",
 	"properties": {
 		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another and Email Notification",
 		"activities": [
