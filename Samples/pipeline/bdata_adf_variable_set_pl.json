@@ -265,6 +265,9 @@
 			"var_file_list_check": {
 				"type": "Array"
 			}
+		},
+		"folder": {
+			"name": "Samples"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
