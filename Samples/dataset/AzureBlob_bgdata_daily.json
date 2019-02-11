@@ -13,6 +13,9 @@
 				"type": "String"
 			}
 		},
+		"folder": {
+			"name": "Sample Datasets"
+		},
 		"type": "AzureBlob",
 		"structure": [
 			{

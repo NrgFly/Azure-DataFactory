@@ -391,7 +391,7 @@
 											"secureInput": false
 										},
 										"typeProperties": {
-											"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
+											"url": "https://prod-29.eastus.logic.azure.com:443/workflows/b254c91f0139447aa4bf23657e729aff/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=c1ZLiBHQ2uyBi47Hc88M6S_JMPEbamGSJYEeI1YFQbU",
 											"method": "POST",
 											"headers": {
 												"Content-Type": "application/json"
@@ -447,6 +447,9 @@
 			"var_activity_error_message": {
 				"type": "String"
 			}
+		},
+		"folder": {
+			"name": "Sample Pipelines"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"

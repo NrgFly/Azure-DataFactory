@@ -175,6 +175,9 @@
 			"FeedType": {
 				"type": "String"
 			}
+		},
+		"folder": {
+			"name": "Sample Pipelines"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"

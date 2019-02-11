@@ -339,6 +339,9 @@
 			"var_logging_line": {
 				"type": "Array"
 			}
+		},
+		"folder": {
+			"name": "Sample Pipelines"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
