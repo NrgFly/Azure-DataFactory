@@ -1,0 +1,77 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "azu-eus2-dev-datafactory"
+		},
+		"blob_storage_ls_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'blob_storage_ls'"
+		},
+		"AzureBlobStorageSinkFileStore_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"AzureKeyVault_ls_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://azu-caes-dev-keyvault.vault.azure.net/"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas Token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"blob_storage_ls_connectionString": {
+						"value": "[parameters('blob_storage_ls_connectionString')]"
+					},
+					"AzureKeyVault_ls_properties_typeProperties_baseUrl": {
+						"value": "[parameters('AzureKeyVault_ls_properties_typeProperties_baseUrl')]"
+					},
+					"AzureBlobStorageSinkFileStore_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_fileName')]"
+					},
+					"AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath')]"
+					},
+					"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
