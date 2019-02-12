@@ -1,0 +1,10 @@
+{
+	"name": "AzureKeyVault_ls",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://azu-caes-dev-keyvault.vault.azure.net/"
+		}
+	}
+}
