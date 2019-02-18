@@ -1,0 +1,46 @@
+{
+	"name": "AzureBlob_storesales_store01_single",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Sample Datasets"
+		},
+		"type": "AzureBlob",
+		"structure": [
+			{
+				"name": "store_id",
+				"type": "String"
+			},
+			{
+				"name": "date_id",
+				"type": "String"
+			},
+			{
+				"name": "product_id",
+				"type": "String"
+			},
+			{
+				"name": "stock_amt",
+				"type": "String"
+			}
+		],
+		"typeProperties": {
+			"format": {
+				"type": "TextFormat",
+				"columnDelimiter": ",",
+				"rowDelimiter": "",
+				"quoteChar": "\"",
+				"nullValue": "\\N",
+				"encodingName": null,
+				"treatEmptyAsNull": true,
+				"skipLineCount": 0,
+				"firstRowAsHeader": true
+			},
+			"fileName": "storeinventory_01_20181027.csv",
+			"folderPath": "storesales-source/store_01"
+		}
+	}
+}
