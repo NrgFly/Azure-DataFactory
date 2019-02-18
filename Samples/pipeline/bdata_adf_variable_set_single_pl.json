@@ -16,7 +16,7 @@
 				"typeProperties": {
 					"variableName": "var_file_name",
 					"value": {
-						"value": "@activity('Metadata Store 01').output",
+						"value": "@activity('Metadata Store 01').output.itemName",
 						"type": "Expression"
 					}
 				}
