@@ -9,6 +9,24 @@
 			"name": "Sample Datasets"
 		},
 		"type": "AzureBlob",
+		"structure": [
+			{
+				"name": "store_id",
+				"type": "String"
+			},
+			{
+				"name": "date_id",
+				"type": "String"
+			},
+			{
+				"name": "product_id",
+				"type": "String"
+			},
+			{
+				"name": "stock_amt",
+				"type": "String"
+			}
+		],
 		"typeProperties": {
 			"format": {
 				"type": "TextFormat",

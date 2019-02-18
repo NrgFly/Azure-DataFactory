@@ -42,7 +42,7 @@
 				}
 			},
 			{
-				"name": "Copy Data to SQL",
+				"name": "Copy Data to SQL - V",
 				"type": "Copy",
 				"dependsOn": [
 					{
@@ -91,6 +91,49 @@
 								"type": "Expression"
 							}
 						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzureSqlTable_storesales",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy Data to SQL - D",
+				"type": "Copy",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "BlobSource",
+						"recursive": true
+					},
+					"sink": {
+						"type": "SqlSink",
+						"writeBatchSize": 10000
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"columnMappings": {
+							"store_id": "store_id",
+							"date_id": "date_id",
+							"product_id": "product_id",
+							"stock_amt": "stock_amt"
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AzureBlob_storesales_store01_single",
+						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
