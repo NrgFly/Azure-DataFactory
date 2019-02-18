@@ -85,7 +85,7 @@
 						"referenceName": "AzureBlob_storesales_storesall",
 						"type": "DatasetReference",
 						"parameters": {
-							"FilePath": "storesales",
+							"FilePath": "storesales-source/store_01",
 							"FileName": {
 								"value": "@variables('var_file_name')",
 								"type": "Expression"
