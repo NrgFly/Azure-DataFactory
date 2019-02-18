@@ -5,6 +5,9 @@
 			"referenceName": "AzureBlobStorage_LS",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Sample Datasets"
+		},
 		"type": "AzureBlob",
 		"typeProperties": {
 			"format": {
