@@ -108,6 +108,7 @@
 			},
 			{
 				"name": "Copy Data to SQL - D",
+				"description": "Direct data copy from a file to a sql server table",
 				"type": "Copy",
 				"policy": {
 					"timeout": "7.00:00:00",
