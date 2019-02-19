@@ -51,6 +51,14 @@
 			"type": "string",
 			"defaultValue": "storesales/store_01"
 		},
+		"AzureBlob_storesales_store01_single_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "storeinventory_01_20181027.csv"
+		},
+		"AzureBlob_storesales_store01_single_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "storesales-source/store_01"
+		},
 		"AzureBlob_storesales_store02_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": ""
@@ -154,6 +162,12 @@
 					"AzureBlob_storesales_store01_properties_typeProperties_folderPath": {
 						"value": "[parameters('AzureBlob_storesales_store01_properties_typeProperties_folderPath')]"
 					},
+					"AzureBlob_storesales_store01_single_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlob_storesales_store01_single_properties_typeProperties_fileName')]"
+					},
+					"AzureBlob_storesales_store01_single_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlob_storesales_store01_single_properties_typeProperties_folderPath')]"
+					},
 					"AzureBlob_storesales_store02_properties_typeProperties_fileName": {
 						"value": "[parameters('AzureBlob_storesales_store02_properties_typeProperties_fileName')]"
 					},
@@ -171,6 +185,24 @@
 					},
 					"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
 						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_folderPath')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
 					},
 					"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
 						"value": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath')]"
@@ -183,7 +215,9 @@
 					}
 				}
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_0')]"
+			]
 		}
 	]
 }

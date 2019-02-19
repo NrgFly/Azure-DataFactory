@@ -38,6 +38,12 @@
 		"AzureBlob_storesales_store01_properties_typeProperties_folderPath": {
 			"value": "storesales/store_01"
 		},
+		"AzureBlob_storesales_store01_single_properties_typeProperties_fileName": {
+			"value": "storeinventory_01_20181027.csv"
+		},
+		"AzureBlob_storesales_store01_single_properties_typeProperties_folderPath": {
+			"value": "storesales-source/store_01"
+		},
 		"AzureBlob_storesales_store02_properties_typeProperties_fileName": {
 			"value": ""
 		},

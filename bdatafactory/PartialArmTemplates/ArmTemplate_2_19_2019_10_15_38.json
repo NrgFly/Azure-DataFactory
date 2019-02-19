@@ -6,98 +6,6 @@
 			"type": "string",
 			"metadata": "Data Factory Name",
 			"defaultValue": "bdatafactory"
-		},
-		"AzureBlobStorage_LS_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage_LS'"
-		},
-		"AzureSqlDatabase_LS_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_LS'"
-		},
-		"AzureBlobStorageSinkFileStore_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": ""
-		},
-		"AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().folder"
-		},
-		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().folder"
-		},
-		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": "@dataset().FileName"
-		},
-		"AzureBlob_bgdata_daily_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().FilePath"
-		},
-		"AzureBlob_bgdata_monthly_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": "@dataset().FileName"
-		},
-		"AzureBlob_bgdata_monthly_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().FilePath"
-		},
-		"AzureBlob_storesales_store01_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": ""
-		},
-		"AzureBlob_storesales_store01_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "storesales/store_01"
-		},
-		"AzureBlob_storesales_store01_single_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": "storeinventory_01_20181027.csv"
-		},
-		"AzureBlob_storesales_store01_single_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "storesales-source/store_01"
-		},
-		"AzureBlob_storesales_store02_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": ""
-		},
-		"AzureBlob_storesales_store02_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "storesales/store_02"
-		},
-		"AzureBlob_storesales_store03_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": ""
-		},
-		"AzureBlob_storesales_store03_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "storesales/store_03"
-		},
-		"AzureBlob_storesales_storesall_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": "@dataset().FileName"
-		},
-		"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().FilePath"
-		},
-		"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
-			"type": "string",
-			"defaultValue": "https://azueus2bdatakvt.vault.azure.net/"
-		},
-		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
-			"type": "string",
-			"defaultValue": "@triggerBody().folderPath"
-		},
-		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName": {
-			"type": "string",
-			"defaultValue": "@triggerBody().fileName"
-		},
-		"event_trigger_filecreate_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/6c405d27-de5e-483c-9a68-0aaaad20b363/resourceGroups/big_data/providers/Microsoft.Storage/storageAccounts/bdatablob"
 		}
 	},
 	"variables": {
@@ -115,7 +23,6 @@
 						"name": "EnumerateContainersList",
 						"description": "Scan the file path on your source storage store and get the container list.",
 						"type": "GetMetadata",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -123,7 +30,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
 								"referenceName": "AzureBlobStorageSourceFileStore",
@@ -152,7 +58,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@activity('EnumerateContainersList').output.childItems",
@@ -164,7 +69,6 @@
 									"name": "CopyOneContainer",
 									"description": "Copy each container from source storage store to destination store.",
 									"type": "Copy",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -240,7 +144,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
 							"method": "POST",
@@ -269,13 +172,8 @@
 						"type": "String",
 						"defaultValue": "rimayev@hotmail.com"
 					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/AzureBlobStorageSourceFileStore')]",
-				"[concat(variables('factoryId'), '/datasets/AzureBlobStorageSinkFileStore')]"
-			]
+				}
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/bdata_adf_email_notify_pl')]",
@@ -295,7 +193,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"variableName": "var_file_list_check",
 							"value": {
@@ -315,7 +212,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@variables('var_file_list')",
@@ -325,7 +221,6 @@
 								{
 									"name": "Copy Data Blob to SQL",
 									"type": "Copy",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -333,7 +228,6 @@
 										"secureOutput": false,
 										"secureInput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"source": {
 											"type": "BlobSource",
@@ -371,8 +265,7 @@
 									"outputs": [
 										{
 											"referenceName": "AzureSqlTable_storesales",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									]
 								},
@@ -387,7 +280,6 @@
 											]
 										}
 									],
-									"userProperties": [],
 									"typeProperties": {
 										"variableName": "var_logging",
 										"value": {
@@ -414,7 +306,6 @@
 										"secureOutput": false,
 										"secureInput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
 										"method": "POST",
@@ -435,7 +326,6 @@
 					{
 						"name": "Metadata Store 01",
 						"type": "GetMetadata",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -443,12 +333,10 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
 								"referenceName": "AzureBlob_storesales_store01",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"fieldList": [
 								"childItems"
@@ -466,7 +354,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@activity('Metadata Store 01').output.childitems",
@@ -476,8 +363,6 @@
 								{
 									"name": "Build filename list 01",
 									"type": "AppendVariable",
-									"dependsOn": [],
-									"userProperties": [],
 									"typeProperties": {
 										"variableName": "var_file_list",
 										"value": {
@@ -500,7 +385,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"variableName": "var_logging",
 							"value": {
@@ -526,7 +410,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@variables('var_logging')",
@@ -536,7 +419,6 @@
 								{
 									"name": "Stored Procedure",
 									"type": "SqlServerStoredProcedure",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -544,7 +426,6 @@
 										"secureOutput": false,
 										"secureInput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"storedProcedureName": "[concat('[', 'dbo].[sp_adf_pipeline_log_update]')]",
 										"storedProcedureParameters": {
@@ -664,7 +545,6 @@
 											]
 										}
 									],
-									"userProperties": [],
 									"typeProperties": {
 										"expression": {
 											"value": "@equals(split(item(),'|')[12], 'Failed')",
@@ -689,7 +569,6 @@
 													"secureOutput": false,
 													"secureInput": false
 												},
-												"userProperties": [],
 												"typeProperties": {
 													"url": "https://prod-29.eastus.logic.azure.com:443/workflows/b254c91f0139447aa4bf23657e729aff/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=c1ZLiBHQ2uyBi47Hc88M6S_JMPEbamGSJYEeI1YFQbU",
 													"method": "POST",
@@ -707,8 +586,6 @@
 											{
 												"name": "Get Error Message",
 												"type": "SetVariable",
-												"dependsOn": [],
-												"userProperties": [],
 												"typeProperties": {
 													"variableName": "var_activity_error_message",
 													"value": {
@@ -752,14 +629,12 @@
 				},
 				"folder": {
 					"name": "Sample Pipelines"
-				},
-				"annotations": []
+				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AzureBlob_storesales_store01')]",
 				"[concat(variables('factoryId'), '/datasets/AzureBlob_storesales_storesall')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_storesales')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_LS')]"
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_storesales')]"
 			]
 		},
 		{
@@ -779,7 +654,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"variableName": "var_file_list_check",
 							"value": {
@@ -799,7 +673,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@variables('var_file_list')",
@@ -809,7 +682,6 @@
 								{
 									"name": "Copy Data Blob to SQL",
 									"type": "Copy",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -817,7 +689,6 @@
 										"secureOutput": false,
 										"secureInput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"source": {
 											"type": "BlobSource",
@@ -855,8 +726,7 @@
 									"outputs": [
 										{
 											"referenceName": "AzureSqlTable_storesales",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									]
 								},
@@ -871,7 +741,6 @@
 											]
 										}
 									],
-									"userProperties": [],
 									"typeProperties": {
 										"variableName": "var_logging",
 										"value": {
@@ -886,7 +755,6 @@
 					{
 						"name": "Metadata Store 01",
 						"type": "GetMetadata",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -894,12 +762,10 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
 								"referenceName": "AzureBlob_storesales_store01",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"fieldList": [
 								"childItems"
@@ -917,7 +783,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@activity('Metadata Store 01').output.childitems",
@@ -927,8 +792,6 @@
 								{
 									"name": "Build filename list 01",
 									"type": "AppendVariable",
-									"dependsOn": [],
-									"userProperties": [],
 									"typeProperties": {
 										"variableName": "var_file_list",
 										"value": {
@@ -951,7 +814,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"variableName": "var_logging",
 							"value": {
@@ -977,7 +839,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@variables('var_logging')",
@@ -987,7 +848,6 @@
 								{
 									"name": "Stored Procedure1",
 									"type": "SqlServerStoredProcedure",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -995,7 +855,6 @@
 										"secureOutput": false,
 										"secureInput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"storedProcedureName": "[concat('[', 'dbo].[sp_adf_pipeline_log_update]')]",
 										"storedProcedureParameters": {
@@ -1124,14 +983,12 @@
 				},
 				"folder": {
 					"name": "Sample Pipelines"
-				},
-				"annotations": []
+				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AzureBlob_storesales_store01')]",
 				"[concat(variables('factoryId'), '/datasets/AzureBlob_storesales_storesall')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_storesales')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_LS')]"
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_storesales')]"
 			]
 		},
 		{
@@ -1143,8 +1000,6 @@
 					{
 						"name": "Get FeedType",
 						"type": "SetVariable",
-						"dependsOn": [],
-						"userProperties": [],
 						"typeProperties": {
 							"variableName": "FeedType",
 							"value": {
@@ -1164,7 +1019,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"expression": {
 								"value": "@equals(variables('FeedType'), 'Daily')",
@@ -1174,7 +1028,6 @@
 								{
 									"name": "Copy Data Daily",
 									"type": "Copy",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -1182,7 +1035,6 @@
 										"secureOutput": false,
 										"secureInput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"source": {
 											"type": "BlobSource",
@@ -1222,8 +1074,7 @@
 									"outputs": [
 										{
 											"referenceName": "AzureSqlTable_bgdata_daily",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									]
 								}
@@ -1241,7 +1092,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"expression": {
 								"value": "@equals(variables('FeedType'), 'Monthly')",
@@ -1251,7 +1101,6 @@
 								{
 									"name": "Copy Data Monthly",
 									"type": "Copy",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -1259,7 +1108,6 @@
 										"secureOutput": false,
 										"secureInput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"source": {
 											"type": "BlobSource",
@@ -1300,8 +1148,7 @@
 									"outputs": [
 										{
 											"referenceName": "AzureSqlTable_bgdata_monthly",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									]
 								}
@@ -1326,8 +1173,7 @@
 				},
 				"folder": {
 					"name": "Sample Pipelines"
-				},
-				"annotations": []
+				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AzureBlob_bgdata_daily')]",
@@ -1345,7 +1191,6 @@
 					{
 						"name": "Metadata Store 02",
 						"type": "GetMetadata",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -1353,12 +1198,10 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
 								"referenceName": "AzureBlob_storesales_store02",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"fieldList": [
 								"childItems"
@@ -1376,7 +1219,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@activity('Metadata Store 02').output.childitems",
@@ -1386,8 +1228,6 @@
 								{
 									"name": "Build filename list 02",
 									"type": "AppendVariable",
-									"dependsOn": [],
-									"userProperties": [],
 									"typeProperties": {
 										"variableName": "var_file_list",
 										"value": {
@@ -1422,7 +1262,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"variableName": "var_file_list_check",
 							"value": {
@@ -1434,7 +1273,6 @@
 					{
 						"name": "Metadata Store 03",
 						"type": "GetMetadata",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -1442,12 +1280,10 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
 								"referenceName": "AzureBlob_storesales_store03",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"fieldList": [
 								"childItems"
@@ -1465,7 +1301,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@activity('Metadata Store 03').output.childitems",
@@ -1475,8 +1310,6 @@
 								{
 									"name": "Build filename list 03",
 									"type": "AppendVariable",
-									"dependsOn": [],
-									"userProperties": [],
 									"typeProperties": {
 										"variableName": "var_file_list",
 										"value": {
@@ -1499,7 +1332,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@variables('var_file_list')",
@@ -1509,7 +1341,6 @@
 								{
 									"name": "Copy Data Blob to SQL",
 									"type": "Copy",
-									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -1517,7 +1348,6 @@
 										"secureOutput": false,
 										"secureInput": false
 									},
-									"userProperties": [],
 									"typeProperties": {
 										"source": {
 											"type": "BlobSource",
@@ -1555,8 +1385,7 @@
 									"outputs": [
 										{
 											"referenceName": "AzureSqlTable_storesales",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									]
 								}
@@ -1566,7 +1395,6 @@
 					{
 						"name": "Metadata Store 01",
 						"type": "GetMetadata",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -1574,12 +1402,10 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
 								"referenceName": "AzureBlob_storesales_store01",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"fieldList": [
 								"childItems"
@@ -1597,7 +1423,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"items": {
 								"value": "@activity('Metadata Store 01').output.childitems",
@@ -1607,8 +1432,6 @@
 								{
 									"name": "Build filename list 01",
 									"type": "AppendVariable",
-									"dependsOn": [],
-									"userProperties": [],
 									"typeProperties": {
 										"variableName": "var_file_list",
 										"value": {
@@ -1631,8 +1454,7 @@
 				},
 				"folder": {
 					"name": "Sample Pipelines"
-				},
-				"annotations": []
+				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AzureBlob_storesales_store02')]",
@@ -1659,7 +1481,6 @@
 								]
 							}
 						],
-						"userProperties": [],
 						"typeProperties": {
 							"variableName": "var_file_name",
 							"value": {
@@ -1671,7 +1492,6 @@
 					{
 						"name": "Metadata Store 01",
 						"type": "GetMetadata",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -1679,12 +1499,10 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
 								"referenceName": "AzureBlob_storesales_store01_single",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"fieldList": [
 								"itemName"
@@ -1715,7 +1533,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "BlobSource",
@@ -1753,8 +1570,7 @@
 						"outputs": [
 							{
 								"referenceName": "AzureSqlTable_storesales",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						]
 					},
@@ -1762,7 +1578,6 @@
 						"name": "Copy Data to SQL - D",
 						"description": "Direct data copy from a file to a sql server table",
 						"type": "Copy",
-						"dependsOn": [],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -1770,7 +1585,6 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [],
 						"typeProperties": {
 							"source": {
 								"type": "BlobSource",
@@ -1794,15 +1608,13 @@
 						"inputs": [
 							{
 								"referenceName": "AzureBlob_storesales_store01_single",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						],
 						"outputs": [
 							{
 								"referenceName": "AzureSqlTable_storesales",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						]
 					}
@@ -1814,70 +1626,12 @@
 				},
 				"folder": {
 					"name": "Sample Pipelines"
-				},
-				"annotations": []
+				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AzureBlob_storesales_store01_single')]",
 				"[concat(variables('factoryId'), '/datasets/AzureBlob_storesales_storesall')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_storesales')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureBlobStorageSinkFileStore')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Connection to your destination data store.",
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage_LS",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"folder": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"type": "AzureBlob",
-				"typeProperties": {
-					"fileName": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_fileName')]",
-					"folderPath": {
-						"value": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath')]",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureBlobStorageSourceFileStore')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Connection to your source data store.",
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage_LS",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"folder": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"type": "AzureBlob",
-				"typeProperties": {
-					"folderPath": {
-						"value": "[parameters('AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath')]",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
 			]
 		},
 		{
@@ -1900,7 +1654,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"structure": [
 					{
@@ -1928,18 +1681,15 @@
 						"firstRowAsHeader": true
 					},
 					"fileName": {
-						"value": "[parameters('AzureBlob_bgdata_daily_properties_typeProperties_fileName')]",
+						"value": "@dataset().FileName",
 						"type": "Expression"
 					},
 					"folderPath": {
-						"value": "[parameters('AzureBlob_bgdata_daily_properties_typeProperties_folderPath')]",
+						"value": "@dataset().FilePath",
 						"type": "Expression"
 					}
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlob_bgdata_monthly')]",
@@ -1961,7 +1711,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"structure": [
 					{
@@ -1991,18 +1740,15 @@
 						"firstRowAsHeader": true
 					},
 					"fileName": {
-						"value": "[parameters('AzureBlob_bgdata_monthly_properties_typeProperties_fileName')]",
+						"value": "@dataset().FileName",
 						"type": "Expression"
 					},
 					"folderPath": {
-						"value": "[parameters('AzureBlob_bgdata_monthly_properties_typeProperties_folderPath')]",
+						"value": "@dataset().FilePath",
 						"type": "Expression"
 					}
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlob_storesales_store01')]",
@@ -2016,7 +1762,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"typeProperties": {
 					"format": {
@@ -2029,13 +1774,10 @@
 						"skipLineCount": 0,
 						"firstRowAsHeader": true
 					},
-					"fileName": "[parameters('AzureBlob_storesales_store01_properties_typeProperties_fileName')]",
-					"folderPath": "[parameters('AzureBlob_storesales_store01_properties_typeProperties_folderPath')]"
+					"fileName": "",
+					"folderPath": "storesales/store_01"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlob_storesales_store01_single')]",
@@ -2049,7 +1791,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"structure": [
 					{
@@ -2081,13 +1822,10 @@
 						"skipLineCount": 0,
 						"firstRowAsHeader": true
 					},
-					"fileName": "[parameters('AzureBlob_storesales_store01_single_properties_typeProperties_fileName')]",
-					"folderPath": "[parameters('AzureBlob_storesales_store01_single_properties_typeProperties_folderPath')]"
+					"fileName": "storeinventory_01_20181027.csv",
+					"folderPath": "storesales-source/store_01"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlob_storesales_store02')]",
@@ -2101,7 +1839,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"typeProperties": {
 					"format": {
@@ -2114,13 +1851,10 @@
 						"skipLineCount": 0,
 						"firstRowAsHeader": true
 					},
-					"fileName": "[parameters('AzureBlob_storesales_store02_properties_typeProperties_fileName')]",
-					"folderPath": "[parameters('AzureBlob_storesales_store02_properties_typeProperties_folderPath')]"
+					"fileName": "",
+					"folderPath": "storesales/store_02"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlob_storesales_store03')]",
@@ -2134,7 +1868,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"typeProperties": {
 					"format": {
@@ -2147,13 +1880,10 @@
 						"skipLineCount": 0,
 						"firstRowAsHeader": true
 					},
-					"fileName": "[parameters('AzureBlob_storesales_store03_properties_typeProperties_fileName')]",
-					"folderPath": "[parameters('AzureBlob_storesales_store03_properties_typeProperties_folderPath')]"
+					"fileName": "",
+					"folderPath": "storesales/store_03"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlob_storesales_storesall')]",
@@ -2175,7 +1905,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureBlob",
 				"structure": [
 					{
@@ -2207,18 +1936,15 @@
 						"firstRowAsHeader": true
 					},
 					"fileName": {
-						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_fileName')]",
+						"value": "@dataset().FileName",
 						"type": "Expression"
 					},
 					"folderPath": {
-						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_folderPath')]",
+						"value": "@dataset().FilePath",
 						"type": "Expression"
 					}
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_bgdata_daily')]",
@@ -2232,7 +1958,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureSqlTable",
 				"structure": [
 					{
@@ -2251,10 +1976,7 @@
 				"typeProperties": {
 					"tableName": "[concat('[', 'dbo].[DailySales]')]"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_LS')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_bgdata_monthly')]",
@@ -2268,7 +1990,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureSqlTable",
 				"structure": [
 					{
@@ -2291,10 +2012,7 @@
 				"typeProperties": {
 					"tableName": "[concat('[', 'dbo].[MonthlySales]')]"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_LS')]"
-			]
+			}
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_storesales')]",
@@ -2308,7 +2026,6 @@
 				"folder": {
 					"name": "Sample Datasets"
 				},
-				"annotations": [],
 				"type": "AzureSqlTable",
 				"structure": [
 					{
@@ -2331,101 +2048,7 @@
 				"typeProperties": {
 					"tableName": "[concat('[', 'dbo].[storeinventory]')]"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_LS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage_LS')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('AzureBlobStorage_LS_connectionString')]",
-					"accountKey": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "AzureKeyVault_LS",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "azueus2-kvt-accesskey-bdatablob"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault_LS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureKeyVault_LS')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureKeyVault",
-				"typeProperties": {
-					"baseUrl": "[parameters('AzureKeyVault_LS_properties_typeProperties_baseUrl')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase_LS')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"connectionString": "[parameters('AzureSqlDatabase_LS_connectionString')]",
-					"password": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "AzureKeyVault_LS",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "bdatasqldb-access"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault_LS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/event_trigger_filecreate')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "bdata_adf_variable_append_pl",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"FilePath": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath')]",
-							"FileName": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName')]"
-						}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/salesdata/blobs/",
-					"scope": "[parameters('event_trigger_filecreate_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/bdata_adf_variable_append_pl')]"
-			]
+			}
 		}
 	]
 }

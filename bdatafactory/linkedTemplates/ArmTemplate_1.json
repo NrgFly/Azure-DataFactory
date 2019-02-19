@@ -1,0 +1,235 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "bdatafactory"
+		},
+		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
+			"type": "string",
+			"defaultValue": "@triggerBody().folderPath"
+		},
+		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName": {
+			"type": "string",
+			"defaultValue": "@triggerBody().fileName"
+		},
+		"event_trigger_filecreate_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/6c405d27-de5e-483c-9a68-0aaaad20b363/resourceGroups/big_data/providers/Microsoft.Storage/storageAccounts/bdatablob"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/bdata_adf_variable_set_single_pl')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set filename",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Metadata Store 01",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "var_file_name",
+							"value": {
+								"value": "@activity('Metadata Store 01').output.itemName",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Metadata Store 01",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "AzureBlob_storesales_store01_single",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"itemName"
+							]
+						}
+					},
+					{
+						"name": "Copy Data to SQL - V",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Set filename",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Copy Data to SQL - D",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BlobSource",
+								"recursive": true
+							},
+							"sink": {
+								"type": "SqlSink",
+								"writeBatchSize": 10000
+							},
+							"enableStaging": false,
+							"dataIntegrationUnits": 0,
+							"translator": {
+								"type": "TabularTranslator",
+								"columnMappings": {
+									"store_id": "store_id",
+									"date_id": "date_id",
+									"product_id": "product_id",
+									"stock_amt": "stock_amt"
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "AzureBlob_storesales_storesall",
+								"type": "DatasetReference",
+								"parameters": {
+									"FilePath": "storesales-source/store_01",
+									"FileName": {
+										"value": "@variables('var_file_name')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureSqlTable_storesales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copy Data to SQL - D",
+						"description": "Direct data copy from a file to a sql server table",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BlobSource",
+								"recursive": true
+							},
+							"sink": {
+								"type": "SqlSink",
+								"writeBatchSize": 10000
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"columnMappings": {
+									"store_id": "store_id",
+									"date_id": "date_id",
+									"product_id": "product_id",
+									"stock_amt": "stock_amt"
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "AzureBlob_storesales_store01_single",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureSqlTable_storesales",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"variables": {
+					"var_file_name": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Sample Pipelines"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/event_trigger_filecreate')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "bdata_adf_variable_append_pl",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"FilePath": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath')]",
+							"FileName": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName')]"
+						}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/salesdata/blobs/",
+					"scope": "[parameters('event_trigger_filecreate_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
