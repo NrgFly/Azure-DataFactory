@@ -114,6 +114,41 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "Message ID",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "CopyOneContainer",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"typeProperties": {
+								"variableName": "MessageID",
+								"value": {
+									"value": "@concat(utcnow(),'_',pipeline().RunId)",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Queue Message",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Message ID",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"typeProperties": {
+								"variableName": "Message",
+								"value": ""
+							}
 						}
 					]
 				}
@@ -127,10 +162,14 @@
 			"DestinationFilePath": {
 				"type": "String",
 				"defaultValue": "/storesalesfiles-staging"
+			}
+		},
+		"variables": {
+			"MessageID": {
+				"type": "String"
 			},
-			"par_email_address": {
-				"type": "String",
-				"defaultValue": "rimayev@hotmail.com"
+			"Message": {
+				"type": "String"
 			}
 		}
 	}
