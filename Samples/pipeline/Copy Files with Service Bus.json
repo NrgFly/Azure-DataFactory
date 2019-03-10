@@ -114,11 +114,11 @@
 		"parameters": {
 			"SourceFilePath": {
 				"type": "String",
-				"defaultValue": "/storesales"
+				"defaultValue": "/storesalesfiles"
 			},
 			"DestinationFilePath": {
 				"type": "String",
-				"defaultValue": "/storesales-staging"
+				"defaultValue": "/storesalesfiles-staging"
 			},
 			"par_email_address": {
 				"type": "String",
