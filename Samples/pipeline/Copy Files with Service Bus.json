@@ -152,6 +152,36 @@
 									"type": "Expression"
 								}
 							}
+						},
+						{
+							"name": "Send Queue Message",
+							"type": "WebActivity",
+							"dependsOn": [
+								{
+									"activity": "Queue Message",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"url": "https://prod-14.eastus2.logic.azure.com:443/workflows/6a0dc1f33be54f2b8f75ca9c835344b8/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=GkGC-3VSmcQEN6CC4yF8blYGg6mqO-URjSCBb0Ig38c",
+								"method": "POST",
+								"headers": {
+									"Content-Type": "application/json"
+								},
+								"body": {
+									"Message": "@variables('Message')",
+									"SessionID": "@pipeline().RunId"
+								}
+							}
 						}
 					]
 				}
