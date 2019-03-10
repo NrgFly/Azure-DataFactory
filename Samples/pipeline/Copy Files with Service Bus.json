@@ -84,11 +84,15 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "AzureBlobStorageSourceFileStore",
+									"referenceName": "Single_AzureBlobStorageSourceFileStore",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
 											"value": "@pipeline().parameters.SourceFilePath",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@item().name",
 											"type": "Expression"
 										}
 									}
@@ -96,11 +100,15 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "AzureBlobStorageSinkFileStore",
+									"referenceName": "Single_AzureBlobStorageSinkFileStore",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
 											"value": "@pipeline().parameters.DestinationFilePath",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@item().name",
 											"type": "Expression"
 										}
 									}
