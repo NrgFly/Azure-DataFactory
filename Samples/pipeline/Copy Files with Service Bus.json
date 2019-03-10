@@ -147,7 +147,10 @@
 							],
 							"typeProperties": {
 								"variableName": "Message",
-								"value": ""
+								"value": {
+									"value": "@concat('{\"MessageID\":\"', variables('MessageID'), '\",\"FileName\":\"', item().name, '\",\"FileSize\":\"', activity('CopyOneContainer').output.dataWritten,'\"}')",
+									"type": "Expression"
+								}
 							}
 						}
 					]
