@@ -1,0 +1,456 @@
+{
+	"name": "bdata_adf_service_bus_pl",
+	"properties": {
+		"description": "ADF pipeline with Email notifications",
+		"activities": [
+			{
+				"name": "Validate filename list",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Filenames Store 01",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "var_file_list_check",
+					"value": {
+						"value": "@variables('var_file_list')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Load data into SQL",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Validate filename list",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('var_file_list')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy Data Blob to SQL",
+							"type": "Copy",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"source": {
+									"type": "BlobSource",
+									"recursive": true
+								},
+								"sink": {
+									"type": "SqlSink",
+									"writeBatchSize": 10000
+								},
+								"enableStaging": false,
+								"dataIntegrationUnits": 0,
+								"translator": {
+									"type": "TabularTranslator",
+									"columnMappings": {
+										"store_id": "store_id",
+										"date_id": "date_id",
+										"product_id": "product_id",
+										"stock_amt": "stock_amt"
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "AzureBlob_storesales_storesall",
+									"type": "DatasetReference",
+									"parameters": {
+										"FilePath": "storesales",
+										"FileName": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureSqlTable_storesales",
+									"type": "DatasetReference"
+								}
+							]
+						},
+						{
+							"name": "Logging Copy Data",
+							"type": "AppendVariable",
+							"dependsOn": [
+								{
+									"activity": "Copy Data Blob to SQL",
+									"dependencyConditions": [
+										"Completed"
+									]
+								}
+							],
+							"typeProperties": {
+								"variableName": "var_logging",
+								"value": {
+									"value": "@concat('Copy Data Blob to SQL|Copy|',pipeline().DataFactory,'|',activity('Copy Data Blob to SQL').Duration,'|',activity('Copy Data Blob to SQL').Error,'|',activity('Copy Data Blob to SQL').ExecutionDetails,'|',activity('Copy Data Blob to SQL').ExecutionEndTime,'|',activity('Copy Data Blob to SQL').ExecutionStartTime,'|',activity('Copy Data Blob to SQL').JobId,'|',activity('Copy Data Blob to SQL').Output,'|',pipeline().Pipeline,'|',activity('Copy Data Blob to SQL').ActivityRunId,'|',activity('Copy Data Blob to SQL').Status,'|',activity('Copy Data Blob to SQL').StatusCode)\n",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Copy Data Errors",
+							"type": "WebActivity",
+							"dependsOn": [
+								{
+									"activity": "Copy Data Blob to SQL",
+									"dependencyConditions": [
+										"Skipped"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
+								"method": "POST",
+								"headers": {
+									"Content-Type": "application/json"
+								},
+								"body": {
+									"DataFactoryName": "@{pipeline().DataFactory}",
+									"PipelineName": "@{pipeline().Pipeline}",
+									"ErrorMessage": "@{activity('Copy Data Blob to SQL').Error.message}",
+									"EmailTo": "@pipeline().parameters.var_email_address"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Metadata Store 01",
+				"type": "GetMetadata",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "AzureBlob_storesales_store01",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					]
+				}
+			},
+			{
+				"name": "Filenames Store 01",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Metadata Store 01",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Metadata Store 01').output.childitems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Build filename list 01",
+							"type": "AppendVariable",
+							"typeProperties": {
+								"variableName": "var_file_list",
+								"value": {
+									"value": "@concat('store_01/',item().name)",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Logging Metadata",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Metadata Store 01",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "var_logging",
+					"value": {
+						"value": "@concat('Metadata Store 01|Copy|',pipeline().DataFactory,'|',activity('Metadata Store 01').Duration,'|',activity('Metadata Store 01').Error,'|',activity('Metadata Store 01').ExecutionDetails,'|',activity('Metadata Store 01').ExecutionEndTime,'|',activity('Metadata Store 01').ExecutionStartTime,'|',activity('Metadata Store 01').JobId,'|',activity('Metadata Store 01').Output,'|',pipeline().Pipeline,'|',activity('Metadata Store 01').ActivityRunId,'|',activity('Metadata Store 01').Status,'|',activity('Metadata Store 01').StatusCode)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Logging to SQL",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Logging Metadata",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "Load data into SQL",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('var_logging')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Stored Procedure",
+							"type": "SqlServerStoredProcedure",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[sp_adf_pipeline_log_update]",
+								"storedProcedureParameters": {
+									"ActivityTask": {
+										"value": {
+											"value": "@split(item(),'|')[0]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ActivityType": {
+										"value": {
+											"value": "@split(item(),'|')[1]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"DataFactory": {
+										"value": {
+											"value": "@split(item(),'|')[2]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Duration": {
+										"value": {
+											"value": "@split(item(),'|')[3]",
+											"type": "Expression"
+										},
+										"type": "TimeSpan"
+									},
+									"Error": {
+										"value": {
+											"value": "@split(item(),'|')[4]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ExecutionDetails": {
+										"value": {
+											"value": "@split(item(),'|')[5]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ExecutionEndTime": {
+										"value": {
+											"value": "@split(item(),'|')[6]",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"ExecutionStartTime": {
+										"value": {
+											"value": "@split(item(),'|')[7]",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"JobId": {
+										"value": {
+											"value": "@split(item(),'|')[8]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Output": {
+										"value": {
+											"value": "@split(item(),'|')[9]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Pipeline": {
+										"value": {
+											"value": "@split(item(),'|')[10]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"RunId": {
+										"value": {
+											"value": "@split(item(),'|')[11]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Status": {
+										"value": {
+											"value": "@split(item(),'|')[12]",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"StatusCode": {
+										"value": {
+											"value": "@split(item(),'|')[13]",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "AzureSqlDatabase_LS",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Check Failed Status",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Stored Procedure",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(split(item(),'|')[12], 'Failed')",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Failed Email Notification",
+										"type": "WebActivity",
+										"dependsOn": [
+											{
+												"activity": "Get Error Message",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"typeProperties": {
+											"url": "https://prod-29.eastus.logic.azure.com:443/workflows/b254c91f0139447aa4bf23657e729aff/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=c1ZLiBHQ2uyBi47Hc88M6S_JMPEbamGSJYEeI1YFQbU",
+											"method": "POST",
+											"headers": {
+												"Content-Type": "application/json"
+											},
+											"body": {
+												"DataFactoryName": "@{pipeline().DataFactory}",
+												"PipelineName": "@{pipeline().Pipeline}",
+												"ErrorMessage": "@variables('var_activity_error_message')",
+												"EmailTo": "@pipeline().parameters.var_email_address"
+											}
+										}
+									},
+									{
+										"name": "Get Error Message",
+										"type": "SetVariable",
+										"typeProperties": {
+											"variableName": "var_activity_error_message",
+											"value": {
+												"value": "@split(item(),'|')[4]",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"var_email_address": {
+				"type": "String",
+				"defaultValue": "rimayev@hotmail.com"
+			}
+		},
+		"variables": {
+			"var_file_list": {
+				"type": "Array"
+			},
+			"var_file_list_check": {
+				"type": "Array"
+			},
+			"var_logging": {
+				"type": "Array"
+			},
+			"var_logging_line": {
+				"type": "Array"
+			},
+			"var_activity_status": {
+				"type": "String"
+			},
+			"var_activity_error_message": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Sample Pipelines"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
