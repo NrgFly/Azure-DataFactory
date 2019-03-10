@@ -73,7 +73,7 @@
 							"typeProperties": {
 								"source": {
 									"type": "BlobSource",
-									"recursive": true
+									"recursive": false
 								},
 								"sink": {
 									"type": "BlobSink",
