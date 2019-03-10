@@ -47,7 +47,7 @@
 						"value": "@activity('EnumerateContainersList').output.childItems",
 						"type": "Expression"
 					},
-					"batchCount": 4,
+					"batchCount": 6,
 					"activities": [
 						{
 							"name": "CopyOneContainer",
