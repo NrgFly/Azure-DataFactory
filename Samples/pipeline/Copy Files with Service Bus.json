@@ -1,10 +1,9 @@
 {
 	"name": "Copy Files with Service Bus",
 	"properties": {
-		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another and Email Notification",
 		"activities": [
 			{
-				"name": "EnumerateContainersList",
+				"name": "List of files",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
 				"policy": {
@@ -36,7 +35,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "EnumerateContainersList",
+						"activity": "List of files",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -44,7 +43,7 @@
 				],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('EnumerateContainersList').output.childItems",
+						"value": "@activity('List of files').output.childItems",
 						"type": "Expression"
 					},
 					"batchCount": 1,
