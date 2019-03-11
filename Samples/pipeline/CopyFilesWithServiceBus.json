@@ -1,5 +1,5 @@
 {
-	"name": "Copy Files with Service Bus",
+	"name": "CopyFilesWithServiceBus",
 	"properties": {
 		"activities": [
 			{
