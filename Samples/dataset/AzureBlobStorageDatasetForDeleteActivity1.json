@@ -1,0 +1,27 @@
+{
+	"name": "AzureBlobStorageDatasetForDeleteActivity1",
+	"properties": {
+		"description": "Connect to your storage store to delete files.",
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FolderPath": {
+				"type": "String"
+			}
+		},
+		"type": "AzureBlob",
+		"typeProperties": {
+			"fileName": "*",
+			"folderPath": {
+				"value": "@dataset().FolderPath",
+				"type": "Expression"
+			},
+			"modifiedDatetimeEnd": {
+				"value": "@adddays(pipeline().TriggerTime, -30)",
+				"type": "Expression"
+			}
+		}
+	}
+}

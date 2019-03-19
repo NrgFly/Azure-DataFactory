@@ -1,0 +1,33 @@
+{
+	"name": "AzureBlobStorageDataDestination1",
+	"properties": {
+		"description": "It describes the destination store.",
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"path": {
+				"type": "String"
+			},
+			"filename": {
+				"type": "String"
+			}
+		},
+		"type": "AzureBlob",
+		"typeProperties": {
+			"format": {
+				"type": "TextFormat",
+				"treatEmptyAsNull": true
+			},
+			"fileName": {
+				"value": "@dataset().filename",
+				"type": "Expression"
+			},
+			"folderPath": {
+				"value": "@dataset().path",
+				"type": "Expression"
+			}
+		}
+	}
+}

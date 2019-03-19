@@ -1,0 +1,37 @@
+{
+	"name": "AzureBlobStorageDataSource_File1",
+	"properties": {
+		"description": "It describes the file in the data source store. ",
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"path": {
+				"type": "String"
+			},
+			"filename": {
+				"type": "String"
+			}
+		},
+		"type": "AzureBlob",
+		"typeProperties": {
+			"fileName": {
+				"value": "@dataset().filename",
+				"type": "Expression"
+			},
+			"folderPath": {
+				"value": "@dataset().path",
+				"type": "Expression"
+			},
+			"key": {
+				"value": "@dataset().filename",
+				"type": "Expression"
+			},
+			"bucketName": {
+				"value": "@dataset().path",
+				"type": "Expression"
+			}
+		}
+	}
+}
