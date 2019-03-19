@@ -1,9 +1,12 @@
 {
-	"name": "FileShare1",
+	"name": "Template_FileShare_ds",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "FileSystem_ls",
 			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Template Datasets"
 		},
 		"type": "FileShare",
 		"typeProperties": {
