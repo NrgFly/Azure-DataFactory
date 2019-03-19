@@ -16,7 +16,7 @@
 				"skipLineCount": 0,
 				"firstRowAsHeader": false
 			},
-			"fileName": "*",
+			"fileName": "*.txt",
 			"folderPath": "Move"
 		}
 	}
