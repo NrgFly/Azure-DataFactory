@@ -21,7 +21,7 @@
 				"type": "Expression"
 			},
 			"modifiedDatetimeEnd": {
-				"value": "@addseconds(pipeline().TriggerTime, -120)",
+				"value": "@addseconds(pipeline().TriggerTime, -10)",
 				"type": "Expression"
 			}
 		}
