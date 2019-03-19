@@ -136,7 +136,7 @@
 										}
 									}
 								},
-								"enableLogging": true
+								"enableLogging": false
 							}
 						}
 					]
