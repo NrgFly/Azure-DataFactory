@@ -1,5 +1,5 @@
 {
-	"name": "CopyFilesWithServiceBus",
+	"name": "CopyFiles_Message_ServiceBus",
 	"properties": {
 		"activities": [
 			{
@@ -15,7 +15,7 @@
 				},
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "AzureBlobStorageSourceFileStore",
+						"referenceName": "Template_wasb_source_ds",
 						"type": "DatasetReference",
 						"parameters": {
 							"folder": {
@@ -83,7 +83,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "Single_AzureBlobStorageSourceFileStore",
+									"referenceName": "Template_wasb_single_source_ds",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
@@ -99,7 +99,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "Single_AzureBlobStorageSinkFileStore",
+									"referenceName": "Template_wasb_single_sink_ds",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
