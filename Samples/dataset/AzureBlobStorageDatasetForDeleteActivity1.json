@@ -1,23 +1,21 @@
 {
-	"name": "Template_wasb_delete_time",
+	"name": "AzureBlobStorageDatasetForDeleteActivity1",
 	"properties": {
-		"description": "Connection to your source data store.",
+		"description": "Connect to your storage store to delete files.",
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage_LS",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"folder": {
+			"FolderPath": {
 				"type": "String"
 			}
 		},
-		"folder": {
-			"name": "Template Datasets"
-		},
 		"type": "AzureBlob",
 		"typeProperties": {
+			"fileName": "*",
 			"folderPath": {
-				"value": "@dataset().folder",
+				"value": "@dataset().FolderPath",
 				"type": "Expression"
 			},
 			"modifiedDatetimeEnd": {

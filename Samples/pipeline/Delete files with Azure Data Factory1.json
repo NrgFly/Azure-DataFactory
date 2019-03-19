@@ -1,5 +1,5 @@
 {
-	"name": "Delete files with Azure Data Factory Time",
+	"name": "Delete files with Azure Data Factory1",
 	"properties": {
 		"description": "Please input a folder path as the parameter for this pipeline, and the pipeline will delete files which were last modified more than 30 days ago under the particular folder path.",
 		"activities": [
@@ -15,24 +15,24 @@
 				},
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "Template_wasb_delete_time",
+						"referenceName": "AzureBlobStorageDatasetForDeleteActivity1",
 						"type": "DatasetReference",
 						"parameters": {
-							"folder": {
+							"FolderPath": {
 								"value": "@pipeline().parameters.FolderPath",
 								"type": "Expression"
 							}
 						}
 					},
 					"recursive": true,
-					"enableLogging": false
+					"enableLogging": true
 				}
 			}
 		],
 		"parameters": {
 			"FolderPath": {
 				"type": "String",
-				"defaultValue": "/storesales/store_01/"
+				"defaultValue": "/<mycontainer>/<myfolder>/"
 			}
 		}
 	}
