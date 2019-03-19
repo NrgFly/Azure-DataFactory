@@ -19,6 +19,10 @@
 			"folderPath": {
 				"value": "@dataset().folder",
 				"type": "Expression"
+			},
+			"modifiedDatetimeEnd": {
+				"value": "@adddays(pipeline().TriggerTime, -30)",
+				"type": "Expression"
 			}
 		}
 	}
