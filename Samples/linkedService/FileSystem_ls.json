@@ -1,0 +1,16 @@
+{
+	"name": "FileSystem_ls",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"type": "FileServer",
+		"typeProperties": {
+			"host": "C:\\Temp\\nars_files",
+			"userId": "rayis.imayev@mosaic.com",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJmMWNhNTk3Yy01MjU0LTQyMzQtOWE2Ni0zNGFiYzQ3NTM1ZTEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "integrationRuntimeFileSystem",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
