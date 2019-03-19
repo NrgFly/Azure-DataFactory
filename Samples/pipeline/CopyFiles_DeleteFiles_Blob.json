@@ -127,7 +127,7 @@
 							},
 							"typeProperties": {
 								"dataset": {
-									"referenceName": "AzureBlobStorageSourceFileStore",
+									"referenceName": "Template_wasb_delete",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {

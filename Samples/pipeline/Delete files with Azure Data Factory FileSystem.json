@@ -15,7 +15,7 @@
 				},
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "FileShare1",
+						"referenceName": "Template_FileShare_ds",
 						"type": "DatasetReference"
 					},
 					"recursive": true,
