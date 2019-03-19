@@ -16,7 +16,7 @@
 				},
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "AzureBlobStorageSourceFileStore",
+						"referenceName": "Template_wasb_source_ds",
 						"type": "DatasetReference",
 						"parameters": {
 							"folder": {
@@ -84,7 +84,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "AzureBlobStorageSourceFileStore",
+									"referenceName": "Template_wasb_source_ds",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
@@ -96,7 +96,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "AzureBlobStorageSinkFileStore",
+									"referenceName": "Template_wasb_sink_ds",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
