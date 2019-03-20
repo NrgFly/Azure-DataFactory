@@ -1,16 +1,23 @@
 {
 	"name": "FileSystem_ls",
-	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"type": "FileServer",
 		"typeProperties": {
-			"host": "C:\\Temp\\nars_files",
-			"userId": "rayis.imayev@mosaic.com",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJmMWNhNTk3Yy01MjU0LTQyMzQtOWE2Ni0zNGFiYzQ3NTM1ZTEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"host": "C:\\Temp\\test_delete",
+			"userId": "corp\\rayis.imayev",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault_LS",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "local-machine-account-password"
+			}
 		},
 		"connectVia": {
 			"referenceName": "integrationRuntimeFileSystem",
 			"type": "IntegrationRuntimeReference"
 		}
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
 }
