@@ -137,14 +137,7 @@
 									}
 								},
 								"recursive": true,
-								"logStorageSettings": {
-									"linkedServiceName": {
-										"referenceName": "AzureBlobStorage_LS",
-										"type": "LinkedServiceReference"
-									},
-									"path": "logging"
-								},
-								"enableLogging": true
+								"enableLogging": false
 							}
 						}
 					]
