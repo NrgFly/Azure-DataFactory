@@ -16,6 +16,7 @@
 		},
 		"type": "AzureBlob",
 		"typeProperties": {
+			"fileName": "*",
 			"folderPath": {
 				"value": "@dataset().folder",
 				"type": "Expression"

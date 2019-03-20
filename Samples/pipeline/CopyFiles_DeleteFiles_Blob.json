@@ -136,6 +136,7 @@
 										}
 									}
 								},
+								"recursive": true,
 								"logStorageSettings": {
 									"linkedServiceName": {
 										"referenceName": "AzureBlobStorage_LS",
