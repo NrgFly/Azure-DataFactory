@@ -1,0 +1,29 @@
+{
+	"name": "Template_wasb_delete_time",
+	"properties": {
+		"description": "Connection to your source data store.",
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"folder": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Template Datasets"
+		},
+		"type": "AzureBlob",
+		"typeProperties": {
+			"folderPath": {
+				"value": "@dataset().folder",
+				"type": "Expression"
+			},
+			"modifiedDatetimeEnd": {
+				"value": "@addseconds(pipeline().TriggerTime, -10)",
+				"type": "Expression"
+			}
+		}
+	}
+}

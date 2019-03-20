@@ -1,5 +1,5 @@
 {
-	"name": "Single_AzureBlobStorageSinkFileStore",
+	"name": "Template_wasb_single_sink_ds",
 	"properties": {
 		"description": "Connection to your destination data store.",
 		"linkedServiceName": {
@@ -13,6 +13,9 @@
 			"filename": {
 				"type": "String"
 			}
+		},
+		"folder": {
+			"name": "Template Datasets"
 		},
 		"type": "AzureBlob",
 		"typeProperties": {

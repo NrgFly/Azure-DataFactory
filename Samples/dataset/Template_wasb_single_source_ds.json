@@ -1,0 +1,32 @@
+{
+	"name": "Template_wasb_single_source_ds",
+	"properties": {
+		"description": "Connection to your source data store.",
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"folder": {
+				"type": "String"
+			},
+			"filename": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Template Datasets"
+		},
+		"type": "AzureBlob",
+		"typeProperties": {
+			"fileName": {
+				"value": "@dataset().filename",
+				"type": "Expression"
+			},
+			"folderPath": {
+				"value": "@dataset().folder",
+				"type": "Expression"
+			}
+		}
+	}
+}

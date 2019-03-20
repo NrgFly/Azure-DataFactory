@@ -1,0 +1,23 @@
+{
+	"name": "FileSystem_ls",
+	"properties": {
+		"type": "FileServer",
+		"typeProperties": {
+			"host": "C:\\Temp",
+			"userId": "corp\\rayis.imayev",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault_LS",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "local-machine-account-password"
+			}
+		},
+		"connectVia": {
+			"referenceName": "integrationRuntimeFileSystem",
+			"type": "IntegrationRuntimeReference"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
+}

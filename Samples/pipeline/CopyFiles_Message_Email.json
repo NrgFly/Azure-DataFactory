@@ -1,0 +1,161 @@
+{
+	"name": "CopyFiles_Message_Email",
+	"properties": {
+		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another and Email Notification",
+		"activities": [
+			{
+				"name": "EnumerateContainersList",
+				"description": "Scan the file path on your source storage store and get the container list.",
+				"type": "GetMetadata",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Template_wasb_source_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@pipeline().parameters.SourceFilePath",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"childItems"
+					]
+				}
+			},
+			{
+				"name": "ForEachContainer",
+				"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "EnumerateContainersList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('EnumerateContainersList').output.childItems",
+						"type": "Expression"
+					},
+					"batchCount": 4,
+					"activities": [
+						{
+							"name": "CopyOneContainer",
+							"description": "Copy each container from source storage store to destination store.",
+							"type": "Copy",
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "Source",
+									"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+								},
+								{
+									"name": "Destination",
+									"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+								}
+							],
+							"typeProperties": {
+								"source": {
+									"type": "BlobSource",
+									"recursive": true
+								},
+								"sink": {
+									"type": "BlobSink",
+									"copyBehavior": "PreserveHierarchy"
+								},
+								"enableStaging": false,
+								"dataIntegrationUnits": 0
+							},
+							"inputs": [
+								{
+									"referenceName": "Template_wasb_source_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"folder": {
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "Template_wasb_sink_ds",
+									"type": "DatasetReference",
+									"parameters": {
+										"folder": {
+											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Email Notification",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "ForEachContainer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"DataFactoryName": "@{pipeline().DataFactory}",
+						"PipelineName": "@{pipeline().Pipeline}",
+						"Message": "Copy Operation finished.",
+						"EmailTo": "@pipeline().parameters.par_email_address"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"SourceFilePath": {
+				"type": "String",
+				"defaultValue": "/storesales"
+			},
+			"DestinationFilePath": {
+				"type": "String",
+				"defaultValue": "/storesales-staging"
+			},
+			"par_email_address": {
+				"type": "String",
+				"defaultValue": "rimayev@hotmail.com"
+			}
+		}
+	}
+}

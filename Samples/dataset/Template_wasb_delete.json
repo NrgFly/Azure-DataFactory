@@ -1,5 +1,5 @@
 {
-	"name": "Single_AzureBlobStorageSourceFileStore",
+	"name": "Template_wasb_delete",
 	"properties": {
 		"description": "Connection to your source data store.",
 		"linkedServiceName": {
@@ -9,17 +9,14 @@
 		"parameters": {
 			"folder": {
 				"type": "String"
-			},
-			"filename": {
-				"type": "String"
 			}
+		},
+		"folder": {
+			"name": "Template Datasets"
 		},
 		"type": "AzureBlob",
 		"typeProperties": {
-			"fileName": {
-				"value": "@dataset().filename",
-				"type": "Expression"
-			},
+			"fileName": "*",
 			"folderPath": {
 				"value": "@dataset().folder",
 				"type": "Expression"

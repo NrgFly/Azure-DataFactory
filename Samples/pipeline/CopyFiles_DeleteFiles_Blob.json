@@ -1,5 +1,5 @@
 {
-	"name": "Copy Files with Email Notification",
+	"name": "CopyFiles_DeleteFiles_Blob",
 	"properties": {
 		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another and Email Notification",
 		"activities": [
@@ -16,7 +16,7 @@
 				},
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "AzureBlobStorageSourceFileStore",
+						"referenceName": "Template_wasb_source_ds",
 						"type": "DatasetReference",
 						"parameters": {
 							"folder": {
@@ -84,7 +84,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "AzureBlobStorageSourceFileStore",
+									"referenceName": "Template_wasb_source_ds",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
@@ -96,7 +96,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "AzureBlobStorageSinkFileStore",
+									"referenceName": "Template_wasb_sink_ds",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
@@ -106,40 +106,48 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "DeleteFiles",
+							"type": "Delete",
+							"dependsOn": [
+								{
+									"activity": "CopyOneContainer",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "Template_wasb_delete",
+									"type": "DatasetReference",
+									"parameters": {
+										"folder": {
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+											"type": "Expression"
+										}
+									}
+								},
+								"recursive": true,
+								"logStorageSettings": {
+									"linkedServiceName": {
+										"referenceName": "AzureBlobStorage_LS",
+										"type": "LinkedServiceReference"
+									},
+									"path": "logging"
+								},
+								"enableLogging": true
+							}
 						}
 					]
-				}
-			},
-			{
-				"name": "Email Notification",
-				"type": "WebActivity",
-				"dependsOn": [
-					{
-						"activity": "ForEachContainer",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"typeProperties": {
-					"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
-					"method": "POST",
-					"headers": {
-						"Content-Type": "application/json"
-					},
-					"body": {
-						"DataFactoryName": "@{pipeline().DataFactory}",
-						"PipelineName": "@{pipeline().Pipeline}",
-						"Message": "Copy Operation finished.",
-						"EmailTo": "@pipeline().parameters.par_email_address"
-					}
 				}
 			}
 		],

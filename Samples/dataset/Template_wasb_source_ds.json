@@ -1,5 +1,5 @@
 {
-	"name": "AzureBlobStorageSourceFileStore",
+	"name": "Template_wasb_source_ds",
 	"properties": {
 		"description": "Connection to your source data store.",
 		"linkedServiceName": {
@@ -10,6 +10,9 @@
 			"folder": {
 				"type": "String"
 			}
+		},
+		"folder": {
+			"name": "Template Datasets"
 		},
 		"type": "AzureBlob",
 		"typeProperties": {

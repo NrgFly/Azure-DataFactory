@@ -1,0 +1,26 @@
+{
+	"name": "Template_FileShare_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "FileSystem_ls",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Template Datasets"
+		},
+		"type": "FileShare",
+		"typeProperties": {
+			"format": {
+				"type": "TextFormat",
+				"columnDelimiter": ",",
+				"rowDelimiter": "",
+				"nullValue": "\\N",
+				"treatEmptyAsNull": true,
+				"skipLineCount": 0,
+				"firstRowAsHeader": false
+			},
+			"fileName": "*.txt",
+			"folderPath": "Move"
+		}
+	}
+}
