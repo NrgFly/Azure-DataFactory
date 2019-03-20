@@ -3,7 +3,7 @@
 	"properties": {
 		"type": "FileServer",
 		"typeProperties": {
-			"host": "C:\\Temp\\test_delete",
+			"host": "C:\\Temp",
 			"userId": "corp\\rayis.imayev",
 			"password": {
 				"type": "AzureKeyVaultSecret",
