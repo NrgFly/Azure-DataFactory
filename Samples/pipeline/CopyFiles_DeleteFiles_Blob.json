@@ -164,6 +164,9 @@
 				"type": "String",
 				"defaultValue": "rimayev@hotmail.com"
 			}
+		},
+		"folder": {
+			"name": "Copy Activity"
 		}
 	}
 }

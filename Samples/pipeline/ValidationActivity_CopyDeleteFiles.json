@@ -1,9 +1,10 @@
 {
-	"name": "CopyFiles_Message_ServiceBus",
+	"name": "ValidationActivity_CopyDeleteFiles",
 	"properties": {
+		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another and Email Notification",
 		"activities": [
 			{
-				"name": "List of files",
+				"name": "EnumerateContainersList",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
 				"policy": {
@@ -35,7 +36,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "List of files",
+						"activity": "EnumerateContainersList",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -43,10 +44,10 @@
 				],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('List of files').output.childItems",
+						"value": "@activity('EnumerateContainersList').output.childItems",
 						"type": "Expression"
 					},
-					"batchCount": 1,
+					"batchCount": 4,
 					"activities": [
 						{
 							"name": "CopyOneContainer",
@@ -83,15 +84,11 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "Template_wasb_single_source_ds",
+									"referenceName": "Template_wasb_source_ds",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
-											"value": "@pipeline().parameters.SourceFilePath",
-											"type": "Expression"
-										},
-										"filename": {
-											"value": "@item().name",
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
 											"type": "Expression"
 										}
 									}
@@ -99,15 +96,11 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "Template_wasb_single_sink_ds",
+									"referenceName": "Template_wasb_sink_ds",
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
-											"value": "@pipeline().parameters.DestinationFilePath",
-											"type": "Expression"
-										},
-										"filename": {
-											"value": "@item().name",
+											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)",
 											"type": "Expression"
 										}
 									}
@@ -115,49 +108,11 @@
 							]
 						},
 						{
-							"name": "Message ID",
-							"type": "SetVariable",
+							"name": "DeleteFiles",
+							"type": "Delete",
 							"dependsOn": [
 								{
 									"activity": "CopyOneContainer",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"typeProperties": {
-								"variableName": "MessageID",
-								"value": {
-									"value": "@concat(utcnow(),'_',pipeline().RunId)",
-									"type": "Expression"
-								}
-							}
-						},
-						{
-							"name": "Queue Message",
-							"type": "SetVariable",
-							"dependsOn": [
-								{
-									"activity": "Message ID",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"typeProperties": {
-								"variableName": "Message",
-								"value": {
-									"value": "@concat('{\"MessageID\":\"', variables('MessageID'), '\",\"FileName\":\"', item().name, '\",\"FileSize\":\"', activity('CopyOneContainer').output.dataWritten,'\"}')",
-									"type": "Expression"
-								}
-							}
-						},
-						{
-							"name": "Send Queue Message",
-							"type": "WebActivity",
-							"dependsOn": [
-								{
-									"activity": "Queue Message",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -171,15 +126,25 @@
 								"secureInput": false
 							},
 							"typeProperties": {
-								"url": "https://prod-14.eastus2.logic.azure.com:443/workflows/6a0dc1f33be54f2b8f75ca9c835344b8/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=GkGC-3VSmcQEN6CC4yF8blYGg6mqO-URjSCBb0Ig38c",
-								"method": "POST",
-								"headers": {
-									"Content-Type": "application/json"
+								"dataset": {
+									"referenceName": "Template_wasb_delete",
+									"type": "DatasetReference",
+									"parameters": {
+										"folder": {
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+											"type": "Expression"
+										}
+									}
 								},
-								"body": {
-									"Message": "@variables('Message')",
-									"SessionID": "@pipeline().RunId"
-								}
+								"recursive": true,
+								"logStorageSettings": {
+									"linkedServiceName": {
+										"referenceName": "AzureBlobStorage_LS",
+										"type": "LinkedServiceReference"
+									},
+									"path": "logging"
+								},
+								"enableLogging": true
 							}
 						}
 					]
@@ -189,23 +154,19 @@
 		"parameters": {
 			"SourceFilePath": {
 				"type": "String",
-				"defaultValue": "/storesalesfiles"
+				"defaultValue": "/storesales"
 			},
 			"DestinationFilePath": {
 				"type": "String",
-				"defaultValue": "/storesalesfiles-staging"
-			}
-		},
-		"variables": {
-			"MessageID": {
-				"type": "String"
+				"defaultValue": "/storesales-staging"
 			},
-			"Message": {
-				"type": "String"
+			"par_email_address": {
+				"type": "String",
+				"defaultValue": "rimayev@hotmail.com"
 			}
 		},
 		"folder": {
-			"name": "Copy Activity"
+			"name": "Validation Activity"
 		}
 	}
 }
