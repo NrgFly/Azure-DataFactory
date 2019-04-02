@@ -7,6 +7,14 @@
 				"name": "EnumerateContainersList",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
+				"dependsOn": [
+					{
+						"activity": "If Folder is not Empty",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -148,6 +156,101 @@
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "Email Notification",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "If Folder is Empty",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"DataFactoryName": "@{pipeline().DataFactory}",
+						"PipelineName": "@{pipeline().Pipeline}",
+						"Message": "Copy Operation finished.",
+						"EmailTo": "@pipeline().parameters.par_email_address"
+					}
+				}
+			},
+			{
+				"name": "If Folder is not Empty",
+				"type": "Validation",
+				"typeProperties": {
+					"timeout": "7.00:00:00",
+					"sleep": 10
+				}
+			},
+			{
+				"name": "Check if File exists",
+				"type": "Validation",
+				"typeProperties": {
+					"timeout": "7.00:00:00",
+					"sleep": 10
+				}
+			},
+			{
+				"name": "If Folder is Empty",
+				"type": "Validation",
+				"dependsOn": [
+					{
+						"activity": "ForEachContainer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Run Calculations",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"timeout": "7.00:00:00",
+					"sleep": 10
+				}
+			},
+			{
+				"name": "Run Calculations",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Check if File exists",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ForEachContainer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
 				}
 			}
 		],
