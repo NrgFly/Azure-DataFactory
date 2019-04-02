@@ -192,8 +192,18 @@
 				"name": "Check If Folder exists",
 				"type": "Validation",
 				"typeProperties": {
+					"dataset": {
+						"referenceName": "Template_wasb_source_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@pipeline().parameters.SourceFilePath",
+								"type": "Expression"
+							}
+						}
+					},
 					"timeout": "7.00:00:00",
-					"sleep": 10
+					"sleep": 1
 				}
 			},
 			{
@@ -208,8 +218,19 @@
 					}
 				],
 				"typeProperties": {
+					"dataset": {
+						"referenceName": "Template_wasb_source_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@pipeline().parameters.SourceFilePath",
+								"type": "Expression"
+							}
+						}
+					},
 					"timeout": "7.00:00:00",
-					"sleep": 10
+					"sleep": 1,
+					"childItems": true
 				}
 			},
 			{
@@ -224,8 +245,19 @@
 					}
 				],
 				"typeProperties": {
+					"dataset": {
+						"referenceName": "Template_wasb_source_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@pipeline().parameters.SourceFilePath",
+								"type": "Expression"
+							}
+						}
+					},
 					"timeout": "7.00:00:00",
-					"sleep": 10
+					"sleep": 1,
+					"childItems": false
 				}
 			},
 			{
