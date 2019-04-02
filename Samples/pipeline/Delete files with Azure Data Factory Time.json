@@ -34,6 +34,9 @@
 				"type": "String",
 				"defaultValue": "/storesales/store_01/"
 			}
+		},
+		"folder": {
+			"name": "Delete Activity"
 		}
 	}
 }
