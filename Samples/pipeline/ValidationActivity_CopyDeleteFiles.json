@@ -183,7 +183,7 @@
 				}
 			},
 			{
-				"name": "If Folder is not Empty",
+				"name": "Check If Folder exists",
 				"type": "Validation",
 				"typeProperties": {
 					"timeout": "7.00:00:00",
@@ -195,7 +195,7 @@
 				"type": "Validation",
 				"dependsOn": [
 					{
-						"activity": "If Folder is not Empty",
+						"activity": "Check If Folder exists",
 						"dependencyConditions": [
 							"Succeeded"
 						]
