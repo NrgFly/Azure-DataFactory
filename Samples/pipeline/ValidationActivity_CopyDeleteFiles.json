@@ -6,14 +6,6 @@
 				"name": "EnumerateContainersList",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
-				"dependsOn": [
-					{
-						"activity": "Check If Folder exists",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -215,6 +207,14 @@
 			{
 				"name": "Check if File exists",
 				"type": "Validation",
+				"dependsOn": [
+					{
+						"activity": "Check If Folder exists",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"typeProperties": {
 					"dataset": {
 						"referenceName": "validation_adls_source_ds",
