@@ -1,5 +1,5 @@
 {
-	"name": "Validation_adls_ds",
+	"name": "validation_adls_source_ds",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStore_ls",
