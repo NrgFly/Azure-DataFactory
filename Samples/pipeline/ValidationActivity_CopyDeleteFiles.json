@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "EnumerateContainersList",
-				"description": "Scan the file path on your source storage store and get the container list.",
+				"name": "EnumerateFolderList",
+				"description": "Scan the file path on your source ADLS and get the container list.",
 				"type": "GetMetadata",
 				"policy": {
 					"timeout": "7.00:00:00",
@@ -30,12 +30,12 @@
 				}
 			},
 			{
-				"name": "ForEachContainer",
-				"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
+				"name": "ForEachFolder",
+				"description": "Get the folder list from Metadata activity and then iterates each of them to Copy activity.",
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "EnumerateContainersList",
+						"activity": "EnumerateFolderList",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -43,14 +43,14 @@
 				],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('EnumerateContainersList').output.childItems",
+						"value": "@activity('EnumerateFolderList').output.childItems",
 						"type": "Expression"
 					},
 					"batchCount": 4,
 					"activities": [
 						{
-							"name": "CopyOneContainer",
-							"description": "Copy each container from source storage store to destination store.",
+							"name": "CopyOneFolder",
+							"description": "Copy each folder from source ADLS to destination ADLS folder.",
 							"type": "Copy",
 							"policy": {
 								"timeout": "7.00:00:00",
@@ -110,7 +110,7 @@
 							"type": "Delete",
 							"dependsOn": [
 								{
-									"activity": "CopyOneContainer",
+									"activity": "CopyOneFolder",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -236,7 +236,7 @@
 				"type": "Validation",
 				"dependsOn": [
 					{
-						"activity": "ForEachContainer",
+						"activity": "ForEachFolder",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -269,7 +269,7 @@
 						]
 					},
 					{
-						"activity": "ForEachContainer",
+						"activity": "ForEachFolder",
 						"dependencyConditions": [
 							"Succeeded"
 						]
