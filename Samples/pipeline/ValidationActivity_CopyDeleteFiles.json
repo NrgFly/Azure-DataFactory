@@ -1,20 +1,11 @@
 {
 	"name": "ValidationActivity_CopyDeleteFiles",
 	"properties": {
-		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another and Email Notification",
 		"activities": [
 			{
 				"name": "EnumerateContainersList",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
-				"dependsOn": [
-					{
-						"activity": "Check If Folder exists",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -24,10 +15,10 @@
 				},
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "Template_wasb_source_ds",
+						"referenceName": "validation_adls_source_ds",
 						"type": "DatasetReference",
 						"parameters": {
-							"folder": {
+							"FileFolder": {
 								"value": "@pipeline().parameters.SourceFilePath",
 								"type": "Expression"
 							}
@@ -80,22 +71,21 @@
 							],
 							"typeProperties": {
 								"source": {
-									"type": "BlobSource",
+									"type": "AzureDataLakeStoreSource",
 									"recursive": true
 								},
 								"sink": {
-									"type": "BlobSink",
-									"copyBehavior": "PreserveHierarchy"
+									"type": "AzureDataLakeStoreSink"
 								},
 								"enableStaging": false,
 								"dataIntegrationUnits": 0
 							},
 							"inputs": [
 								{
-									"referenceName": "Template_wasb_source_ds",
+									"referenceName": "validation_adls_source_ds",
 									"type": "DatasetReference",
 									"parameters": {
-										"folder": {
+										"FileFolder": {
 											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
 											"type": "Expression"
 										}
@@ -104,10 +94,10 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "Template_wasb_sink_ds",
+									"referenceName": "validation_adls_source_ds",
 									"type": "DatasetReference",
 									"parameters": {
-										"folder": {
+										"FileFolder": {
 											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)",
 											"type": "Expression"
 										}
@@ -135,10 +125,10 @@
 							},
 							"typeProperties": {
 								"dataset": {
-									"referenceName": "Template_wasb_delete",
+									"referenceName": "validation_adls_source_ds",
 									"type": "DatasetReference",
 									"parameters": {
-										"folder": {
+										"FileFolder": {
 											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
 											"type": "Expression"
 										}
@@ -169,7 +159,7 @@
 						]
 					},
 					{
-						"activity": "If Target is not Empty",
+						"activity": "Check if Folder empty",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -201,10 +191,10 @@
 				"type": "Validation",
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "Template_wasb_source_ds",
+						"referenceName": "validation_adls_source_ds",
 						"type": "DatasetReference",
 						"parameters": {
-							"folder": {
+							"FileFolder": {
 								"value": "@pipeline().parameters.SourceFilePath",
 								"type": "Expression"
 							}
@@ -217,12 +207,20 @@
 			{
 				"name": "Check if File exists",
 				"type": "Validation",
+				"dependsOn": [
+					{
+						"activity": "Check If Folder exists",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "Template_wasb_source_ds",
+						"referenceName": "validation_adls_source_ds",
 						"type": "DatasetReference",
 						"parameters": {
-							"folder": {
+							"FileFolder": {
 								"value": "@pipeline().parameters.SourceFilePath",
 								"type": "Expression"
 							}
@@ -234,7 +232,7 @@
 				}
 			},
 			{
-				"name": "If Target is not Empty",
+				"name": "Check if Folder empty",
 				"type": "Validation",
 				"dependsOn": [
 					{
@@ -246,18 +244,18 @@
 				],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "Template_wasb_sink_ds",
+						"referenceName": "validation_adls_source_ds",
 						"type": "DatasetReference",
 						"parameters": {
-							"folder": {
-								"value": "@pipeline().parameters.DestinationFilePath",
+							"FileFolder": {
+								"value": "@pipeline().parameters.SourceFilePath",
 								"type": "Expression"
 							}
 						}
 					},
 					"timeout": "7.00:00:00",
 					"sleep": 1,
-					"childItems": true
+					"childItems": false
 				}
 			},
 			{
