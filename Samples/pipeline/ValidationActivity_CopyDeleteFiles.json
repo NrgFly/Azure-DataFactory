@@ -284,6 +284,9 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
+				"typeProperties": {
+					"notebookPath": "/Notebooks/SampleNotebookScala"
+				},
 				"linkedServiceName": {
 					"referenceName": "azuredatabricks_bigdata_ls",
 					"type": "LinkedServiceReference"
