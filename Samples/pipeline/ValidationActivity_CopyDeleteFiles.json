@@ -159,6 +159,12 @@
 						"dependencyConditions": [
 							"Succeeded"
 						]
+					},
+					{
+						"activity": "Run Calculations",
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
 				],
 				"policy": {
@@ -212,12 +218,6 @@
 				"dependsOn": [
 					{
 						"activity": "ForEachContainer",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "Run Calculations",
 						"dependencyConditions": [
 							"Succeeded"
 						]
