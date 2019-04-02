@@ -163,13 +163,13 @@
 				"type": "WebActivity",
 				"dependsOn": [
 					{
-						"activity": "If Folder is Empty",
+						"activity": "Run Calculations",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					},
 					{
-						"activity": "Run Calculations",
+						"activity": "If Target is not Empty",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -234,7 +234,7 @@
 				}
 			},
 			{
-				"name": "If Folder is Empty",
+				"name": "If Target is not Empty",
 				"type": "Validation",
 				"dependsOn": [
 					{
@@ -246,15 +246,18 @@
 				],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "Template_wasb_source_ds",
+						"referenceName": "Template_wasb_sink_ds",
 						"type": "DatasetReference",
 						"parameters": {
-							"folder": "/"
+							"folder": {
+								"value": "@pipeline().parameters.DestinationFilePath",
+								"type": "Expression"
+							}
 						}
 					},
 					"timeout": "7.00:00:00",
 					"sleep": 1,
-					"childItems": false
+					"childItems": true
 				}
 			},
 			{
