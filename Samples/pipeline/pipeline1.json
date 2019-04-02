@@ -1,0 +1,15 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Validation Activity",
+				"type": "Validation",
+				"typeProperties": {
+					"timeout": "7.00:00:00",
+					"sleep": 10
+				}
+			}
+		]
+	}
+}
