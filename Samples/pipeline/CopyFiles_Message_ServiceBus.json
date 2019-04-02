@@ -203,6 +203,9 @@
 			"Message": {
 				"type": "String"
 			}
+		},
+		"folder": {
+			"name": "Copy Activity"
 		}
 	}
 }
