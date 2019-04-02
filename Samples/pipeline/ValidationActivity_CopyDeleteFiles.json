@@ -249,10 +249,7 @@
 						"referenceName": "Template_wasb_source_ds",
 						"type": "DatasetReference",
 						"parameters": {
-							"folder": {
-								"value": "@pipeline().parameters.SourceFilePath",
-								"type": "Expression"
-							}
+							"folder": "/"
 						}
 					},
 					"timeout": "7.00:00:00",
