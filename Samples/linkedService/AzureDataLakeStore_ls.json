@@ -1,0 +1,13 @@
+{
+	"name": "AzureDataLakeStore_ls",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"type": "AzureDataLakeStore",
+		"typeProperties": {
+			"dataLakeStoreUri": "https://azueus2devadlsbdatalake.azuredatalakestore.net/webhdfs/v1",
+			"tenant": "31d5acce-99ba-40b7-b2a1-f329e04fe742",
+			"subscriptionId": "6c405d27-de5e-483c-9a68-0aaaad20b363",
+			"resourceGroupName": "big_data"
+		}
+	}
+}
