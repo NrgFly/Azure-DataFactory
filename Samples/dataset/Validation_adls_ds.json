@@ -1,0 +1,30 @@
+{
+	"name": "Validation_adls_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStore_ls",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FileFolder": {
+				"type": "String"
+			}
+		},
+		"type": "AzureDataLakeStoreFile",
+		"typeProperties": {
+			"format": {
+				"type": "TextFormat",
+				"columnDelimiter": ",",
+				"rowDelimiter": "",
+				"nullValue": "\\N",
+				"treatEmptyAsNull": true,
+				"skipLineCount": 0,
+				"firstRowAsHeader": false
+			},
+			"folderPath": {
+				"value": "@dataset().FileFolder",
+				"type": "Expression"
+			}
+		}
+	}
+}
