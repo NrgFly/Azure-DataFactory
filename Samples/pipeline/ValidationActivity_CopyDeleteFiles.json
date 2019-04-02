@@ -7,14 +7,6 @@
 				"name": "EnumerateContainersList",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
-				"dependsOn": [
-					{
-						"activity": "If Folder is not Empty",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -201,6 +193,14 @@
 			{
 				"name": "Check if File exists",
 				"type": "Validation",
+				"dependsOn": [
+					{
+						"activity": "If Folder is not Empty",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"typeProperties": {
 					"timeout": "7.00:00:00",
 					"sleep": 10
@@ -251,6 +251,10 @@
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
 					"secureInput": false
+				},
+				"linkedServiceName": {
+					"referenceName": "azuredatabricks_bigdata_ls",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
