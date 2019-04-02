@@ -15,17 +15,9 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_LS'"
 		},
-		"AzureBlobStorageSinkFileStore_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": ""
-		},
-		"AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().folder"
-		},
-		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().folder"
+		"azuredatabricks_bigdata_ls_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'azuredatabricks_bigdata_ls'"
 		},
 		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 			"type": "string",
@@ -83,9 +75,61 @@
 			"type": "string",
 			"defaultValue": "@dataset().FilePath"
 		},
+		"Template_FileShare_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "*.txt"
+		},
+		"Template_FileShare_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "Move"
+		},
+		"Template_wasb_delete_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "*"
+		},
+		"Template_wasb_delete_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_delete_time_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().filename"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().filename"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_source_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
 		"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://azueus2bdatakvt.vault.azure.net/"
+		},
+		"FileSystem_ls_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "corp\\rayis.imayev"
 		},
 		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
 			"type": "string",
@@ -105,7 +149,7 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Copy Files with Email Notification')]",
+			"name": "[concat(parameters('factoryName'), '/CopyFiles_DeleteFiles_Blob')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -126,7 +170,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
-								"referenceName": "AzureBlobStorageSourceFileStore",
+								"referenceName": "Template_wasb_source_ds",
 								"type": "DatasetReference",
 								"parameters": {
 									"folder": {
@@ -196,7 +240,7 @@
 									},
 									"inputs": [
 										{
-											"referenceName": "AzureBlobStorageSourceFileStore",
+											"referenceName": "Template_wasb_source_ds",
 											"type": "DatasetReference",
 											"parameters": {
 												"folder": {
@@ -208,7 +252,193 @@
 									],
 									"outputs": [
 										{
-											"referenceName": "AzureBlobStorageSinkFileStore",
+											"referenceName": "Template_wasb_sink_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "DeleteFiles",
+									"type": "Delete",
+									"dependsOn": [
+										{
+											"activity": "CopyOneContainer",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "Template_wasb_delete",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										},
+										"recursive": true,
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "AzureBlobStorage_LS",
+												"type": "LinkedServiceReference"
+											},
+											"path": "logging"
+										},
+										"enableLogging": true
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"SourceFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales"
+					},
+					"DestinationFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales-staging"
+					},
+					"par_email_address": {
+						"type": "String",
+						"defaultValue": "rimayev@hotmail.com"
+					}
+				},
+				"folder": {
+					"name": "Copy Activity"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_sink_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_delete')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyFiles_Message_Email')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Copy all files across multiple containers or buckets from one file-based storage store to another and Email Notification",
+				"activities": [
+					{
+						"name": "EnumerateContainersList",
+						"description": "Scan the file path on your source storage store and get the container list.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_wasb_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							]
+						}
+					},
+					{
+						"name": "ForEachContainer",
+						"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "EnumerateContainersList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('EnumerateContainersList').output.childItems",
+								"type": "Expression"
+							},
+							"batchCount": 4,
+							"activities": [
+								{
+									"name": "CopyOneContainer",
+									"description": "Copy each container from source storage store to destination store.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+										},
+										{
+											"name": "Destination",
+											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "BlobSource",
+											"recursive": true
+										},
+										"sink": {
+											"type": "BlobSink",
+											"copyBehavior": "PreserveHierarchy"
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 0
+									},
+									"inputs": [
+										{
+											"referenceName": "Template_wasb_source_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Template_wasb_sink_ds",
 											"type": "DatasetReference",
 											"parameters": {
 												"folder": {
@@ -270,11 +500,670 @@
 						"defaultValue": "rimayev@hotmail.com"
 					}
 				},
+				"folder": {
+					"name": "Copy Activity"
+				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/AzureBlobStorageSourceFileStore')]",
-				"[concat(variables('factoryId'), '/datasets/AzureBlobStorageSinkFileStore')]"
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_sink_ds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyFiles_Message_ServiceBus')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "List of files",
+						"description": "Scan the file path on your source storage store and get the container list.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_wasb_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							]
+						}
+					},
+					{
+						"name": "ForEachContainer",
+						"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "List of files",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('List of files').output.childItems",
+								"type": "Expression"
+							},
+							"batchCount": 1,
+							"activities": [
+								{
+									"name": "CopyOneContainer",
+									"description": "Copy each container from source storage store to destination store.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+										},
+										{
+											"name": "Destination",
+											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "BlobSource",
+											"recursive": true
+										},
+										"sink": {
+											"type": "BlobSink",
+											"copyBehavior": "PreserveHierarchy"
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 0
+									},
+									"inputs": [
+										{
+											"referenceName": "Template_wasb_single_source_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.SourceFilePath",
+													"type": "Expression"
+												},
+												"filename": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Template_wasb_single_sink_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.DestinationFilePath",
+													"type": "Expression"
+												},
+												"filename": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Message ID",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "CopyOneContainer",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "MessageID",
+										"value": {
+											"value": "@concat(utcnow(),'_',pipeline().RunId)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Queue Message",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Message ID",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "Message",
+										"value": {
+											"value": "@concat('{\"MessageID\":\"', variables('MessageID'), '\",\"FileName\":\"', item().name, '\",\"FileSize\":\"', activity('CopyOneContainer').output.dataWritten,'\"}')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Send Queue Message",
+									"type": "WebActivity",
+									"dependsOn": [
+										{
+											"activity": "Queue Message",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": "https://prod-14.eastus2.logic.azure.com:443/workflows/6a0dc1f33be54f2b8f75ca9c835344b8/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=GkGC-3VSmcQEN6CC4yF8blYGg6mqO-URjSCBb0Ig38c",
+										"method": "POST",
+										"headers": {
+											"Content-Type": "application/json"
+										},
+										"body": {
+											"Message": "@variables('Message')",
+											"SessionID": "@pipeline().RunId"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"SourceFilePath": {
+						"type": "String",
+						"defaultValue": "/storesalesfiles"
+					},
+					"DestinationFilePath": {
+						"type": "String",
+						"defaultValue": "/storesalesfiles-staging"
+					}
+				},
+				"variables": {
+					"MessageID": {
+						"type": "String"
+					},
+					"Message": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Copy Activity"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_single_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_single_sink_ds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete files with Azure Data Factory FileSystem')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Please input a folder path as the parameter for this pipeline, and the pipeline will delete files which were last modified more than 30 days ago under the particular folder path.",
+				"activities": [
+					{
+						"name": "DeleteFiles",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_FileShare_ds",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"recursive": true,
+							"enableLogging": false
+						}
+					}
+				],
+				"parameters": {
+					"FolderPath": {
+						"type": "String",
+						"defaultValue": "/<mycontainer>/<myfolder>/"
+					}
+				},
+				"folder": {
+					"name": "Delete Activity"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_FileShare_ds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Delete files with Azure Data Factory Time')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Please input a folder path as the parameter for this pipeline, and the pipeline will delete files which were last modified more than 30 days ago under the particular folder path.",
+				"activities": [
+					{
+						"name": "DeleteFiles",
+						"type": "Delete",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_wasb_delete_time",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.FolderPath",
+										"type": "Expression"
+									}
+								}
+							},
+							"recursive": true,
+							"enableLogging": false
+						}
+					}
+				],
+				"parameters": {
+					"FolderPath": {
+						"type": "String",
+						"defaultValue": "/storesales/store_01/"
+					}
+				},
+				"folder": {
+					"name": "Delete Activity"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_delete_time')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ValidationActivity_CopyDeleteFiles')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Copy all files across multiple containers or buckets from one file-based storage store to another and Email Notification",
+				"activities": [
+					{
+						"name": "EnumerateContainersList",
+						"description": "Scan the file path on your source storage store and get the container list.",
+						"type": "GetMetadata",
+						"dependsOn": [
+							{
+								"activity": "Check If Folder exists",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_wasb_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							]
+						}
+					},
+					{
+						"name": "ForEachContainer",
+						"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "EnumerateContainersList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('EnumerateContainersList').output.childItems",
+								"type": "Expression"
+							},
+							"batchCount": 4,
+							"activities": [
+								{
+									"name": "CopyOneContainer",
+									"description": "Copy each container from source storage store to destination store.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+										},
+										{
+											"name": "Destination",
+											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "BlobSource",
+											"recursive": true
+										},
+										"sink": {
+											"type": "BlobSink",
+											"copyBehavior": "PreserveHierarchy"
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 0
+									},
+									"inputs": [
+										{
+											"referenceName": "Template_wasb_source_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Template_wasb_sink_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "DeleteFiles",
+									"type": "Delete",
+									"dependsOn": [
+										{
+											"activity": "CopyOneContainer",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "Template_wasb_delete",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										},
+										"recursive": true,
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "AzureBlobStorage_LS",
+												"type": "LinkedServiceReference"
+											},
+											"path": "logging"
+										},
+										"enableLogging": true
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Email Notification",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Run Calculations",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "If Target is not Empty",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"DataFactoryName": "@{pipeline().DataFactory}",
+								"PipelineName": "@{pipeline().Pipeline}",
+								"Message": "Copy Operation finished.",
+								"EmailTo": "@pipeline().parameters.par_email_address"
+							}
+						}
+					},
+					{
+						"name": "Check If Folder exists",
+						"type": "Validation",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_wasb_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"timeout": "7.00:00:00",
+							"sleep": 1
+						}
+					},
+					{
+						"name": "Check if File exists",
+						"type": "Validation",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_wasb_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"timeout": "7.00:00:00",
+							"sleep": 1,
+							"childItems": true
+						}
+					},
+					{
+						"name": "If Target is not Empty",
+						"type": "Validation",
+						"dependsOn": [
+							{
+								"activity": "ForEachContainer",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_wasb_sink_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.DestinationFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"timeout": "7.00:00:00",
+							"sleep": 1,
+							"childItems": true
+						}
+					},
+					{
+						"name": "Run Calculations",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Check if File exists",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "ForEachContainer",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Notebooks/SampleNotebookScala"
+						},
+						"linkedServiceName": {
+							"referenceName": "azuredatabricks_bigdata_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"parameters": {
+					"SourceFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales"
+					},
+					"DestinationFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales-staging"
+					},
+					"par_email_address": {
+						"type": "String",
+						"defaultValue": "rimayev@hotmail.com"
+					}
+				},
+				"folder": {
+					"name": "Validation Activity"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_sink_ds')]",
+				"[concat(variables('factoryId'), '/linkedServices/azuredatabricks_bigdata_ls')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_delete')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
 			]
 		},
 		{
@@ -1824,63 +2713,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureBlobStorageSinkFileStore')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Connection to your destination data store.",
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage_LS",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"folder": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"type": "AzureBlob",
-				"typeProperties": {
-					"fileName": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_fileName')]",
-					"folderPath": {
-						"value": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath')]",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureBlobStorageSourceFileStore')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Connection to your source data store.",
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage_LS",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"folder": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"type": "AzureBlob",
-				"typeProperties": {
-					"folderPath": {
-						"value": "[parameters('AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath')]",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlob_bgdata_daily')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2337,6 +3169,244 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Template_FileShare_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "FileSystem_ls",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "FileShare",
+				"typeProperties": {
+					"format": {
+						"type": "TextFormat",
+						"columnDelimiter": ",",
+						"rowDelimiter": "",
+						"nullValue": "\\N",
+						"treatEmptyAsNull": true,
+						"skipLineCount": 0,
+						"firstRowAsHeader": false
+					},
+					"fileName": "[parameters('Template_FileShare_ds_properties_typeProperties_fileName')]",
+					"folderPath": "[parameters('Template_FileShare_ds_properties_typeProperties_folderPath')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/FileSystem_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_delete')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"fileName": "[parameters('Template_wasb_delete_properties_typeProperties_fileName')]",
+					"folderPath": {
+						"value": "[parameters('Template_wasb_delete_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_delete_time')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"folderPath": {
+						"value": "[parameters('Template_wasb_delete_time_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					},
+					"modifiedDatetimeEnd": {
+						"value": "@addseconds(pipeline().TriggerTime, -10)",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_single_sink_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your destination data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					},
+					"filename": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"fileName": {
+						"value": "[parameters('Template_wasb_single_sink_ds_properties_typeProperties_fileName')]",
+						"type": "Expression"
+					},
+					"folderPath": {
+						"value": "[parameters('Template_wasb_single_sink_ds_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_single_source_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					},
+					"filename": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"fileName": {
+						"value": "[parameters('Template_wasb_single_source_ds_properties_typeProperties_fileName')]",
+						"type": "Expression"
+					},
+					"folderPath": {
+						"value": "[parameters('Template_wasb_single_source_ds_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_sink_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your destination data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"fileName": "[parameters('Template_wasb_sink_ds_properties_typeProperties_fileName')]",
+					"folderPath": {
+						"value": "[parameters('Template_wasb_sink_ds_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_source_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"folderPath": {
+						"value": "[parameters('Template_wasb_source_ds_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage_LS')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -2396,6 +3466,53 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/FileSystem_ls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "FileServer",
+				"typeProperties": {
+					"host": "C:\\Temp",
+					"userId": "[parameters('FileSystem_ls_properties_typeProperties_userId')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault_LS",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "local-machine-account-password"
+					}
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntimeFileSystem",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntimeFileSystem')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/azuredatabricks_bigdata_ls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://eastus.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('azuredatabricks_bigdata_ls_accessToken')]"
+					},
+					"existingClusterId": "0402-023740-highs255"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/event_trigger_filecreate')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -2426,6 +3543,16 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/bdata_adf_variable_append_pl')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/integrationRuntimeFileSystem')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
 		}
 	]
 }

@@ -11,14 +11,8 @@
 		"AzureSqlDatabase_LS_connectionString": {
 			"value": ""
 		},
-		"AzureBlobStorageSinkFileStore_properties_typeProperties_fileName": {
+		"azuredatabricks_bigdata_ls_accessToken": {
 			"value": ""
-		},
-		"AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath": {
-			"value": "@dataset().folder"
-		},
-		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
-			"value": "@dataset().folder"
 		},
 		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 			"value": "@dataset().FileName"
@@ -62,8 +56,47 @@
 		"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
 			"value": "@dataset().FilePath"
 		},
+		"Template_FileShare_ds_properties_typeProperties_fileName": {
+			"value": "*.txt"
+		},
+		"Template_FileShare_ds_properties_typeProperties_folderPath": {
+			"value": "Move"
+		},
+		"Template_wasb_delete_properties_typeProperties_fileName": {
+			"value": "*"
+		},
+		"Template_wasb_delete_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_delete_time_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_fileName": {
+			"value": "@dataset().filename"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_fileName": {
+			"value": "@dataset().filename"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_source_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
 		"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
 			"value": "https://azueus2bdatakvt.vault.azure.net/"
+		},
+		"FileSystem_ls_properties_typeProperties_userId": {
+			"value": "corp\\rayis.imayev"
 		},
 		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
 			"value": "@triggerBody().folderPath"
@@ -73,6 +106,12 @@
 		},
 		"event_trigger_filecreate_properties_typeProperties_scope": {
 			"value": "/subscriptions/6c405d27-de5e-483c-9a68-0aaaad20b363/resourceGroups/big_data/providers/Microsoft.Storage/storageAccounts/bdatablob"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
 		}
 	}
 }

@@ -15,17 +15,9 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_LS'"
 		},
-		"AzureBlobStorageSinkFileStore_properties_typeProperties_fileName": {
-			"type": "string",
-			"defaultValue": ""
-		},
-		"AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().folder"
-		},
-		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().folder"
+		"azuredatabricks_bigdata_ls_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'azuredatabricks_bigdata_ls'"
 		},
 		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 			"type": "string",
@@ -83,9 +75,61 @@
 			"type": "string",
 			"defaultValue": "@dataset().FilePath"
 		},
+		"Template_FileShare_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "*.txt"
+		},
+		"Template_FileShare_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "Move"
+		},
+		"Template_wasb_delete_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "*"
+		},
+		"Template_wasb_delete_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_delete_time_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().filename"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().filename"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_source_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
 		"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://azueus2bdatakvt.vault.azure.net/"
+		},
+		"FileSystem_ls_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "corp\\rayis.imayev"
 		},
 		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
 			"type": "string",
@@ -126,6 +170,9 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"azuredatabricks_bigdata_ls_accessToken": {
+						"value": "[parameters('azuredatabricks_bigdata_ls_accessToken')]"
+					},
 					"AzureBlobStorage_LS_connectionString": {
 						"value": "[parameters('AzureBlobStorage_LS_connectionString')]"
 					},
@@ -135,14 +182,8 @@
 					"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
 						"value": "[parameters('AzureKeyVault_LS_properties_typeProperties_baseUrl')]"
 					},
-					"AzureBlobStorageSinkFileStore_properties_typeProperties_fileName": {
-						"value": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_fileName')]"
-					},
-					"AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath": {
-						"value": "[parameters('AzureBlobStorageSinkFileStore_properties_typeProperties_folderPath')]"
-					},
-					"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
-						"value": "[parameters('AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath')]"
+					"FileSystem_ls_properties_typeProperties_userId": {
+						"value": "[parameters('FileSystem_ls_properties_typeProperties_userId')]"
 					},
 					"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 						"value": "[parameters('AzureBlob_bgdata_daily_properties_typeProperties_fileName')]"
@@ -185,6 +226,27 @@
 					},
 					"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
 						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_folderPath')]"
+					},
+					"Template_FileShare_ds_properties_typeProperties_fileName": {
+						"value": "[parameters('Template_FileShare_ds_properties_typeProperties_fileName')]"
+					},
+					"Template_FileShare_ds_properties_typeProperties_folderPath": {
+						"value": "[parameters('Template_FileShare_ds_properties_typeProperties_folderPath')]"
+					},
+					"Template_wasb_delete_properties_typeProperties_fileName": {
+						"value": "[parameters('Template_wasb_delete_properties_typeProperties_fileName')]"
+					},
+					"Template_wasb_delete_properties_typeProperties_folderPath": {
+						"value": "[parameters('Template_wasb_delete_properties_typeProperties_folderPath')]"
+					},
+					"Template_wasb_delete_time_properties_typeProperties_folderPath": {
+						"value": "[parameters('Template_wasb_delete_time_properties_typeProperties_folderPath')]"
+					},
+					"Template_wasb_single_sink_ds_properties_typeProperties_fileName": {
+						"value": "[parameters('Template_wasb_single_sink_ds_properties_typeProperties_fileName')]"
+					},
+					"Template_wasb_single_sink_ds_properties_typeProperties_folderPath": {
+						"value": "[parameters('Template_wasb_single_sink_ds_properties_typeProperties_folderPath')]"
 					}
 				}
 			},
@@ -203,6 +265,21 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"Template_wasb_single_source_ds_properties_typeProperties_fileName": {
+						"value": "[parameters('Template_wasb_single_source_ds_properties_typeProperties_fileName')]"
+					},
+					"Template_wasb_single_source_ds_properties_typeProperties_folderPath": {
+						"value": "[parameters('Template_wasb_single_source_ds_properties_typeProperties_folderPath')]"
+					},
+					"Template_wasb_sink_ds_properties_typeProperties_fileName": {
+						"value": "[parameters('Template_wasb_sink_ds_properties_typeProperties_fileName')]"
+					},
+					"Template_wasb_sink_ds_properties_typeProperties_folderPath": {
+						"value": "[parameters('Template_wasb_sink_ds_properties_typeProperties_folderPath')]"
+					},
+					"Template_wasb_source_ds_properties_typeProperties_folderPath": {
+						"value": "[parameters('Template_wasb_source_ds_properties_typeProperties_folderPath')]"
 					},
 					"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
 						"value": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath')]"
