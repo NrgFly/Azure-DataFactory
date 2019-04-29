@@ -1,0 +1,111 @@
+{
+	"name": "bdata_adf_variable_array_many_elements",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Array Variable",
+				"type": "SetVariable",
+				"typeProperties": {
+					"variableName": "ArrayVariable",
+					"value": {
+						"value": "@createArray('A', 'B')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "First Element",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Array Variable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "ArrayElement_1",
+					"value": {
+						"value": "@variables('ArrayVariable')[0]",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Second Element",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Array Variable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "ArrayElement_1",
+					"value": {
+						"value": "@variables('ArrayVariable')[0]",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Check Out of Range",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Array Variable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "ArrayElement_OutOfRange",
+					"value": {
+						"value": "@variables('ArrayVariable')[2]",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Add New Value",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Check Out of Range",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "ArrayVariable",
+					"value": "C"
+				}
+			}
+		],
+		"variables": {
+			"ArrayVariable": {
+				"type": "Array"
+			},
+			"ArrayElement_1": {
+				"type": "String"
+			},
+			"ArrayElement_2": {
+				"type": "String"
+			},
+			"ArrayElement_OutOfRange": {
+				"type": "String"
+			},
+			"ErrorMessage": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Sample Pipelines"
+		}
+	}
+}
