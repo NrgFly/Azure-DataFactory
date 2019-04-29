@@ -54,6 +54,9 @@
 			"FileList": {
 				"type": "Array"
 			}
+		},
+		"folder": {
+			"name": "Sample Pipelines"
 		}
 	}
 }
