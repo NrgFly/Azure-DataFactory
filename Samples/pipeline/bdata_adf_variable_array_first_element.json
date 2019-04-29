@@ -1,0 +1,84 @@
+{
+	"name": "bdata_adf_variable_array_first_element",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set FileList",
+				"type": "SetVariable",
+				"typeProperties": {
+					"variableName": "FileList",
+					"value": {
+						"value": "@createArray('File', 'Folder')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "CheckFirstElement",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Array First Element",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(variables('FirstArrayElement'),'Folder')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Wait Files 2 sec",
+							"type": "Wait",
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Wait Folder 1 sec",
+							"type": "Wait",
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Array First Element",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set FileList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "FirstArrayElement",
+					"value": {
+						"value": "@variables('FileList')[0]",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"FileList": {
+				"type": "Array"
+			},
+			"FirstArrayElement": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Sample Pipelines"
+		}
+	}
+}
