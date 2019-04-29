@@ -69,22 +69,6 @@
 						"type": "Expression"
 					}
 				}
-			},
-			{
-				"name": "Error Message",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "Check Out of Range",
-						"dependencyConditions": [
-							"Failed"
-						]
-					}
-				],
-				"typeProperties": {
-					"variableName": "ErrorMessage",
-					"value": ""
-				}
 			}
 		],
 		"variables": {
