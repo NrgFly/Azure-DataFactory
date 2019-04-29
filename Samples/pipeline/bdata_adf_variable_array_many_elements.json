@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Set FileList",
+				"name": "Set Array Variable",
 				"type": "SetVariable",
 				"typeProperties": {
 					"variableName": "ArrayVariable",
@@ -18,7 +18,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "Set FileList",
+						"activity": "Set Array Variable",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -37,7 +37,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "Set FileList",
+						"activity": "Set Array Variable",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -56,7 +56,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "Set FileList",
+						"activity": "Set Array Variable",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -68,6 +68,22 @@
 						"value": "@variables('ArrayVariable')[2]",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "Add New Value",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Check Out of Range",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "ArrayVariable",
+					"value": "C"
 				}
 			}
 		],
