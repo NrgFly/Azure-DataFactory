@@ -12,6 +12,42 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "CheckFirstElement",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Set FileList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(variables('FileList')[1], 'Folder')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Wait Folder 2 sec",
+							"type": "Wait",
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Wait Folder 1 sec",
+							"type": "Wait",
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
 			}
 		],
 		"variables": {
