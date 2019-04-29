@@ -18,7 +18,7 @@
 				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "Set FileList",
+						"activity": "Array First Element",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -26,12 +26,12 @@
 				],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(variables('FileList')[1], 'Folder')",
+						"value": "@equals(variables('FirstArrayElement'),'Folder')",
 						"type": "Expression"
 					},
 					"ifFalseActivities": [
 						{
-							"name": "Wait Folder 2 sec",
+							"name": "Wait Files 2 sec",
 							"type": "Wait",
 							"typeProperties": {
 								"waitTimeInSeconds": 1
@@ -48,11 +48,33 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Array First Element",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set FileList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "FirstArrayElement",
+					"value": {
+						"value": "@variables('FileList')[0]",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
 			"FileList": {
 				"type": "Array"
+			},
+			"FirstArrayElement": {
+				"type": "String"
 			}
 		},
 		"folder": {
