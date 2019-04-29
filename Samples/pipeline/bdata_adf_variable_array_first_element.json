@@ -1,0 +1,23 @@
+{
+	"name": "bdata_adf_variable_array_first_element",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set FileList",
+				"type": "SetVariable",
+				"typeProperties": {
+					"variableName": "FileList",
+					"value": {
+						"value": "@createArray('File', 'Folder')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"FileList": {
+				"type": "Array"
+			}
+		}
+	}
+}
