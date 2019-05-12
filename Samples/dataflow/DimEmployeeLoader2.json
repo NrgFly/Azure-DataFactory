@@ -1,6 +1,93 @@
 {
 	"name": "DimEmployeeLoader2",
 	"properties": {
-		"type": "MappingDataFlow"
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "Employees1",
+					"description": " Source employees file, changes every day",
+					"script": "source(output(\n\t\tEmpID as string,\n\t\tRegion as string,\n\t\tStatus as string,\n\t\tFunction as string,\n\t\tLevel as string,\n\t\tRole as string,\n\t\tStartDate as string,\n\t\tEndDate as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpurgeFiles: true,\n\twildcardPaths:['SampleData/Emps/today/*.csv']) ~> Employees1"
+				},
+				{
+					"name": "DimEmployees",
+					"description": "Current rows in DimEmployees DW table",
+					"script": "source(output(\n\t\tEmpID as integer,\n\t\tsurrogatekey as string,\n\t\tRegion as string,\n\t\tStatus as string,\n\t\tEmpFunction as string,\n\t\tLevel as string,\n\t\tRole as string,\n\t\tStartDate as date,\n\t\tEndDate as date,\n\t\tiscurrent as integer,\n\t\tprocesstime as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> DimEmployees"
+				}
+			],
+			"sinks": [
+				{
+					"name": "sinkNew",
+					"description": " ",
+					"script": "SetAttrsForNew sink(partitionBy('roundRobin', 4)) ~> sinkNew"
+				},
+				{
+					"name": "sinkUpdates",
+					"description": " ",
+					"script": "SetAttrsUpdate sink(partitionBy('roundRobin', 4)) ~> sinkUpdates"
+				},
+				{
+					"name": "sinkInactive",
+					"description": " Age out old rows",
+					"script": "AlterRow1 sink(mapColumn(\n\t\tEmpID,\n\t\tEndDate,\n\t\tiscurrent,\n\t\tprocesstime\n\t),\n\tpartitionBy('roundRobin', 4)) ~> sinkInactive"
+				}
+			],
+			"transformations": [
+				{
+					"name": "TypeConversions",
+					"script": "DimEmployees derive(EmpID = toInteger(EmpID)) ~> TypeConversions"
+				},
+				{
+					"name": "TypeConversionsAndSetAttrs",
+					"script": "NullFilter derive(EmpID = toInteger(EmpID),\n\t\tStartDate = toDate(StartDate,'MM/dd/yyyy'),\n\t\tEndDate = toDate(EndDate,'MM/dd/yyyy'),\n\t\tprocesstime = currentTimestamp()) ~> TypeConversionsAndSetAttrs"
+				},
+				{
+					"name": "LookupIDs",
+					"script": "TypeConversionsAndSetAttrs, TypeConversions lookup(TypeConversionsAndSetAttrs@EmpID == TypeConversions@EmpID,\n\tbroadcast: 'none')~> LookupIDs"
+				},
+				{
+					"name": "ConditionalSplit1",
+					"script": "NormNames split(isNull(iscurrent),\n\tdisjoint: false) ~> ConditionalSplit1@(NewRow, CheckForUpdates)"
+				},
+				{
+					"name": "checkForChanges",
+					"script": "NameNorm2, TypeConversions exists(NameNorm2@EmpID == TypeConversions@EmpID &&\r\n\r\n(\r\n\r\nNameNorm2@Region != DimEmployees@Region ||\r\nNameNorm2@Role != DimEmployees@Role ||\r\nNameNorm2@Level != DimEmployees@Level ||\r\nNameNorm2@Status != DimEmployees@Status\r\n\r\n),\n\tnegate:false,\n\tbroadcast: 'none')~> checkForChanges"
+				},
+				{
+					"name": "SetAttrsForNew",
+					"script": "ConditionalSplit1@NewRow derive(iscurrent = 1,\n\t\tsurrogatekey = toString(crc32(EmpID,EmpFunction))) ~> SetAttrsForNew"
+				},
+				{
+					"name": "SetAttrsInactive",
+					"description": "make iscurrent 0",
+					"script": "checkForChanges derive(iscurrent = 0) ~> SetAttrsInactive"
+				},
+				{
+					"name": "SetAttrsUpdate",
+					"script": "checkForChanges derive(iscurrent = 1) ~> SetAttrsUpdate"
+				},
+				{
+					"name": "NormNames",
+					"script": "LookupIDs select(mapColumn(\n\t\tEmpID = TypeConversionsAndSetAttrs@EmpID,\n\t\tRegion = Employees1@Region,\n\t\tStatus = Employees1@Status,\n\t\tLevel = Employees1@Level,\n\t\tRole = Employees1@Role,\n\t\tStartDate = TypeConversionsAndSetAttrs@StartDate,\n\t\tEndDate = TypeConversionsAndSetAttrs@EndDate,\n\t\tEmpFunction = Function,\n\t\tiscurrent,\n\t\tprocesstime = TypeConversionsAndSetAttrs@processtime,\n\t\tsurrogatekey\n\t))~> NormNames"
+				},
+				{
+					"name": "InactiveFields",
+					"script": "SetAttrsInactive select(mapColumn(\n\t\tEmpID,\n\t\tStatus,\n\t\tEndDate,\n\t\tiscurrent,\n\t\tprocesstime\n\t))~> InactiveFields"
+				},
+				{
+					"name": "AlterRow1",
+					"script": "InactiveFields alterRow(updateIf(true())) ~> AlterRow1"
+				},
+				{
+					"name": "NullFilter",
+					"description": "Filter out NULLs from source file",
+					"script": "Employees1 filter(!isNull(EmpID)) ~> NullFilter"
+				},
+				{
+					"name": "NameNorm2",
+					"script": "ConditionalSplit1@CheckForUpdates select(mapColumn(\n\t\tEmpID,\n\t\tRegion,\n\t\tStatus,\n\t\tLevel,\n\t\tRole,\n\t\tStartDate,\n\t\tEndDate,\n\t\tEmpFunction,\n\t\tiscurrent,\n\t\tprocesstime,\n\t\tsurrogatekey\n\t))~> NameNorm2"
+				}
+			]
+		}
 	}
 }
