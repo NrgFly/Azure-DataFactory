@@ -1,0 +1,6 @@
+{
+	"name": "DimEmployeeLoader2",
+	"properties": {
+		"type": "MappingDataFlow"
+	}
+}
