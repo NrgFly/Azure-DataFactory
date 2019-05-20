@@ -6,6 +6,9 @@
 			"type": "LinkedServiceReference"
 		},
 		"type": "AzureSqlTable",
-		"schema": []
+		"schema": [],
+		"typeProperties": {
+			"tableName": "[dbo].[SAT_InternateSales]"
+		}
 	}
 }
