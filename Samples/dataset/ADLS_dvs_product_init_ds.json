@@ -1,5 +1,5 @@
 {
-	"name": "ADLS_dvs_product_ds",
+	"name": "ADLS_dvs_product_init_ds",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStore_ls",
