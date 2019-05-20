@@ -78,6 +78,14 @@
 			{
 				"name": "SAT_Product",
 				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "HUB_Product",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
