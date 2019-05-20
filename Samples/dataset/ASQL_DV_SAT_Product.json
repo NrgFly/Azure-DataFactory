@@ -1,0 +1,89 @@
+{
+	"name": "ASQL_DV_SAT_Product",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "HUB_Product_HK",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "WeightUnitMeasureCode",
+				"type": "nchar"
+			},
+			{
+				"name": "SizeUnitMeasureCode",
+				"type": "nchar"
+			},
+			{
+				"name": "EnglishProductName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "StandardCost",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "FinishedGoodsFlag",
+				"type": "bit"
+			},
+			{
+				"name": "Color",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SafetyStockLevel",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "ReorderPoint",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "ListPrice",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "Size",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SizeRange",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Weight",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "ModelName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SAT_Product_HDIFF",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "LOAD_TS",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[SAT_Product]"
+		}
+	}
+}
