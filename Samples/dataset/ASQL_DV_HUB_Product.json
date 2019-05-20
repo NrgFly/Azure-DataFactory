@@ -1,0 +1,29 @@
+{
+	"name": "ASQL_DV_HUB_Product",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "HUB_Product",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "ProductAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "LOAD_TS",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[HUB_Product]"
+		}
+	}
+}
