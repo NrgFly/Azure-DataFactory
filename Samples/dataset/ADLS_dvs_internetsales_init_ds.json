@@ -5,6 +5,9 @@
 			"referenceName": "AzureDataLakeStore_ls",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
