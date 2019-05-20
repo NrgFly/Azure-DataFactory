@@ -22,11 +22,55 @@
 							"type": "DelimitedTextReadSetting"
 						}
 					},
-					"enableStaging": false
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "HUB_Product_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "HUB_Product_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductAlternateKey",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProductAlternateKey",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "LOAD_TS",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LOAD_TS",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
 				},
 				"inputs": [
 					{
 						"referenceName": "ADLS_dvs_product_init_ds",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ASQL_DV_HUB_Product",
 						"type": "DatasetReference"
 					}
 				]
