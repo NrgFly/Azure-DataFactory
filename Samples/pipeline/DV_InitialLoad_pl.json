@@ -388,6 +388,117 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "SAT_InternetSales",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LINK_InternetSales",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureDataLakeStoreReadSetting"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSetting"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "LINK_InternetSales_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LINK_InternetSales_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "HUB_Customer_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "HUB_Customer_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "HUB_Product_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "HUB_Product_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderNumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrderNumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderLineNumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrderLineNumber",
+									"type": "Byte"
+								}
+							},
+							{
+								"source": {
+									"name": "LOAD_TS",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LOAD_TS",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADLS_dvs_internetsales_init_ds",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ASQL_DV_LINK_InternetSales",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"folder": {
