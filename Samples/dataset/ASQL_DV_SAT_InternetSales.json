@@ -1,0 +1,14 @@
+{
+	"name": "ASQL_DV_SAT_InternetSales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "[dbo].[SAT_InternateSales]"
+		}
+	}
+}
