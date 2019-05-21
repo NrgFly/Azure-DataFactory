@@ -436,42 +436,172 @@
 							},
 							{
 								"source": {
-									"name": "HUB_Customer_HK",
+									"name": "RevisionNumber",
 									"type": "String"
 								},
 								"sink": {
-									"name": "HUB_Customer_HK",
-									"type": "Int64"
-								}
-							},
-							{
-								"source": {
-									"name": "HUB_Product_HK",
-									"type": "String"
-								},
-								"sink": {
-									"name": "HUB_Product_HK",
-									"type": "Int64"
-								}
-							},
-							{
-								"source": {
-									"name": "SalesOrderNumber",
-									"type": "String"
-								},
-								"sink": {
-									"name": "SalesOrderNumber",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "SalesOrderLineNumber",
-									"type": "String"
-								},
-								"sink": {
-									"name": "SalesOrderLineNumber",
+									"name": "RevisionNumber",
 									"type": "Byte"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderQuantity",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OrderQuantity",
+									"type": "Int16"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPrice",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UnitPrice",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "ExtendedAmount",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ExtendedAmount",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPriceDiscountPct",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UnitPriceDiscountPct",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"name": "DiscountAmount",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DiscountAmount",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductStandardCost",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProductStandardCost",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "TotalProductCost",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TotalProductCost",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesAmount",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesAmount",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "TaxAmt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TaxAmt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "Freight",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Freight",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "CarrierTrackingNumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CarrierTrackingNumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CustomerPONumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerPONumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderDate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OrderDate",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "DueDate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DueDate",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "ShipDate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ShipDate",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "SAT_InternetSales_HDIFF",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SAT_InternetSales_HDIFF",
+									"type": "Int64"
 								}
 							},
 							{
@@ -495,7 +625,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "ASQL_DV_LINK_InternetSales",
+						"referenceName": "ASQL_DV_SAT_InternetSales",
 						"type": "DatasetReference"
 					}
 				]
