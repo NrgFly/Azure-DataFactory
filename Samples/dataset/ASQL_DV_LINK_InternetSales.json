@@ -8,7 +8,7 @@
 		"type": "AzureSqlTable",
 		"schema": [],
 		"typeProperties": {
-			"tableName": "[dbo].[SAT_InternateSales]"
+			"tableName": "[dbo].[LINK_InternateSales]"
 		}
 	}
 }
