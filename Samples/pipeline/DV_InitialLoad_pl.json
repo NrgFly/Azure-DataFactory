@@ -315,6 +315,26 @@
 						"mappings": [
 							{
 								"source": {
+									"name": "LINK_InternetSales_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LINK_InternetSales_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "HUB_Customer_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "HUB_Customer_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
 									"name": "HUB_Product_HK",
 									"type": "String"
 								},
@@ -325,12 +345,22 @@
 							},
 							{
 								"source": {
-									"name": "ProductAlternateKey",
+									"name": "SalesOrderNumber",
 									"type": "String"
 								},
 								"sink": {
-									"name": "ProductAlternateKey",
+									"name": "SalesOrderNumber",
 									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderLineNumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrderLineNumber",
+									"type": "Byte"
 								}
 							},
 							{
@@ -354,7 +384,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "ASQL_DV_HUB_Product",
+						"referenceName": "ASQL_DV_LINK_InternetSales",
 						"type": "DatasetReference"
 					}
 				]
