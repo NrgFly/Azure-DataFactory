@@ -11,7 +11,7 @@
 		"type": "AzureSqlTable",
 		"schema": [],
 		"typeProperties": {
-			"tableName": "[dbo].[SAT_InternateSales]"
+			"tableName": "[dbo].[SAT_InternetSales]"
 		}
 	}
 }
