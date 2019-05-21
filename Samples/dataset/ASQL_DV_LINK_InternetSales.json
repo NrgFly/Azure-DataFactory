@@ -11,7 +11,7 @@
 		"type": "AzureSqlTable",
 		"schema": [],
 		"typeProperties": {
-			"tableName": "[dbo].[LINK_InternateSales]"
+			"tableName": "[dbo].[LINK_InternetSales]"
 		}
 	}
 }
