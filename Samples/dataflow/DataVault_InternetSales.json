@@ -22,11 +22,11 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "ASQL_DV_SAT_Product_Latest",
+						"referenceName": "ASQL_DV_SAT_InternetSales_Latest",
 						"type": "DatasetReference"
 					},
-					"name": "SatProduct",
-					"script": "source(output(\n\t\tHUB_Product_HK as long,\n\t\tSAT_Product_HDIFF as long\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> SatProduct"
+					"name": "SatInternetSales",
+					"script": "source(output(\n\t\tLINK_InternetSales_HK as long,\n\t\tSAT_InternetSales_HDIFF as long\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> SatInternetSales"
 				}
 			],
 			"sinks": [
@@ -40,11 +40,11 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "ASQL_DV_SAT_Product",
+						"referenceName": "ASQL_DV_SAT_InternetSales",
 						"type": "DatasetReference"
 					},
-					"name": "SinkSatProduct",
-					"script": "NewSatProduct sink(input(\n\t\tHUB_Product_HK as long,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as long,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatProduct"
+					"name": "SinkSatInternetSales",
+					"script": "NewSatProduct sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatInternetSales"
 				}
 			],
 			"transformations": [
@@ -61,12 +61,12 @@
 					"script": "CheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK\n\t))~> NewLinkInternetSales"
 				},
 				{
-					"name": "CheckNewSatProduct",
-					"script": "HashColumns, SatProduct exists(LINK_InternetSales_HK == SatProduct@HUB_Product_HK\n\t&& HUB_Customer_HK == SAT_Product_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatProduct"
+					"name": "CheckNewSatInternetSales",
+					"script": "HashColumns, SatInternetSales exists(HashColumns@LINK_InternetSales_HK == SatInternetSales@LINK_InternetSales_HK\n\t&& HashColumns@SAT_InternetSales_HDIFF == SatInternetSales@SAT_InternetSales_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatInternetSales"
 				},
 				{
 					"name": "NewSatProduct",
-					"script": "CheckNewSatProduct select(mapColumn(\n\t\tWeightUnitMeasureCode,\n\t\tSizeUnitMeasureCode,\n\t\tEnglishProductName,\n\t\tStandardCost,\n\t\tFinishedGoodsFlag,\n\t\tColor,\n\t\tSafetyStockLevel,\n\t\tReorderPoint,\n\t\tListPrice,\n\t\tSize,\n\t\tSizeRange,\n\t\tWeight,\n\t\tModelName,\n\t\tHUB_Product_HK = LINK_InternetSales_HK,\n\t\tSAT_Product_HDIFF = HUB_Customer_HK,\n\t\tLOAD_TS\n\t))~> NewSatProduct"
+					"script": "CheckNewSatInternetSales select(mapColumn(\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tLOAD_TS,\n\t\tSAT_InternetSales_HDIFF\n\t))~> NewSatProduct"
 				}
 			]
 		}
