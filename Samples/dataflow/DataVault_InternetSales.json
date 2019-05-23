@@ -18,7 +18,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "LinkInternetSales",
-					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> LinkInternetSales"
+					"script": "source(output(\n\t\tLINK_InternetSales_HK as long,\n\t\tHUB_Customer_HK as long,\n\t\tHUB_Product_HK as long,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> LinkInternetSales"
 				},
 				{
 					"dataset": {

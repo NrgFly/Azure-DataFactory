@@ -9,7 +9,37 @@
 			"name": "DataVaultTesting"
 		},
 		"type": "AzureSqlTable",
-		"schema": [],
+		"schema": [
+			{
+				"name": "LINK_InternetSales_HK",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "HUB_Customer_HK",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "HUB_Product_HK",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "SalesOrderNumber",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesOrderLineNumber",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "LOAD_TS",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
 		"typeProperties": {
 			"tableName": "[dbo].[LINK_InternetSales]"
 		}
