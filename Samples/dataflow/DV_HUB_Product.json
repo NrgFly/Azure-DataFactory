@@ -21,6 +21,16 @@
 					"script": "source(output(\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> HubProduct"
 				}
 			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Product",
+						"type": "DatasetReference"
+					},
+					"name": "SinkHubProduct",
+					"script": "NewHubProduct sink(input(\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubProduct"
+				}
+			],
 			"transformations": [
 				{
 					"name": "HashColumns",
@@ -28,7 +38,11 @@
 				},
 				{
 					"name": "NewProduct",
-					"script": "HashColumns, HubProduct exists(HashColumns@HUB_Product_HK == HubProduct@HUB_Product_HK,\n\tnegate:false,\n\tbroadcast: 'none')~> NewProduct"
+					"script": "HashColumns, HubProduct exists(HashColumns@HUB_Product_HK == HubProduct@HUB_Product_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> NewProduct"
+				},
+				{
+					"name": "NewHubProduct",
+					"script": "NewProduct select(mapColumn(\n\t\tProductAlternateKey,\n\t\tHUB_Product_HK,\n\t\tLOAD_TS\n\t))~> NewHubProduct"
 				}
 			]
 		}
