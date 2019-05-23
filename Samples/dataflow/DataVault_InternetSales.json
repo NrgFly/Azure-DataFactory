@@ -6,7 +6,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "BLOB_dvs_product_incr_ds",
+						"referenceName": "BLOB_dvs_internetsales_incr_ds",
 						"type": "DatasetReference"
 					},
 					"name": "SourceProduct",
