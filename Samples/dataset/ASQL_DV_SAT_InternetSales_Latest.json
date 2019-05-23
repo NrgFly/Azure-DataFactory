@@ -1,5 +1,5 @@
 {
-	"name": "ASQL_DV_SAT_Product_Latest",
+	"name": "ASQL_DV_SAT_InternetSales_Latest",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureSqlDatabase_DV_LS",
@@ -11,18 +11,18 @@
 		"type": "AzureSqlTable",
 		"schema": [
 			{
-				"name": "HUB_Product_HK",
+				"name": "LINK_InternetSales_HK",
 				"type": "bigint",
 				"precision": 19
 			},
 			{
-				"name": "SAT_Product_HDIFF",
+				"name": "SAT_InternetSales_HDIFF",
 				"type": "bigint",
 				"precision": 19
 			}
 		],
 		"typeProperties": {
-			"tableName": "[dbo].[vw_latest_sat_product]"
+			"tableName": "[dbo].[vw_latest_sat_internetsales]"
 		}
 	}
 }

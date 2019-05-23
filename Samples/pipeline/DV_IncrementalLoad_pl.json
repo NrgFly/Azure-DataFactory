@@ -14,7 +14,7 @@
 				},
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "DV_HUB_Product",
+						"referenceName": "DataVault_Product",
 						"type": "DataFlowReference"
 					}
 				}
