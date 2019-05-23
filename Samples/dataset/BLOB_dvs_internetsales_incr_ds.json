@@ -26,79 +26,55 @@
 				"type": "String"
 			},
 			{
-				"name": "CustomerAlternateKey",
+				"name": "WeightUnitMeasureCode",
 				"type": "String"
 			},
 			{
-				"name": "SalesOrderNumber",
+				"name": "SizeUnitMeasureCode",
 				"type": "String"
 			},
 			{
-				"name": "SalesOrderLineNumber",
+				"name": "EnglishProductName",
 				"type": "String"
 			},
 			{
-				"name": "RevisionNumber",
+				"name": "StandardCost",
 				"type": "String"
 			},
 			{
-				"name": "OrderQuantity",
+				"name": "FinishedGoodsFlag",
 				"type": "String"
 			},
 			{
-				"name": "UnitPrice",
+				"name": "Color",
 				"type": "String"
 			},
 			{
-				"name": "ExtendedAmount",
+				"name": "SafetyStockLevel",
 				"type": "String"
 			},
 			{
-				"name": "UnitPriceDiscountPct",
+				"name": "ReorderPoint",
 				"type": "String"
 			},
 			{
-				"name": "DiscountAmount",
+				"name": "ListPrice",
 				"type": "String"
 			},
 			{
-				"name": "ProductStandardCost",
+				"name": "Size",
 				"type": "String"
 			},
 			{
-				"name": "TotalProductCost",
+				"name": "SizeRange",
 				"type": "String"
 			},
 			{
-				"name": "SalesAmount",
+				"name": "Weight",
 				"type": "String"
 			},
 			{
-				"name": "TaxAmt",
-				"type": "String"
-			},
-			{
-				"name": "Freight",
-				"type": "String"
-			},
-			{
-				"name": "CarrierTrackingNumber",
-				"type": "String"
-			},
-			{
-				"name": "CustomerPONumber",
-				"type": "String"
-			},
-			{
-				"name": "OrderDate",
-				"type": "String"
-			},
-			{
-				"name": "DueDate",
-				"type": "String"
-			},
-			{
-				"name": "ShipDate",
+				"name": "ModelName",
 				"type": "String"
 			}
 		]
