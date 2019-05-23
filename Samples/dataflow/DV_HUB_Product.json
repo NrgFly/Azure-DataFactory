@@ -12,6 +12,12 @@
 					"name": "Product",
 					"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as string,\n\t\tFinishedGoodsFlag as string,\n\t\tColor as string,\n\t\tSafetyStockLevel as string,\n\t\tReorderPoint as string,\n\t\tListPrice as string,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as string,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tskipLines: 1) ~> Product"
 				}
+			],
+			"transformations": [
+				{
+					"name": "HashColumns",
+					"script": "Product derive(HUB_Product_HK = crc32(ProductAlternateKey)) ~> HashColumns"
+				}
 			]
 		}
 	}
