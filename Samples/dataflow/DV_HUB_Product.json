@@ -22,7 +22,7 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "ASQL_DV_SAT_Product",
+						"referenceName": "ASQL_DV_SAT_Product_Latest",
 						"type": "DatasetReference"
 					},
 					"name": "SatProduct",
