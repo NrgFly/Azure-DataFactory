@@ -10,13 +10,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "Product",
-					"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as string,\n\t\tFinishedGoodsFlag as string,\n\t\tColor as string,\n\t\tSafetyStockLevel as string,\n\t\tReorderPoint as string,\n\t\tListPrice as string,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as string,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tskipLines: 1) ~> Product"
+					"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as double,\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as short,\n\t\tReorderPoint as short,\n\t\tListPrice as double,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> Product"
 				}
 			],
 			"transformations": [
 				{
 					"name": "HashColumns",
-					"script": "Product derive(HUB_Product_HK = crc32(ProductAlternateKey)) ~> HashColumns"
+					"script": "Product derive(HUB_Product_HK = crc32(ProductAlternateKey),\n\t\tSAT_Product_HDIFF = crc32(ProductAlternateKey\r\n      ,WeightUnitMeasureCode\r\n      ,SizeUnitMeasureCode\r\n      ,EnglishProductName\r\n      ,StandardCost\r\n      ,FinishedGoodsFlag\r\n      ,Color\r\n      ,SafetyStockLevel\r\n      ,ReorderPoint\r\n      ,ListPrice\r\n      ,Size\r\n      ,SizeRange\r\n      ,Weight\r\n      ,ModelName),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns"
 				}
 			]
 		}
