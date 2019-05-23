@@ -76,30 +76,6 @@
 			{
 				"name": "ModelName",
 				"type": "String"
-			},
-			{
-				"name": "StartDate",
-				"type": "String"
-			},
-			{
-				"name": "EndDate",
-				"type": "String"
-			},
-			{
-				"name": "Status",
-				"type": "String"
-			},
-			{
-				"name": "HUB_Product_HK",
-				"type": "String"
-			},
-			{
-				"name": "SAT_Product_HDIFF",
-				"type": "String"
-			},
-			{
-				"name": "LOAD_TS",
-				"type": "String"
 			}
 		]
 	}
