@@ -54,7 +54,7 @@
 				},
 				{
 					"name": "CheckNewLinkInternetSales",
-					"script": "HashColumns, LinkInternetSales exists(LINK_InternetSales_HK == HubProduct@HUB_Product_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales"
+					"script": "HashColumns, LinkInternetSales exists(LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales"
 				},
 				{
 					"name": "NewHubProduct",
