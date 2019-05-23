@@ -12,7 +12,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "dvs_product_big.csv",
+				"fileName": "dvs_internetsales_big.csv",
 				"container": "adventureworksdv"
 			},
 			"columnDelimiter": ",",
@@ -26,55 +26,79 @@
 				"type": "String"
 			},
 			{
-				"name": "WeightUnitMeasureCode",
+				"name": "CustomerAlternateKey",
 				"type": "String"
 			},
 			{
-				"name": "SizeUnitMeasureCode",
+				"name": "SalesOrderNumber",
 				"type": "String"
 			},
 			{
-				"name": "EnglishProductName",
+				"name": "SalesOrderLineNumber",
 				"type": "String"
 			},
 			{
-				"name": "StandardCost",
+				"name": "RevisionNumber",
 				"type": "String"
 			},
 			{
-				"name": "FinishedGoodsFlag",
+				"name": "OrderQuantity",
 				"type": "String"
 			},
 			{
-				"name": "Color",
+				"name": "UnitPrice",
 				"type": "String"
 			},
 			{
-				"name": "SafetyStockLevel",
+				"name": "ExtendedAmount",
 				"type": "String"
 			},
 			{
-				"name": "ReorderPoint",
+				"name": "UnitPriceDiscountPct",
 				"type": "String"
 			},
 			{
-				"name": "ListPrice",
+				"name": "DiscountAmount",
 				"type": "String"
 			},
 			{
-				"name": "Size",
+				"name": "ProductStandardCost",
 				"type": "String"
 			},
 			{
-				"name": "SizeRange",
+				"name": "TotalProductCost",
 				"type": "String"
 			},
 			{
-				"name": "Weight",
+				"name": "SalesAmount",
 				"type": "String"
 			},
 			{
-				"name": "ModelName",
+				"name": "TaxAmt",
+				"type": "String"
+			},
+			{
+				"name": "Freight",
+				"type": "String"
+			},
+			{
+				"name": "CarrierTrackingNumber",
+				"type": "String"
+			},
+			{
+				"name": "CustomerPONumber",
+				"type": "String"
+			},
+			{
+				"name": "OrderDate",
+				"type": "String"
+			},
+			{
+				"name": "DueDate",
+				"type": "String"
+			},
+			{
+				"name": "ShipDate",
 				"type": "String"
 			}
 		]
