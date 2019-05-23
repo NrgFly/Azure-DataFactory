@@ -20,6 +20,87 @@
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "ProductAlternateKey",
+				"type": "String"
+			},
+			{
+				"name": "CustomerAlternateKey",
+				"type": "String"
+			},
+			{
+				"name": "SalesOrderNumber",
+				"type": "String"
+			},
+			{
+				"name": "SalesOrderLineNumber",
+				"type": "String"
+			},
+			{
+				"name": "RevisionNumber",
+				"type": "String"
+			},
+			{
+				"name": "OrderQuantity",
+				"type": "String"
+			},
+			{
+				"name": "UnitPrice",
+				"type": "String"
+			},
+			{
+				"name": "ExtendedAmount",
+				"type": "String"
+			},
+			{
+				"name": "UnitPriceDiscountPct",
+				"type": "String"
+			},
+			{
+				"name": "DiscountAmount",
+				"type": "String"
+			},
+			{
+				"name": "ProductStandardCost",
+				"type": "String"
+			},
+			{
+				"name": "TotalProductCost",
+				"type": "String"
+			},
+			{
+				"name": "SalesAmount",
+				"type": "String"
+			},
+			{
+				"name": "TaxAmt",
+				"type": "String"
+			},
+			{
+				"name": "Freight",
+				"type": "String"
+			},
+			{
+				"name": "CarrierTrackingNumber",
+				"type": "String"
+			},
+			{
+				"name": "CustomerPONumber",
+				"type": "String"
+			},
+			{
+				"name": "OrderDate",
+				"type": "String"
+			},
+			{
+				"name": "DueDate",
+				"type": "String"
+			},
+			{
+				"name": "ShipDate",
+				"type": "String"
+			}
+		]
 	}
 }
