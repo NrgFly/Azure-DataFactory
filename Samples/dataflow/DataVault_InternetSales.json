@@ -18,7 +18,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "LinkInternetSales",
-					"script": "source(output(\n\t\tLINK_InternetSales_HK as long,\n\t\tHUB_Customer_HK as long,\n\t\tHUB_Product_HK as long,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> LinkInternetSales"
+					"script": "source(output(\n\t\tLINK_InternetSales_HK as long,\n\t\tHUB_Customer_HK as long,\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> LinkInternetSales"
 				},
 				{
 					"dataset": {
@@ -32,11 +32,11 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "ASQL_DV_HUB_Product",
+						"referenceName": "ASQL_DV_LINK_InternetSales",
 						"type": "DatasetReference"
 					},
-					"name": "SinkHubProduct",
-					"script": "NewHubProduct sink(input(\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubProduct"
+					"name": "SinkLinkInternetSales",
+					"script": "NewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as long,\n\t\tHUB_Customer_HK as long,\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkLinkInternetSales"
 				},
 				{
 					"dataset": {
@@ -57,8 +57,8 @@
 					"script": "HashColumns, LinkInternetSales exists(HashColumns@LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales"
 				},
 				{
-					"name": "NewHubProduct",
-					"script": "CheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK,\n\t\tSAT_InternetSales_HDIFF\n\t))~> NewHubProduct"
+					"name": "NewLinkInternetSales",
+					"script": "CheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK,\n\t\tSAT_InternetSales_HDIFF\n\t))~> NewLinkInternetSales"
 				},
 				{
 					"name": "CheckNewSatProduct",

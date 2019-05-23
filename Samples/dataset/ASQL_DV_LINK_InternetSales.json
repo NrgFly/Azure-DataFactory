@@ -26,6 +26,14 @@
 				"precision": 19
 			},
 			{
+				"name": "ProductAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CustomerAlternateKey",
+				"type": "nvarchar"
+			},
+			{
 				"name": "SalesOrderNumber",
 				"type": "nvarchar"
 			},
