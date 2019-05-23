@@ -11,7 +11,7 @@
 		"type": "AzureSqlTable",
 		"schema": [
 			{
-				"name": "HUB_Product",
+				"name": "HUB_Product_HK",
 				"type": "bigint",
 				"precision": 19
 			},
