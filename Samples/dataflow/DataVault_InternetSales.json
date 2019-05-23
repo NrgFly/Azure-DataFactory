@@ -54,11 +54,11 @@
 				},
 				{
 					"name": "CheckNewLinkInternetSales",
-					"script": "HashColumns, LinkInternetSales exists(LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales"
+					"script": "HashColumns, LinkInternetSales exists(HashColumns@LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales"
 				},
 				{
 					"name": "NewHubProduct",
-					"script": "CheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tHUB_Product_HK = LINK_InternetSales_HK,\n\t\tLOAD_TS\n\t))~> NewHubProduct"
+					"script": "CheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK,\n\t\tSAT_InternetSales_HDIFF\n\t))~> NewHubProduct"
 				},
 				{
 					"name": "CheckNewSatProduct",
