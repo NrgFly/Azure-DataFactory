@@ -5,6 +5,14 @@
 			{
 				"name": "DV_HUB_Product",
 				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "DataVault_InternetSales",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -15,6 +23,23 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "DataVault_Product",
+						"type": "DataFlowReference"
+					}
+				}
+			},
+			{
+				"name": "DataVault_InternetSales",
+				"type": "ExecuteDataFlow",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DataVault_InternetSales",
 						"type": "DataFlowReference"
 					}
 				}
