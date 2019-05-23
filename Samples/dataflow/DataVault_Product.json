@@ -1,5 +1,5 @@
 {
-	"name": "DV_HUB_Product",
+	"name": "DataVault_Product",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
