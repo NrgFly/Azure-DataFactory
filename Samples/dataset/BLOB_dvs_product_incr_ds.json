@@ -1,8 +1,8 @@
 {
-	"name": "ADLS_dvs_product_incr_ds",
+	"name": "BLOB_dvs_product_incr_ds",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AzureDataLakeStore_ls",
+			"referenceName": "AzureBlobStorage_LS",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
@@ -11,9 +11,9 @@
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
-				"type": "AzureDataLakeStoreLocation",
+				"type": "AzureBlobStorageLocation",
 				"fileName": "dvs_product_big.csv",
-				"folderPath": "AdventureWorksDataVault/IncrementalLoad"
+				"container": "adventureworksdv"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
