@@ -10,7 +10,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "SourceInternetSales",
-					"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as boolean,\n\t\tRevisionNumber as boolean,\n\t\tOrderQuantity as boolean,\n\t\tUnitPrice as double,\n\t\tExtendedAmount as double,\n\t\tUnitPriceDiscountPct as boolean,\n\t\tDiscountAmount as boolean,\n\t\tProductStandardCost as double,\n\t\tTotalProductCost as double,\n\t\tSalesAmount as double,\n\t\tTaxAmt as double,\n\t\tFreight as double,\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as string,\n\t\tDueDate as string,\n\t\tShipDate as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceInternetSales"
+					"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as double,\n\t\tExtendedAmount as double,\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as double,\n\t\tTotalProductCost as double,\n\t\tSalesAmount as double,\n\t\tTaxAmt as double,\n\t\tFreight as double,\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as date,\n\t\tDueDate as date,\n\t\tShipDate as date\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceInternetSales"
 				},
 				{
 					"dataset": {
