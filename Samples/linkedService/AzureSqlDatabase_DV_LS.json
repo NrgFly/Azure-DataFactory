@@ -1,0 +1,18 @@
+{
+	"name": "AzureSqlDatabase_DV_LS",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=bdatasqldbserver.database.windows.net;Initial Catalog=AdventureWorksDataVault;User ID=rayis",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault_LS",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "bdatasqldb-access"
+			}
+		}
+	}
+}

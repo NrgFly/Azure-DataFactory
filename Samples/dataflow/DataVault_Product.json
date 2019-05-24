@@ -1,0 +1,74 @@
+{
+	"name": "DataVault_Product",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "BLOB_dvs_product_incr_ds",
+						"type": "DatasetReference"
+					},
+					"name": "SourceProduct",
+					"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as double,\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as short,\n\t\tReorderPoint as short,\n\t\tListPrice as double,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceProduct"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Product",
+						"type": "DatasetReference"
+					},
+					"name": "HubProduct",
+					"script": "source(output(\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> HubProduct"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_Product_Latest",
+						"type": "DatasetReference"
+					},
+					"name": "SatProduct",
+					"script": "source(output(\n\t\tHUB_Product_HK as long,\n\t\tSAT_Product_HDIFF as long\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> SatProduct"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Product",
+						"type": "DatasetReference"
+					},
+					"name": "SinkHubProduct",
+					"script": "NewHubProduct sink(input(\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubProduct"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_Product",
+						"type": "DatasetReference"
+					},
+					"name": "SinkSatProduct",
+					"script": "NewSatProduct sink(input(\n\t\tHUB_Product_HK as long,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as long,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatProduct"
+				}
+			],
+			"transformations": [
+				{
+					"name": "HashColumns",
+					"script": "SourceProduct derive(HUB_Product_HK = crc32(ProductAlternateKey),\n\t\tSAT_Product_HDIFF = crc32(ProductAlternateKey\r\n      ,WeightUnitMeasureCode\r\n      ,SizeUnitMeasureCode\r\n      ,EnglishProductName\r\n      ,StandardCost\r\n      ,FinishedGoodsFlag\r\n      ,Color\r\n      ,SafetyStockLevel\r\n      ,ReorderPoint\r\n      ,ListPrice\r\n      ,Size\r\n      ,SizeRange\r\n      ,Weight\r\n      ,ModelName),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns"
+				},
+				{
+					"name": "CheckNewProduct",
+					"script": "HashColumns, HubProduct exists(HashColumns@HUB_Product_HK == HubProduct@HUB_Product_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewProduct"
+				},
+				{
+					"name": "NewHubProduct",
+					"script": "CheckNewProduct select(mapColumn(\n\t\tProductAlternateKey,\n\t\tHUB_Product_HK,\n\t\tLOAD_TS\n\t))~> NewHubProduct"
+				},
+				{
+					"name": "CheckNewSatProduct",
+					"script": "HashColumns, SatProduct exists(HashColumns@HUB_Product_HK == SatProduct@HUB_Product_HK\n\t&& HashColumns@SAT_Product_HDIFF == SatProduct@SAT_Product_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatProduct"
+				},
+				{
+					"name": "NewSatProduct",
+					"script": "CheckNewSatProduct select(mapColumn(\n\t\tWeightUnitMeasureCode,\n\t\tSizeUnitMeasureCode,\n\t\tEnglishProductName,\n\t\tStandardCost,\n\t\tFinishedGoodsFlag,\n\t\tColor,\n\t\tSafetyStockLevel,\n\t\tReorderPoint,\n\t\tListPrice,\n\t\tSize,\n\t\tSizeRange,\n\t\tWeight,\n\t\tModelName,\n\t\tHUB_Product_HK,\n\t\tSAT_Product_HDIFF,\n\t\tLOAD_TS\n\t))~> NewSatProduct"
+				}
+			]
+		}
+	}
+}

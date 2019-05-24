@@ -1,0 +1,55 @@
+{
+	"name": "ASQL_DV_LINK_InternetSales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "LINK_InternetSales_HK",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "HUB_Customer_HK",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "HUB_Product_HK",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "ProductAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CustomerAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesOrderNumber",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SalesOrderLineNumber",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "LOAD_TS",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[LINK_InternetSales]"
+		}
+	}
+}

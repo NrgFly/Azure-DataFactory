@@ -1,0 +1,17 @@
+{
+	"name": "ASQL_DV_SAT_InternetSales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "[dbo].[SAT_InternetSales]"
+		}
+	}
+}

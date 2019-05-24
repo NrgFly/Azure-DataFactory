@@ -1,0 +1,638 @@
+{
+	"name": "DV_InitialLoad_pl",
+	"properties": {
+		"activities": [
+			{
+				"name": "HUB_Product",
+				"type": "Copy",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureDataLakeStoreReadSetting"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSetting"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "HUB_Product_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "HUB_Product_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductAlternateKey",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProductAlternateKey",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "LOAD_TS",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LOAD_TS",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADLS_dvs_product_init_ds",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ASQL_DV_HUB_Product",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "SAT_Product",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "HUB_Product",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureDataLakeStoreReadSetting"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSetting"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "HUB_Product_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "HUB_Product_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "WeightUnitMeasureCode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "WeightUnitMeasureCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SizeUnitMeasureCode",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SizeUnitMeasureCode",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "EnglishProductName",
+									"type": "String"
+								},
+								"sink": {
+									"name": "EnglishProductName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "StandardCost",
+									"type": "String"
+								},
+								"sink": {
+									"name": "StandardCost",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "FinishedGoodsFlag",
+									"type": "String"
+								},
+								"sink": {
+									"name": "FinishedGoodsFlag",
+									"type": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "Color",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Color",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SafetyStockLevel",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SafetyStockLevel",
+									"type": "Int16"
+								}
+							},
+							{
+								"source": {
+									"name": "ReorderPoint",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ReorderPoint",
+									"type": "Int16"
+								}
+							},
+							{
+								"source": {
+									"name": "ListPrice",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ListPrice",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "Size",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Size",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SizeRange",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SizeRange",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Weight",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Weight",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"name": "ModelName",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ModelName",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SAT_Product_HDIFF",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SAT_Product_HDIFF",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "LOAD_TS",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LOAD_TS",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADLS_dvs_product_init_ds",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ASQL_DV_SAT_Product",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "LINK_InternetSales",
+				"type": "Copy",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureDataLakeStoreReadSetting"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSetting"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "LINK_InternetSales_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LINK_InternetSales_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "HUB_Customer_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "HUB_Customer_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "HUB_Product_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "HUB_Product_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderNumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrderNumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesOrderLineNumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesOrderLineNumber",
+									"type": "Byte"
+								}
+							},
+							{
+								"source": {
+									"name": "LOAD_TS",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LOAD_TS",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADLS_dvs_internetsales_init_ds",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ASQL_DV_LINK_InternetSales",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "SAT_InternetSales",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LINK_InternetSales",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureDataLakeStoreReadSetting"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSetting"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "LINK_InternetSales_HK",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LINK_InternetSales_HK",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "RevisionNumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "RevisionNumber",
+									"type": "Byte"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderQuantity",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OrderQuantity",
+									"type": "Int16"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPrice",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UnitPrice",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "ExtendedAmount",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ExtendedAmount",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPriceDiscountPct",
+									"type": "String"
+								},
+								"sink": {
+									"name": "UnitPriceDiscountPct",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"name": "DiscountAmount",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DiscountAmount",
+									"type": "Double"
+								}
+							},
+							{
+								"source": {
+									"name": "ProductStandardCost",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ProductStandardCost",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "TotalProductCost",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TotalProductCost",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "SalesAmount",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SalesAmount",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "TaxAmt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "TaxAmt",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "Freight",
+									"type": "String"
+								},
+								"sink": {
+									"name": "Freight",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "CarrierTrackingNumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CarrierTrackingNumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CustomerPONumber",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CustomerPONumber",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "OrderDate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "OrderDate",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "DueDate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DueDate",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "ShipDate",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ShipDate",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "SAT_InternetSales_HDIFF",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SAT_InternetSales_HDIFF",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "LOAD_TS",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LOAD_TS",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADLS_dvs_internetsales_init_ds",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ASQL_DV_SAT_InternetSales",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "DataVaultTesting"
+		}
+	}
+}

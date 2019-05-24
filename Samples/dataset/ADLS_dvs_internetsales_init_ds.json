@@ -1,0 +1,25 @@
+{
+	"name": "ADLS_dvs_internetsales_init_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStore_ls",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureDataLakeStoreLocation",
+				"fileName": "dvs_internetsales.csv",
+				"folderPath": "AdventureWorksDataVault/InitialLoad"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

@@ -1,0 +1,74 @@
+{
+	"name": "DataVault_InternetSales",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "BLOB_dvs_internetsales_incr_ds",
+						"type": "DatasetReference"
+					},
+					"name": "SourceInternetSales",
+					"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as double,\n\t\tExtendedAmount as double,\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as double,\n\t\tTotalProductCost as double,\n\t\tSalesAmount as double,\n\t\tTaxAmt as double,\n\t\tFreight as double,\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as date,\n\t\tDueDate as date,\n\t\tShipDate as date\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceInternetSales"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_LINK_InternetSales",
+						"type": "DatasetReference"
+					},
+					"name": "LinkInternetSales",
+					"script": "source(output(\n\t\tLINK_InternetSales_HK as long,\n\t\tHUB_Customer_HK as long,\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> LinkInternetSales"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_InternetSales_Latest",
+						"type": "DatasetReference"
+					},
+					"name": "SatInternetSales",
+					"script": "source(output(\n\t\tLINK_InternetSales_HK as long,\n\t\tSAT_InternetSales_HDIFF as long\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> SatInternetSales"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_LINK_InternetSales",
+						"type": "DatasetReference"
+					},
+					"name": "SinkLinkInternetSales",
+					"script": "NewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as long,\n\t\tHUB_Customer_HK as long,\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkLinkInternetSales"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_InternetSales",
+						"type": "DatasetReference"
+					},
+					"name": "SinkSatInternetSales",
+					"script": "NewSatProduct sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatInternetSales"
+				}
+			],
+			"transformations": [
+				{
+					"name": "HashColumns",
+					"script": "SourceInternetSales derive(LINK_InternetSales_HK = crc32(ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber),\n\t\tHUB_Customer_HK = crc32(CustomerAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tHUB_Product_HK = crc32(ProductAlternateKey),\n\t\tSAT_InternetSales_HDIFF = crc32(ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber,RevisionNumber,OrderQuantity,UnitPrice,ExtendedAmount,UnitPriceDiscountPct,DiscountAmount,ProductStandardCost,TotalProductCost,SalesAmount,TaxAmt,Freight,CarrierTrackingNumber,CustomerPONumber,OrderDate,DueDate)) ~> HashColumns"
+				},
+				{
+					"name": "CheckNewLinkInternetSales",
+					"script": "HashColumns, LinkInternetSales exists(HashColumns@LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales"
+				},
+				{
+					"name": "NewLinkInternetSales",
+					"script": "CheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK\n\t))~> NewLinkInternetSales"
+				},
+				{
+					"name": "CheckNewSatInternetSales",
+					"script": "HashColumns, SatInternetSales exists(HashColumns@LINK_InternetSales_HK == SatInternetSales@LINK_InternetSales_HK\n\t&& HashColumns@SAT_InternetSales_HDIFF == SatInternetSales@SAT_InternetSales_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatInternetSales"
+				},
+				{
+					"name": "NewSatProduct",
+					"script": "CheckNewSatInternetSales select(mapColumn(\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tLOAD_TS,\n\t\tSAT_InternetSales_HDIFF\n\t))~> NewSatProduct"
+				}
+			]
+		}
+	}
+}

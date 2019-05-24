@@ -1,0 +1,106 @@
+{
+	"name": "ADLS_dvs_product_init_ds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStore_ls",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureDataLakeStoreLocation",
+				"fileName": "dvs_product.csv",
+				"folderPath": "AdventureWorksDataVault/InitialLoad"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "ProductAlternateKey",
+				"type": "String"
+			},
+			{
+				"name": "WeightUnitMeasureCode",
+				"type": "String"
+			},
+			{
+				"name": "SizeUnitMeasureCode",
+				"type": "String"
+			},
+			{
+				"name": "EnglishProductName",
+				"type": "String"
+			},
+			{
+				"name": "StandardCost",
+				"type": "String"
+			},
+			{
+				"name": "FinishedGoodsFlag",
+				"type": "String"
+			},
+			{
+				"name": "Color",
+				"type": "String"
+			},
+			{
+				"name": "SafetyStockLevel",
+				"type": "String"
+			},
+			{
+				"name": "ReorderPoint",
+				"type": "String"
+			},
+			{
+				"name": "ListPrice",
+				"type": "String"
+			},
+			{
+				"name": "Size",
+				"type": "String"
+			},
+			{
+				"name": "SizeRange",
+				"type": "String"
+			},
+			{
+				"name": "Weight",
+				"type": "String"
+			},
+			{
+				"name": "ModelName",
+				"type": "String"
+			},
+			{
+				"name": "StartDate",
+				"type": "String"
+			},
+			{
+				"name": "EndDate",
+				"type": "String"
+			},
+			{
+				"name": "Status",
+				"type": "String"
+			},
+			{
+				"name": "HUB_Product_HK",
+				"type": "String"
+			},
+			{
+				"name": "SAT_Product_HDIFF",
+				"type": "String"
+			},
+			{
+				"name": "LOAD_TS",
+				"type": "String"
+			}
+		]
+	}
+}
