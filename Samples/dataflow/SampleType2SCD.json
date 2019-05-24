@@ -1,5 +1,5 @@
 {
-	"name": "DimEmployeeLoader2",
+	"name": "SampleType2SCD",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
