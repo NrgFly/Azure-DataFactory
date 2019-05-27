@@ -18,7 +18,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "HubProduct",
-					"script": "source(output(\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> HubProduct"
+					"script": "source(output(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> HubProduct"
 				},
 				{
 					"dataset": {
@@ -26,7 +26,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "SatProduct",
-					"script": "source(output(\n\t\tHUB_Product_HK as long,\n\t\tSAT_Product_HDIFF as long\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> SatProduct"
+					"script": "source(output(\n\t\tHUB_Product_HK as string,\n\t\tSAT_Product_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> SatProduct"
 				}
 			],
 			"sinks": [
@@ -36,7 +36,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "SinkHubProduct",
-					"script": "NewHubProduct sink(input(\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubProduct"
+					"script": "NewHubProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubProduct"
 				},
 				{
 					"dataset": {
@@ -44,7 +44,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "SinkSatProduct",
-					"script": "NewSatProduct sink(input(\n\t\tHUB_Product_HK as long,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as long,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatProduct"
+					"script": "NewSatProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatProduct"
 				}
 			],
 			"transformations": [
