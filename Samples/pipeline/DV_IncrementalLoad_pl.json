@@ -5,14 +5,6 @@
 			{
 				"name": "DV_HUB_Product",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [
-					{
-						"activity": "DataVault_InternetSales",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -30,6 +22,14 @@
 			{
 				"name": "DataVault_InternetSales",
 				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "DV_HUB_Product",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
