@@ -9,7 +9,109 @@
 			"name": "DataVaultTesting"
 		},
 		"type": "AzureSqlTable",
-		"schema": [],
+		"schema": [
+			{
+				"name": "LINK_InternetSales_HK",
+				"type": "varchar"
+			},
+			{
+				"name": "RevisionNumber",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "OrderQuantity",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "UnitPrice",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "ExtendedAmount",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "UnitPriceDiscountPct",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "DiscountAmount",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "ProductStandardCost",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "TotalProductCost",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "SalesAmount",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "TaxAmt",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "Freight",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "CarrierTrackingNumber",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CustomerPONumber",
+				"type": "nvarchar"
+			},
+			{
+				"name": "OrderDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DueDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "ShipDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "SAT_InternetSales_HDIFF",
+				"type": "varchar"
+			},
+			{
+				"name": "LOAD_TS",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
 		"typeProperties": {
 			"tableName": "[dbo].[SAT_InternetSales]"
 		}
