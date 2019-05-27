@@ -18,7 +18,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "LinkInternetSales",
-					"script": "source(output(\n\t\tLINK_InternetSales_HK as long,\n\t\tHUB_Customer_HK as long,\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> LinkInternetSales"
+					"script": "source(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> LinkInternetSales"
 				},
 				{
 					"dataset": {
@@ -26,7 +26,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "SatInternetSales",
-					"script": "source(output(\n\t\tLINK_InternetSales_HK as long,\n\t\tSAT_InternetSales_HDIFF as long\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> SatInternetSales"
+					"script": "source(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tSAT_InternetSales_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table') ~> SatInternetSales"
 				}
 			],
 			"sinks": [
@@ -36,7 +36,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "SinkLinkInternetSales",
-					"script": "NewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as long,\n\t\tHUB_Customer_HK as long,\n\t\tHUB_Product_HK as long,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkLinkInternetSales"
+					"script": "NewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkLinkInternetSales"
 				},
 				{
 					"dataset": {
@@ -44,7 +44,7 @@
 						"type": "DatasetReference"
 					},
 					"name": "SinkSatInternetSales",
-					"script": "NewSatProduct sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatInternetSales"
+					"script": "NewSatProduct sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as decimal(19,4),\n\t\tExtendedAmount as decimal(19,4),\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as decimal(19,4),\n\t\tTotalProductCost as decimal(19,4),\n\t\tSalesAmount as decimal(19,4),\n\t\tTaxAmt as decimal(19,4),\n\t\tFreight as decimal(19,4),\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as timestamp,\n\t\tDueDate as timestamp,\n\t\tShipDate as timestamp,\n\t\tSAT_InternetSales_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatInternetSales"
 				}
 			],
 			"transformations": [
