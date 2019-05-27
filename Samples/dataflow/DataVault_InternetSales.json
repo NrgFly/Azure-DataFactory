@@ -50,7 +50,7 @@
 			"transformations": [
 				{
 					"name": "HashColumns",
-					"script": "SourceInternetSales derive(LINK_InternetSales_HK = crc32(ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber),\n\t\tHUB_Customer_HK = crc32(CustomerAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tHUB_Product_HK = crc32(ProductAlternateKey),\n\t\tSAT_InternetSales_HDIFF = crc32(ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber,RevisionNumber,OrderQuantity,UnitPrice,ExtendedAmount,UnitPriceDiscountPct,DiscountAmount,ProductStandardCost,TotalProductCost,SalesAmount,TaxAmt,Freight,CarrierTrackingNumber,CustomerPONumber,OrderDate,DueDate)) ~> HashColumns"
+					"script": "SourceInternetSales derive(LINK_InternetSales_HK = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tHUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_InternetSales_HDIFF = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber,RevisionNumber,OrderQuantity,UnitPrice,ExtendedAmount,UnitPriceDiscountPct,DiscountAmount,ProductStandardCost,TotalProductCost,SalesAmount,TaxAmt,Freight,CarrierTrackingNumber,CustomerPONumber,OrderDate,DueDate)) ~> HashColumns"
 				},
 				{
 					"name": "CheckNewLinkInternetSales",
