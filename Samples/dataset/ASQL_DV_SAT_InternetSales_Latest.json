@@ -12,13 +12,11 @@
 		"schema": [
 			{
 				"name": "LINK_InternetSales_HK",
-				"type": "bigint",
-				"precision": 19
+				"type": "varchar"
 			},
 			{
 				"name": "SAT_InternetSales_HDIFF",
-				"type": "bigint",
-				"precision": 19
+				"type": "varchar"
 			}
 		],
 		"typeProperties": {

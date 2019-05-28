@@ -12,8 +12,7 @@
 		"schema": [
 			{
 				"name": "HUB_Product_HK",
-				"type": "bigint",
-				"precision": 19
+				"type": "varchar"
 			},
 			{
 				"name": "WeightUnitMeasureCode",
@@ -76,8 +75,7 @@
 			},
 			{
 				"name": "SAT_Product_HDIFF",
-				"type": "bigint",
-				"precision": 19
+				"type": "varchar"
 			},
 			{
 				"name": "LOAD_TS",

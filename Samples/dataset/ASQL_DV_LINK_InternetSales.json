@@ -12,18 +12,15 @@
 		"schema": [
 			{
 				"name": "LINK_InternetSales_HK",
-				"type": "bigint",
-				"precision": 19
+				"type": "varchar"
 			},
 			{
 				"name": "HUB_Customer_HK",
-				"type": "bigint",
-				"precision": 19
+				"type": "varchar"
 			},
 			{
 				"name": "HUB_Product_HK",
-				"type": "bigint",
-				"precision": 19
+				"type": "varchar"
 			},
 			{
 				"name": "ProductAlternateKey",
