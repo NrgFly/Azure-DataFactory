@@ -30,8 +30,44 @@
 				}
 			},
 			{
-				"name": "Set_Notes_Syllabic",
+				"name": "Set_Notes_Alphabet",
 				"type": "SetVariable",
+				"typeProperties": {
+					"variableName": "Notes_Alphabet",
+					"value": {
+						"value": "@split(variables('Notes_Alphabet_String'),'-')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Notes Combined",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set_Notes_Alphabet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ForEach_Note",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "Notes_Combined",
+					"value": {
+						"value": "@union(variables('Notes_Syllabic'),variables('Notes_Alphabet'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach_Note",
+				"type": "ForEach",
 				"dependsOn": [
 					{
 						"activity": "Lookup Notes",
@@ -41,11 +77,24 @@
 					}
 				],
 				"typeProperties": {
-					"variableName": "Notes_Syllabic",
-					"value": {
+					"items": {
 						"value": "@activity('Lookup Notes').output.value",
 						"type": "Expression"
-					}
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Append Music Notes",
+							"type": "AppendVariable",
+							"typeProperties": {
+								"variableName": "Notes_Syllabic",
+								"value": {
+									"value": "@item.Note",
+									"type": "Expression"
+								}
+							}
+						}
+					]
 				}
 			}
 		],
@@ -59,6 +108,9 @@
 			"Notes_Alphabet_String": {
 				"type": "String",
 				"defaultValue": "C-D-E-F-G-A-B"
+			},
+			"Notes_Combined": {
+				"type": "Array"
 			}
 		},
 		"folder": {
