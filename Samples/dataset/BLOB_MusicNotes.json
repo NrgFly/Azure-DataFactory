@@ -22,6 +22,10 @@
 		},
 		"schema": [
 			{
+				"name": "ID",
+				"type": "String"
+			},
+			{
 				"name": "Note",
 				"type": "String"
 			}
