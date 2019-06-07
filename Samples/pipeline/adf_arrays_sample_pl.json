@@ -77,6 +77,25 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Notes_Combined_View",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ForEach_Note",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "Notes_Combined_View",
+					"value": {
+						"value": "@variables('Notes_Combined')",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
@@ -91,6 +110,9 @@
 				"defaultValue": "C-D-E-F-G-A-B"
 			},
 			"Notes_Combined": {
+				"type": "Array"
+			},
+			"Notes_Combined_View": {
 				"type": "Array"
 			}
 		},
