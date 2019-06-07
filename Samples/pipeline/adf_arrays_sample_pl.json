@@ -68,7 +68,7 @@
 							"name": "Append Music Notes",
 							"type": "AppendVariable",
 							"typeProperties": {
-								"variableName": "Notes_Syllabic",
+								"variableName": "Notes_Combined",
 								"value": {
 									"value": "@concat(item().ID,'-',item().Note,'-',variables('Notes_Alphabet')[add(int(item().ID),-1)])",
 									"type": "Expression"
