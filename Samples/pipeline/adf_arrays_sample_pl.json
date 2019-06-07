@@ -41,31 +41,6 @@
 				}
 			},
 			{
-				"name": "Set Notes Combined",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "Set_Notes_Alphabet",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "ForEach_Note",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"typeProperties": {
-					"variableName": "Notes_Combined",
-					"value": {
-						"value": "@union(variables('Notes_Syllabic'),variables('Notes_Alphabet'))",
-						"type": "Expression"
-					}
-				}
-			},
-			{
 				"name": "ForEach_Note",
 				"type": "ForEach",
 				"dependsOn": [
@@ -74,11 +49,17 @@
 						"dependencyConditions": [
 							"Succeeded"
 						]
+					},
+					{
+						"activity": "Set_Notes_Alphabet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
 				],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Lookup Notes').output.value",
+						"value": "@activity('Lookup Notes_Syllabic').output.value",
 						"type": "Expression"
 					},
 					"isSequential": true,
@@ -89,7 +70,7 @@
 							"typeProperties": {
 								"variableName": "Notes_Syllabic",
 								"value": {
-									"value": "@item().Note",
+									"value": "@concat(string(item().ID),'-',item().Note,'-',variables('Notes_Alphabet')[item().ID])",
 									"type": "Expression"
 								}
 							}
