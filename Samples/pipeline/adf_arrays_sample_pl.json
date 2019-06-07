@@ -30,6 +30,18 @@
 				}
 			}
 		],
+		"variables": {
+			"Notes_Solfège": {
+				"type": "Array"
+			},
+			"Notes_Alphabet": {
+				"type": "Array"
+			},
+			"Notes_Alphabet_String": {
+				"type": "String",
+				"defaultValue": "C-D-E-F-G-A-B"
+			}
+		},
 		"folder": {
 			"name": "Sample Pipelines"
 		}
