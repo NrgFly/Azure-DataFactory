@@ -25,7 +25,8 @@
 					"dataset": {
 						"referenceName": "BLOB_MusicNotes",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			}
 		],
