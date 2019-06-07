@@ -1,0 +1,123 @@
+{
+	"name": "adf_arrays_sample_pl",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup Notes_Syllabic",
+				"type": "Lookup",
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSetting"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSetting"
+						}
+					},
+					"dataset": {
+						"referenceName": "BLOB_MusicNotes",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Set_Notes_Alphabet",
+				"type": "SetVariable",
+				"typeProperties": {
+					"variableName": "Notes_Alphabet",
+					"value": {
+						"value": "@split(variables('Notes_Alphabet_String'),'-')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Combing Notes",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup Notes_Syllabic",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set_Notes_Alphabet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup Notes_Syllabic').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Append Music Notes",
+							"type": "AppendVariable",
+							"typeProperties": {
+								"variableName": "Notes_Combined",
+								"value": {
+									"value": "@concat(item().ID,'-',item().Note,'-',variables('Notes_Alphabet')[add(int(item().ID),-1)])",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Notes_Combined_View",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Combing Notes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "Notes_Combined_View",
+					"value": {
+						"value": "@variables('Notes_Combined')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"Notes_Syllabic": {
+				"type": "Array"
+			},
+			"Notes_Alphabet": {
+				"type": "Array"
+			},
+			"Notes_Alphabet_String": {
+				"type": "String",
+				"defaultValue": "C-D-E-F-G-A-B"
+			},
+			"Notes_Combined": {
+				"type": "Array"
+			},
+			"Notes_Combined_View": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "Sample Pipelines"
+		}
+	}
+}
