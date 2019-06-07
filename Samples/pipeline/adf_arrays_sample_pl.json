@@ -28,10 +28,29 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "Set_Notes_Syllabic",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup Notes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"typeProperties": {
+					"variableName": "Notes_Syllabic",
+					"value": {
+						"value": "@activity('Lookup Notes').output.value",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"variables": {
-			"Notes_Solfège": {
+			"Notes_Syllabic": {
 				"type": "Array"
 			},
 			"Notes_Alphabet": {
