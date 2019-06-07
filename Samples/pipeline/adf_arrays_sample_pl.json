@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Lookup Notes",
+				"name": "Lookup Notes_Syllabic",
 				"type": "Lookup",
 				"policy": {
 					"timeout": "7.00:00:00",
@@ -70,7 +70,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Lookup Notes",
+						"activity": "Lookup Notes_Syllabic",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -89,7 +89,7 @@
 							"typeProperties": {
 								"variableName": "Notes_Syllabic",
 								"value": {
-									"value": "@item.Note",
+									"value": "@item().Note",
 									"type": "Expression"
 								}
 							}
