@@ -41,7 +41,7 @@
 				}
 			},
 			{
-				"name": "ForEach_Note",
+				"name": "Combing Notes",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -83,7 +83,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "ForEach_Note",
+						"activity": "Combing Notes",
 						"dependencyConditions": [
 							"Succeeded"
 						]
