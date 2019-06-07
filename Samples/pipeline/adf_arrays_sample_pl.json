@@ -70,7 +70,7 @@
 							"typeProperties": {
 								"variableName": "Notes_Syllabic",
 								"value": {
-									"value": "@concat(string(item().ID),'-',item().Note,'-',variables('Notes_Alphabet')[item().ID])",
+									"value": "@concat(item().ID,'-',item().Note,'-',variables('Notes_Alphabet')[int(item().ID)])",
 									"type": "Expression"
 								}
 							}
