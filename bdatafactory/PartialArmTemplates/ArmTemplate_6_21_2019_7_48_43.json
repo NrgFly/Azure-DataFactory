@@ -1,0 +1,2289 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "bdatafactory"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/DV_IncrementalLoad_pl')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DV_HUB_Product",
+						"type": "ExecuteDataFlow",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DataVault_Product",
+								"type": "DataFlowReference"
+							}
+						}
+					},
+					{
+						"name": "DataVault_InternetSales",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DV_HUB_Product",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DataVault_InternetSales",
+								"type": "DataFlowReference"
+							}
+						}
+					}
+				],
+				"folder": {
+					"name": "DataVaultTesting"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DataVault_Product')]",
+				"[concat(variables('factoryId'), '/dataflows/DataVault_InternetSales')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DV_InitialLoad_pl')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "HUB_Product",
+						"type": "Copy",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureDataLakeStoreReadSetting",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSetting"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "HUB_Product_HK",
+											"type": "String"
+										},
+										"sink": {
+											"name": "HUB_Product_HK",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "ProductAlternateKey",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ProductAlternateKey",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "LOAD_TS",
+											"type": "String"
+										},
+										"sink": {
+											"name": "LOAD_TS",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADLS_dvs_product_init_ds",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ASQL_DV_HUB_Product",
+								"type": "DatasetReference"
+							}
+						]
+					},
+					{
+						"name": "SAT_Product",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "HUB_Product",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureDataLakeStoreReadSetting",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSetting"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "HUB_Product_HK",
+											"type": "String"
+										},
+										"sink": {
+											"name": "HUB_Product_HK",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "WeightUnitMeasureCode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "WeightUnitMeasureCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "SizeUnitMeasureCode",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SizeUnitMeasureCode",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "EnglishProductName",
+											"type": "String"
+										},
+										"sink": {
+											"name": "EnglishProductName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "StandardCost",
+											"type": "String"
+										},
+										"sink": {
+											"name": "StandardCost",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "FinishedGoodsFlag",
+											"type": "String"
+										},
+										"sink": {
+											"name": "FinishedGoodsFlag",
+											"type": "Boolean"
+										}
+									},
+									{
+										"source": {
+											"name": "Color",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Color",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "SafetyStockLevel",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SafetyStockLevel",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "ReorderPoint",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ReorderPoint",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "ListPrice",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ListPrice",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "Size",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Size",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "SizeRange",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SizeRange",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Weight",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Weight",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"name": "ModelName",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ModelName",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "SAT_Product_HDIFF",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SAT_Product_HDIFF",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "LOAD_TS",
+											"type": "String"
+										},
+										"sink": {
+											"name": "LOAD_TS",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADLS_dvs_product_init_ds",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ASQL_DV_SAT_Product",
+								"type": "DatasetReference"
+							}
+						]
+					},
+					{
+						"name": "LINK_InternetSales",
+						"type": "Copy",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureDataLakeStoreReadSetting",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSetting"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "LINK_InternetSales_HK",
+											"type": "String"
+										},
+										"sink": {
+											"name": "LINK_InternetSales_HK",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "HUB_Customer_HK",
+											"type": "String"
+										},
+										"sink": {
+											"name": "HUB_Customer_HK",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "HUB_Product_HK",
+											"type": "String"
+										},
+										"sink": {
+											"name": "HUB_Product_HK",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "SalesOrderNumber",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SalesOrderNumber",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "SalesOrderLineNumber",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SalesOrderLineNumber",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "LOAD_TS",
+											"type": "String"
+										},
+										"sink": {
+											"name": "LOAD_TS",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADLS_dvs_internetsales_init_ds",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ASQL_DV_LINK_InternetSales",
+								"type": "DatasetReference"
+							}
+						]
+					},
+					{
+						"name": "SAT_InternetSales",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "LINK_InternetSales",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureDataLakeStoreReadSetting",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSetting"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "LINK_InternetSales_HK",
+											"type": "String"
+										},
+										"sink": {
+											"name": "LINK_InternetSales_HK",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "RevisionNumber",
+											"type": "String"
+										},
+										"sink": {
+											"name": "RevisionNumber",
+											"type": "Byte"
+										}
+									},
+									{
+										"source": {
+											"name": "OrderQuantity",
+											"type": "String"
+										},
+										"sink": {
+											"name": "OrderQuantity",
+											"type": "Int16"
+										}
+									},
+									{
+										"source": {
+											"name": "UnitPrice",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UnitPrice",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "ExtendedAmount",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ExtendedAmount",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "UnitPriceDiscountPct",
+											"type": "String"
+										},
+										"sink": {
+											"name": "UnitPriceDiscountPct",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"name": "DiscountAmount",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DiscountAmount",
+											"type": "Double"
+										}
+									},
+									{
+										"source": {
+											"name": "ProductStandardCost",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ProductStandardCost",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "TotalProductCost",
+											"type": "String"
+										},
+										"sink": {
+											"name": "TotalProductCost",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "SalesAmount",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SalesAmount",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "TaxAmt",
+											"type": "String"
+										},
+										"sink": {
+											"name": "TaxAmt",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "Freight",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Freight",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"name": "CarrierTrackingNumber",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CarrierTrackingNumber",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CustomerPONumber",
+											"type": "String"
+										},
+										"sink": {
+											"name": "CustomerPONumber",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "OrderDate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "OrderDate",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "DueDate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "DueDate",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "ShipDate",
+											"type": "String"
+										},
+										"sink": {
+											"name": "ShipDate",
+											"type": "DateTime"
+										}
+									},
+									{
+										"source": {
+											"name": "SAT_InternetSales_HDIFF",
+											"type": "String"
+										},
+										"sink": {
+											"name": "SAT_InternetSales_HDIFF",
+											"type": "Int64"
+										}
+									},
+									{
+										"source": {
+											"name": "LOAD_TS",
+											"type": "String"
+										},
+										"sink": {
+											"name": "LOAD_TS",
+											"type": "DateTime"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADLS_dvs_internetsales_init_ds",
+								"type": "DatasetReference"
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ASQL_DV_SAT_InternetSales",
+								"type": "DatasetReference"
+							}
+						]
+					}
+				],
+				"folder": {
+					"name": "DataVaultTesting"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLS_dvs_product_init_ds')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_HUB_Product')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Product')]",
+				"[concat(variables('factoryId'), '/datasets/ADLS_dvs_internetsales_init_ds')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_LINK_InternetSales')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_InternetSales')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ValidationActivity_CopyDeleteFiles')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "EnumerateFolderList",
+						"description": "Scan the file path on your source ADLS and get the container list.",
+						"type": "GetMetadata",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "validation_adls_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"FileFolder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							]
+						}
+					},
+					{
+						"name": "ForEachFolder",
+						"description": "Get the folder list from Metadata activity and then iterates each of them to Copy activity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "EnumerateFolderList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('EnumerateFolderList').output.childItems",
+								"type": "Expression"
+							},
+							"batchCount": 4,
+							"activities": [
+								{
+									"name": "CopyOneFolder",
+									"description": "Copy each folder from source ADLS to destination ADLS folder.",
+									"type": "Copy",
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+										},
+										{
+											"name": "Destination",
+											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "AzureDataLakeStoreSource",
+											"recursive": true
+										},
+										"sink": {
+											"type": "AzureDataLakeStoreSink"
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 0
+									},
+									"inputs": [
+										{
+											"referenceName": "validation_adls_source_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileFolder": {
+													"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "validation_adls_source_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileFolder": {
+													"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "DeleteFiles",
+									"type": "Delete",
+									"dependsOn": [
+										{
+											"activity": "CopyOneFolder",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "validation_adls_source_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileFolder": {
+													"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										},
+										"recursive": true,
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "AzureBlobStorage_LS",
+												"type": "LinkedServiceReference"
+											},
+											"path": "logging"
+										},
+										"enableLogging": true
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Email Notification",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Run Calculations",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Check if Folder empty",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"DataFactoryName": "@{pipeline().DataFactory}",
+								"PipelineName": "@{pipeline().Pipeline}",
+								"Message": "Copy Operation finished.",
+								"EmailTo": "@pipeline().parameters.par_email_address"
+							}
+						}
+					},
+					{
+						"name": "Check If Folder exists",
+						"type": "Validation",
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "validation_adls_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"FileFolder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"timeout": "7.00:00:00",
+							"sleep": 1
+						}
+					},
+					{
+						"name": "Check if File exists",
+						"type": "Validation",
+						"dependsOn": [
+							{
+								"activity": "Check If Folder exists",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "validation_adls_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"FileFolder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"timeout": "7.00:00:00",
+							"sleep": 1,
+							"childItems": true
+						}
+					},
+					{
+						"name": "Check if Folder empty",
+						"type": "Validation",
+						"dependsOn": [
+							{
+								"activity": "ForEachFolder",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "validation_adls_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"FileFolder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"timeout": "7.00:00:00",
+							"sleep": 1,
+							"childItems": false
+						}
+					},
+					{
+						"name": "Run Calculations",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Check if File exists",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "ForEachFolder",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"notebookPath": "/Notebooks/SampleNotebookScala"
+						},
+						"linkedServiceName": {
+							"referenceName": "azuredatabricks_bigdata_ls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"parameters": {
+					"SourceFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales"
+					},
+					"DestinationFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales-staging"
+					},
+					"par_email_address": {
+						"type": "String",
+						"defaultValue": "rimayev@hotmail.com"
+					}
+				},
+				"folder": {
+					"name": "Validation Activity"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/validation_adls_source_ds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adf_arrays_sample_pl')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup Notes_Syllabic",
+						"type": "Lookup",
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSetting",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSetting"
+								}
+							},
+							"dataset": {
+								"referenceName": "BLOB_MusicNotes",
+								"type": "DatasetReference"
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Set_Notes_Alphabet",
+						"type": "SetVariable",
+						"typeProperties": {
+							"variableName": "Notes_Alphabet",
+							"value": {
+								"value": "@split(variables('Notes_Alphabet_String'),'-')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Combing Notes",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup Notes_Syllabic",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Set_Notes_Alphabet",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup Notes_Syllabic').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Append Music Notes",
+									"type": "AppendVariable",
+									"typeProperties": {
+										"variableName": "Notes_Combined",
+										"value": {
+											"value": "@concat(item().ID,'-',item().Note,'-',variables('Notes_Alphabet')[add(int(item().ID),-1)])",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Notes_Combined_View",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Combing Notes",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"variableName": "Notes_Combined_View",
+							"value": {
+								"value": "@variables('Notes_Combined')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"variables": {
+					"Notes_Syllabic": {
+						"type": "Array"
+					},
+					"Notes_Alphabet": {
+						"type": "Array"
+					},
+					"Notes_Alphabet_String": {
+						"type": "String",
+						"defaultValue": "C-D-E-F-G-A-B"
+					},
+					"Notes_Combined": {
+						"type": "Array"
+					},
+					"Notes_Combined_View": {
+						"type": "Array"
+					}
+				},
+				"folder": {
+					"name": "Sample Pipelines"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/BLOB_MusicNotes')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bdata_adf_variable_array_first_element')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set FileList",
+						"type": "SetVariable",
+						"typeProperties": {
+							"variableName": "FileList",
+							"value": {
+								"value": "@createArray('File', 'Folder')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "CheckFirstElement",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Array First Element",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(variables('FirstArrayElement'),'Folder')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Wait Files 2 sec",
+									"type": "Wait",
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "Wait Folder 1 sec",
+									"type": "Wait",
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Array First Element",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set FileList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"variableName": "FirstArrayElement",
+							"value": {
+								"value": "@variables('FileList')[0]",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"variables": {
+					"FileList": {
+						"type": "Array"
+					},
+					"FirstArrayElement": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Sample Pipelines"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bdata_adf_variable_array_many_elements')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set Array Variable",
+						"type": "SetVariable",
+						"typeProperties": {
+							"variableName": "ArrayVariable",
+							"value": {
+								"value": "@createArray('A', 'B')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "First Element",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set Array Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"variableName": "ArrayElement_1",
+							"value": {
+								"value": "@variables('ArrayVariable')[0]",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Second Element",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set Array Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"variableName": "ArrayElement_1",
+							"value": {
+								"value": "@variables('ArrayVariable')[0]",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Check Out of Range",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set Array Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"typeProperties": {
+							"variableName": "ArrayElement_OutOfRange",
+							"value": {
+								"value": "@variables('ArrayVariable')[2]",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Add New Value",
+						"type": "AppendVariable",
+						"dependsOn": [
+							{
+								"activity": "Check Out of Range",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"typeProperties": {
+							"variableName": "ArrayVariable",
+							"value": "C"
+						}
+					}
+				],
+				"variables": {
+					"ArrayVariable": {
+						"type": "Array"
+					},
+					"ArrayElement_1": {
+						"type": "String"
+					},
+					"ArrayElement_2": {
+						"type": "String"
+					},
+					"ArrayElement_OutOfRange": {
+						"type": "String"
+					},
+					"ErrorMessage": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Sample Pipelines"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_dvs_internetsales_init_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStore_ls",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureDataLakeStoreLocation",
+						"fileName": "dvs_internetsales.csv",
+						"folderPath": "AdventureWorksDataVault/InitialLoad"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_dvs_product_init_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStore_ls",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureDataLakeStoreLocation",
+						"fileName": "dvs_product.csv",
+						"folderPath": "AdventureWorksDataVault/InitialLoad"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ProductAlternateKey",
+						"type": "String"
+					},
+					{
+						"name": "WeightUnitMeasureCode",
+						"type": "String"
+					},
+					{
+						"name": "SizeUnitMeasureCode",
+						"type": "String"
+					},
+					{
+						"name": "EnglishProductName",
+						"type": "String"
+					},
+					{
+						"name": "StandardCost",
+						"type": "String"
+					},
+					{
+						"name": "FinishedGoodsFlag",
+						"type": "String"
+					},
+					{
+						"name": "Color",
+						"type": "String"
+					},
+					{
+						"name": "SafetyStockLevel",
+						"type": "String"
+					},
+					{
+						"name": "ReorderPoint",
+						"type": "String"
+					},
+					{
+						"name": "ListPrice",
+						"type": "String"
+					},
+					{
+						"name": "Size",
+						"type": "String"
+					},
+					{
+						"name": "SizeRange",
+						"type": "String"
+					},
+					{
+						"name": "Weight",
+						"type": "String"
+					},
+					{
+						"name": "ModelName",
+						"type": "String"
+					},
+					{
+						"name": "StartDate",
+						"type": "String"
+					},
+					{
+						"name": "EndDate",
+						"type": "String"
+					},
+					{
+						"name": "Status",
+						"type": "String"
+					},
+					{
+						"name": "HUB_Product_HK",
+						"type": "String"
+					},
+					{
+						"name": "SAT_Product_HDIFF",
+						"type": "String"
+					},
+					{
+						"name": "LOAD_TS",
+						"type": "String"
+					}
+				]
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_DV_HUB_Product')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_DV_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "HUB_Product_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "ProductAlternateKey",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOAD_TS",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"tableName": "[[dbo].[HUB_Product]"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_DV_LINK_InternetSales')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_DV_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "LINK_InternetSales_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "HUB_Customer_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "HUB_Product_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "ProductAlternateKey",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerAlternateKey",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOrderNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SalesOrderLineNumber",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "LOAD_TS",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"tableName": "[[dbo].[LINK_InternetSales]"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_DV_SAT_InternetSales')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_DV_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "LINK_InternetSales_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "RevisionNumber",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "OrderQuantity",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "UnitPrice",
+						"type": "money",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "ExtendedAmount",
+						"type": "money",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "UnitPriceDiscountPct",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "DiscountAmount",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ProductStandardCost",
+						"type": "money",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "TotalProductCost",
+						"type": "money",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "SalesAmount",
+						"type": "money",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "TaxAmt",
+						"type": "money",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "Freight",
+						"type": "money",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "CarrierTrackingNumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CustomerPONumber",
+						"type": "nvarchar"
+					},
+					{
+						"name": "OrderDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "DueDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "ShipDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "SAT_InternetSales_HDIFF",
+						"type": "varchar"
+					},
+					{
+						"name": "LOAD_TS",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"tableName": "[[dbo].[SAT_InternetSales]"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_DV_SAT_InternetSales_Latest')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_DV_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "LINK_InternetSales_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "SAT_InternetSales_HDIFF",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"tableName": "[[dbo].[vw_latest_sat_internetsales]"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_DV_SAT_Product')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_DV_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "HUB_Product_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "WeightUnitMeasureCode",
+						"type": "nchar"
+					},
+					{
+						"name": "SizeUnitMeasureCode",
+						"type": "nchar"
+					},
+					{
+						"name": "EnglishProductName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "StandardCost",
+						"type": "money",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "FinishedGoodsFlag",
+						"type": "bit"
+					},
+					{
+						"name": "Color",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SafetyStockLevel",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "ReorderPoint",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "ListPrice",
+						"type": "money",
+						"precision": 19,
+						"scale": 4
+					},
+					{
+						"name": "Size",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SizeRange",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Weight",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ModelName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SAT_Product_HDIFF",
+						"type": "varchar"
+					},
+					{
+						"name": "LOAD_TS",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"tableName": "[[dbo].[SAT_Product]"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_DV_SAT_Product_Latest')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_DV_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "HUB_Product_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "SAT_Product_HDIFF",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"tableName": "[[dbo].[vw_latest_sat_product]"
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOB_MusicNotes')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Other Datasets"
+				},
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Notes.csv",
+						"container": "otherfiles"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ID",
+						"type": "String"
+					},
+					{
+						"name": "Note",
+						"type": "String"
+					}
+				]
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOB_dvs_internetsales_incr_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "dvs_internetsales_big.csv",
+						"container": "adventureworksdv"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ProductAlternateKey",
+						"type": "String"
+					},
+					{
+						"name": "CustomerAlternateKey",
+						"type": "String"
+					},
+					{
+						"name": "SalesOrderNumber",
+						"type": "String"
+					},
+					{
+						"name": "SalesOrderLineNumber",
+						"type": "String"
+					},
+					{
+						"name": "RevisionNumber",
+						"type": "String"
+					},
+					{
+						"name": "OrderQuantity",
+						"type": "String"
+					},
+					{
+						"name": "UnitPrice",
+						"type": "String"
+					},
+					{
+						"name": "ExtendedAmount",
+						"type": "String"
+					},
+					{
+						"name": "UnitPriceDiscountPct",
+						"type": "String"
+					},
+					{
+						"name": "DiscountAmount",
+						"type": "String"
+					},
+					{
+						"name": "ProductStandardCost",
+						"type": "String"
+					},
+					{
+						"name": "TotalProductCost",
+						"type": "String"
+					},
+					{
+						"name": "SalesAmount",
+						"type": "String"
+					},
+					{
+						"name": "TaxAmt",
+						"type": "String"
+					},
+					{
+						"name": "Freight",
+						"type": "String"
+					},
+					{
+						"name": "CarrierTrackingNumber",
+						"type": "String"
+					},
+					{
+						"name": "CustomerPONumber",
+						"type": "String"
+					},
+					{
+						"name": "OrderDate",
+						"type": "String"
+					},
+					{
+						"name": "DueDate",
+						"type": "String"
+					},
+					{
+						"name": "ShipDate",
+						"type": "String"
+					}
+				]
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOB_dvs_product_incr_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "dvs_product_big.csv",
+						"container": "adventureworksdv"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ProductAlternateKey",
+						"type": "String"
+					},
+					{
+						"name": "WeightUnitMeasureCode",
+						"type": "String"
+					},
+					{
+						"name": "SizeUnitMeasureCode",
+						"type": "String"
+					},
+					{
+						"name": "EnglishProductName",
+						"type": "String"
+					},
+					{
+						"name": "StandardCost",
+						"type": "String"
+					},
+					{
+						"name": "FinishedGoodsFlag",
+						"type": "String"
+					},
+					{
+						"name": "Color",
+						"type": "String"
+					},
+					{
+						"name": "SafetyStockLevel",
+						"type": "String"
+					},
+					{
+						"name": "ReorderPoint",
+						"type": "String"
+					},
+					{
+						"name": "ListPrice",
+						"type": "String"
+					},
+					{
+						"name": "Size",
+						"type": "String"
+					},
+					{
+						"name": "SizeRange",
+						"type": "String"
+					},
+					{
+						"name": "Weight",
+						"type": "String"
+					},
+					{
+						"name": "ModelName",
+						"type": "String"
+					}
+				]
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/validation_adls_source_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStore_ls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"FileFolder": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Other Datasets"
+				},
+				"type": "AzureDataLakeStoreFile",
+				"typeProperties": {
+					"format": {
+						"type": "TextFormat",
+						"columnDelimiter": ",",
+						"rowDelimiter": "",
+						"nullValue": "\\N",
+						"treatEmptyAsNull": true,
+						"skipLineCount": 0,
+						"firstRowAsHeader": false
+					},
+					"folderPath": {
+						"value": "@dataset().FileFolder",
+						"type": "Expression"
+					}
+				}
+			}
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DataVault_InternetSales')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "BLOB_dvs_internetsales_incr_ds",
+								"type": "DatasetReference"
+							},
+							"name": "SourceInternetSales",
+							"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as double,\n\t\tExtendedAmount as double,\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as double,\n\t\tTotalProductCost as double,\n\t\tSalesAmount as double,\n\t\tTaxAmt as double,\n\t\tFreight as double,\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as date,\n\t\tDueDate as date,\n\t\tShipDate as date\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceInternetSales"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_LINK_InternetSales",
+								"type": "DatasetReference"
+							},
+							"name": "LinkInternetSales",
+							"script": "source(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LinkInternetSales"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_InternetSales_Latest",
+								"type": "DatasetReference"
+							},
+							"name": "SatInternetSales",
+							"script": "source(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tSAT_InternetSales_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatInternetSales"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_LINK_InternetSales",
+								"type": "DatasetReference"
+							},
+							"name": "SinkLinkInternetSales",
+							"script": "NewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkLinkInternetSales"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_InternetSales",
+								"type": "DatasetReference"
+							},
+							"name": "SinkSatInternetSales",
+							"script": "NewSatProduct sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as decimal(19,4),\n\t\tExtendedAmount as decimal(19,4),\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as decimal(19,4),\n\t\tTotalProductCost as decimal(19,4),\n\t\tSalesAmount as decimal(19,4),\n\t\tTaxAmt as decimal(19,4),\n\t\tFreight as decimal(19,4),\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as timestamp,\n\t\tDueDate as timestamp,\n\t\tShipDate as timestamp,\n\t\tSAT_InternetSales_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatInternetSales"
+						}
+					],
+					"transformations": [
+						{
+							"name": "HashColumns",
+							"script": "SourceInternetSales derive(LINK_InternetSales_HK = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tHUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_InternetSales_HDIFF = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber,RevisionNumber,OrderQuantity,UnitPrice,ExtendedAmount,UnitPriceDiscountPct,DiscountAmount,ProductStandardCost,TotalProductCost,SalesAmount,TaxAmt,Freight,CarrierTrackingNumber,CustomerPONumber,OrderDate,DueDate)) ~> HashColumns"
+						},
+						{
+							"name": "CheckNewLinkInternetSales",
+							"script": "HashColumns, LinkInternetSales exists(HashColumns@LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales"
+						},
+						{
+							"name": "NewLinkInternetSales",
+							"script": "CheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK\n\t))~> NewLinkInternetSales"
+						},
+						{
+							"name": "CheckNewSatInternetSales",
+							"script": "HashColumns, SatInternetSales exists(HashColumns@LINK_InternetSales_HK == SatInternetSales@LINK_InternetSales_HK\n\t&& HashColumns@SAT_InternetSales_HDIFF == SatInternetSales@SAT_InternetSales_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatInternetSales"
+						},
+						{
+							"name": "NewSatProduct",
+							"script": "CheckNewSatInternetSales select(mapColumn(\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tLOAD_TS,\n\t\tSAT_InternetSales_HDIFF\n\t))~> NewSatProduct"
+						}
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/BLOB_dvs_internetsales_incr_ds')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_LINK_InternetSales')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_InternetSales_Latest')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_InternetSales')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DataVault_Product')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "BLOB_dvs_product_incr_ds",
+								"type": "DatasetReference"
+							},
+							"name": "SourceProduct",
+							"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as double,\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as short,\n\t\tReorderPoint as short,\n\t\tListPrice as double,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceProduct"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Product",
+								"type": "DatasetReference"
+							},
+							"name": "HubProduct",
+							"script": "source(output(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubProduct"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Product_Latest",
+								"type": "DatasetReference"
+							},
+							"name": "SatProduct",
+							"script": "source(output(\n\t\tHUB_Product_HK as string,\n\t\tSAT_Product_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatProduct"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Product",
+								"type": "DatasetReference"
+							},
+							"name": "SinkHubProduct",
+							"script": "NewHubProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubProduct"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Product",
+								"type": "DatasetReference"
+							},
+							"name": "SinkSatProduct",
+							"script": "NewSatProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatProduct"
+						}
+					],
+					"transformations": [
+						{
+							"name": "HashColumns",
+							"script": "SourceProduct derive(HUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_Product_HDIFF = sha2(512, ProductAlternateKey\r\n      ,WeightUnitMeasureCode\r\n      ,SizeUnitMeasureCode\r\n      ,EnglishProductName\r\n      ,StandardCost\r\n      ,FinishedGoodsFlag\r\n      ,Color\r\n      ,SafetyStockLevel\r\n      ,ReorderPoint\r\n      ,ListPrice\r\n      ,Size\r\n      ,SizeRange\r\n      ,Weight\r\n      ,ModelName),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns"
+						},
+						{
+							"name": "CheckNewProduct",
+							"script": "HashColumns, HubProduct exists(HashColumns@HUB_Product_HK == HubProduct@HUB_Product_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewProduct"
+						},
+						{
+							"name": "NewHubProduct",
+							"script": "CheckNewProduct select(mapColumn(\n\t\tProductAlternateKey,\n\t\tHUB_Product_HK,\n\t\tLOAD_TS\n\t))~> NewHubProduct"
+						},
+						{
+							"name": "CheckNewSatProduct",
+							"script": "HashColumns, SatProduct exists(HashColumns@HUB_Product_HK == SatProduct@HUB_Product_HK\n\t&& HashColumns@SAT_Product_HDIFF == SatProduct@SAT_Product_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatProduct"
+						},
+						{
+							"name": "NewSatProduct",
+							"script": "CheckNewSatProduct select(mapColumn(\n\t\tWeightUnitMeasureCode,\n\t\tSizeUnitMeasureCode,\n\t\tEnglishProductName,\n\t\tStandardCost,\n\t\tFinishedGoodsFlag,\n\t\tColor,\n\t\tSafetyStockLevel,\n\t\tReorderPoint,\n\t\tListPrice,\n\t\tSize,\n\t\tSizeRange,\n\t\tWeight,\n\t\tModelName,\n\t\tHUB_Product_HK,\n\t\tSAT_Product_HDIFF,\n\t\tLOAD_TS\n\t))~> NewSatProduct"
+						}
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/BLOB_dvs_product_incr_ds')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_HUB_Product')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Product_Latest')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Product')]"
+			]
+		}
+	]
+}

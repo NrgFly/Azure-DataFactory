@@ -8,6 +8,9 @@
 		"AzureBlobStorage_LS_connectionString": {
 			"value": ""
 		},
+		"AzureSqlDatabase_DV_LS_connectionString": {
+			"value": ""
+		},
 		"AzureSqlDatabase_LS_connectionString": {
 			"value": ""
 		},
@@ -91,6 +94,21 @@
 		},
 		"Template_wasb_source_ds_properties_typeProperties_folderPath": {
 			"value": "@dataset().folder"
+		},
+		"validation_adls_source_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().FileFolder"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_dataLakeStoreUri": {
+			"value": "https://azueus2devadlsbdatalake.azuredatalakestore.net/webhdfs/v1"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_tenant": {
+			"value": "31d5acce-99ba-40b7-b2a1-f329e04fe742"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_subscriptionId": {
+			"value": "6c405d27-de5e-483c-9a68-0aaaad20b363"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_resourceGroupName": {
+			"value": "big_data"
 		},
 		"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
 			"value": "https://azueus2bdatakvt.vault.azure.net/"
