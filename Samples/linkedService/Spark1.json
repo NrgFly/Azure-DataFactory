@@ -1,0 +1,22 @@
+{
+	"name": "Spark1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "Spark",
+		"typeProperties": {
+			"host": "eastus2.azuredatabricks.net",
+			"port": 443,
+			"serverType": "SparkThriftServer",
+			"thriftTransportProtocol": "HTTP",
+			"authenticationType": "UsernameAndPassword",
+			"username": "token",
+			"httpPath": "sql/protocolv1/o/1381793306306739/1214-144601-sedan385",
+			"enableSsl": true,
+			"useSystemTrustStore": false,
+			"allowHostNameCNMismatch": false,
+			"allowSelfSignedServerCert": false,
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkJEQVRBRkFDVE9SWV8xOTQ0NTYyZi1mNjMxLTRkMGEtYjhkMi0wMTU2N2MyZWJiOGMiDQp9"
+		}
+	}
+}
