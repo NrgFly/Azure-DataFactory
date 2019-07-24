@@ -1,0 +1,43 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory Name",
+			"defaultValue": "bdatafactory"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Spark1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Spark",
+				"typeProperties": {
+					"host": "eastus2.azuredatabricks.net",
+					"port": 443,
+					"serverType": "SparkThriftServer",
+					"thriftTransportProtocol": "HTTP",
+					"authenticationType": "UsernameAndPassword",
+					"username": "token",
+					"password": {
+						"type": "SecureString",
+						"value": "**********"
+					},
+					"httpPath": "sql/protocolv1/o/1381793306306739/1214-144601-sedan385",
+					"enableSsl": true,
+					"useSystemTrustStore": false,
+					"allowHostNameCNMismatch": false,
+					"allowSelfSignedServerCert": false
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
