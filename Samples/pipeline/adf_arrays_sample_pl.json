@@ -119,7 +119,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@variables('Var_Array_Test')",
+						"value": "@variables('Var_Array_Number')",
 						"type": "Expression"
 					},
 					"isSequential": true,
@@ -154,7 +154,7 @@
 			"Notes_Combined_View": {
 				"type": "Array"
 			},
-			"Var_Array_Test": {
+			"Var_Array_Text": {
 				"type": "Array",
 				"defaultValue": [
 					"C",
@@ -164,6 +164,18 @@
 					"G",
 					"A",
 					"B"
+				]
+			},
+			"Var_Array_Number": {
+				"type": "Array",
+				"defaultValue": [
+					1,
+					2,
+					3,
+					4,
+					5,
+					6,
+					7
 				]
 			}
 		},
