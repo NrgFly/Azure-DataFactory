@@ -116,6 +116,7 @@
 						"value": "@variables('Var_Array_Test')",
 						"type": "Expression"
 					},
+					"isSequential": true,
 					"activities": [
 						{
 							"name": "Wait 1 second",
