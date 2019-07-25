@@ -105,6 +105,29 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "ForEach_Array_Value",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('Var_Array_Test')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait 1 second",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
 			}
 		],
 		"variables": {
