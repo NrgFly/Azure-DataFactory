@@ -1,0 +1,25 @@
+{
+	"name": "SatGeography",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "HUB_Geography_HK",
+				"type": "varchar"
+			},
+			{
+				"name": "SAT_Geography_HDIFF",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "vw_latest_sat_geography"
+		}
+	}
+}
