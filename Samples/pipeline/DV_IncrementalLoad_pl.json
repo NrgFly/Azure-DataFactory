@@ -57,7 +57,14 @@
 			{
 				"name": "DV_Geography",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "DV_Customer",
+						"dependencyConditions": [
+							"Skipped"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -69,6 +76,25 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "DataVault_Geography",
+						"type": "DataFlowReference"
+					}
+				}
+			},
+			{
+				"name": "DV_Customer",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DataVault_Customer",
 						"type": "DataFlowReference"
 					}
 				}
