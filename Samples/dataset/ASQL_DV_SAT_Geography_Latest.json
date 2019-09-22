@@ -1,5 +1,5 @@
 {
-	"name": "SatGeography",
+	"name": "ASQL_DV_SAT_Geography_Latest",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureSqlDatabase_DV_LS",
