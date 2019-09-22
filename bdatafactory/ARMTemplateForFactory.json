@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_LS'"
 		},
+		"Spark1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'Spark1'"
+		},
 		"azuredatabricks_bigdata_ls_accessToken": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accessToken' of 'azuredatabricks_bigdata_ls'"
@@ -78,6 +82,18 @@
 		"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
 			"type": "string",
 			"defaultValue": "@dataset().FilePath"
+		},
+		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"AzureDataLakeStoreSourceFileStore1_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
 		},
 		"Template_FileShare_ds_properties_typeProperties_fileName": {
 			"type": "string",
@@ -151,9 +167,21 @@
 			"type": "string",
 			"defaultValue": "https://azueus2bdatakvt.vault.azure.net/"
 		},
+		"FileSystem_ls_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "C:\\Temp"
+		},
 		"FileSystem_ls_properties_typeProperties_userId": {
 			"type": "string",
 			"defaultValue": "corp\\rayis.imayev"
+		},
+		"Spark1_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "eastus2.azuredatabricks.net"
+		},
+		"Spark1_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "token"
 		},
 		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
 			"type": "string",
@@ -317,7 +345,6 @@
 												}
 											}
 										},
-										"recursive": true,
 										"logStorageSettings": {
 											"linkedServiceName": {
 												"referenceName": "AzureBlobStorage_LS",
@@ -325,7 +352,8 @@
 											},
 											"path": "logging"
 										},
-										"enableLogging": true
+										"enableLogging": true,
+										"recursive": true
 									}
 								}
 							]
@@ -761,15 +789,158 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/CopyFilesfromMultipleContainers_ADLS')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Copy all files across multiple containers or buckets from one file-based storage store to another",
+				"activities": [
+					{
+						"name": "EnumerateContainersList",
+						"description": "Scan the file path on your source storage store and get the container list.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "AzureDataLakeStoreSourceFileStore1",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							]
+						}
+					},
+					{
+						"name": "ForEachContainer",
+						"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "EnumerateContainersList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('EnumerateContainersList').output.childItems",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "CopyOneContainer",
+									"description": "Copy each container from source storage store to destination store.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+										},
+										{
+											"name": "Destination",
+											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "AzureDataLakeStoreSource",
+											"recursive": true
+										},
+										"sink": {
+											"type": "AzureDataLakeStoreSink",
+											"copyBehavior": "PreserveHierarchy"
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 0
+									},
+									"inputs": [
+										{
+											"referenceName": "AzureDataLakeStoreSourceFileStore1",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "AzureDataLakeStoreSinkFileStore1",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"SourceFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales"
+					},
+					"DestinationFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales-staging"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/AzureDataLakeStoreSourceFileStore1')]",
+				"[concat(variables('factoryId'), '/datasets/AzureDataLakeStoreSinkFileStore1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DV_IncrementalLoad_pl')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "DV_HUB_Product",
+						"name": "DV_Product",
 						"type": "ExecuteDataFlow",
-						"dependsOn": [],
+						"dependsOn": [
+							{
+								"activity": "DV_Geography",
+								"dependencyConditions": [
+									"Skipped"
+								]
+							}
+						],
 						"policy": {
 							"timeout": "7.00:00:00",
 							"retry": 0,
@@ -795,11 +966,11 @@
 						}
 					},
 					{
-						"name": "DataVault_InternetSales",
+						"name": "DV_InternetSales",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [
 							{
-								"activity": "DV_HUB_Product",
+								"activity": "DV_Product",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -828,6 +999,34 @@
 							},
 							"staging": {}
 						}
+					},
+					{
+						"name": "DV_Geography",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DataVault_Geography",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceGeogrpahy": {},
+									"HubGeography": {},
+									"SatGeography": {},
+									"SinkHubGeography": {},
+									"SinkSatGeography": {}
+								}
+							},
+							"staging": {}
+						}
 					}
 				],
 				"folder": {
@@ -837,7 +1036,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/DataVault_Product')]",
-				"[concat(variables('factoryId'), '/dataflows/DataVault_InternetSales')]"
+				"[concat(variables('factoryId'), '/dataflows/DataVault_InternetSales')]",
+				"[concat(variables('factoryId'), '/dataflows/DataVault_Geography')]"
 			]
 		},
 		{
@@ -862,11 +1062,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureDataLakeStoreReadSetting",
+									"type": "AzureDataLakeStoreReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"sink": {
@@ -947,11 +1147,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureDataLakeStoreReadSetting",
+									"type": "AzureDataLakeStoreReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"sink": {
@@ -1155,11 +1355,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureDataLakeStoreReadSetting",
+									"type": "AzureDataLakeStoreReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"sink": {
@@ -1270,11 +1470,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureDataLakeStoreReadSetting",
+									"type": "AzureDataLakeStoreReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"sink": {
@@ -1532,8 +1732,8 @@
 								"type": "DatasetReference",
 								"parameters": {}
 							},
-							"recursive": true,
-							"enableLogging": false
+							"enableLogging": false,
+							"recursive": true
 						}
 					}
 				],
@@ -1582,8 +1782,8 @@
 									}
 								}
 							},
-							"recursive": true,
-							"enableLogging": false
+							"enableLogging": false,
+							"recursive": true
 						}
 					}
 				],
@@ -1745,7 +1945,6 @@
 												}
 											}
 										},
-										"recursive": true,
 										"logStorageSettings": {
 											"linkedServiceName": {
 												"referenceName": "AzureBlobStorage_LS",
@@ -1753,7 +1952,8 @@
 											},
 											"path": "logging"
 										},
-										"enableLogging": true
+										"enableLogging": true,
+										"recursive": true
 									}
 								}
 							]
@@ -1955,11 +2155,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureBlobStorageReadSetting",
+									"type": "AzureBlobStorageReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"dataset": {
@@ -1995,6 +2195,12 @@
 							},
 							{
 								"activity": "Set_Notes_Alphabet",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "ForEach_Array_Value",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -2043,6 +2249,30 @@
 								"type": "Expression"
 							}
 						}
+					},
+					{
+						"name": "ForEach_Array_Value",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('Var_Array_Number')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Wait 1 second",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
+						}
 					}
 				],
 				"variables": {
@@ -2061,6 +2291,30 @@
 					},
 					"Notes_Combined_View": {
 						"type": "Array"
+					},
+					"Var_Array_Text": {
+						"type": "Array",
+						"defaultValue": [
+							"C",
+							"D",
+							"E",
+							"F",
+							"G",
+							"A",
+							"B"
+						]
+					},
+					"Var_Array_Number": {
+						"type": "Array",
+						"defaultValue": [
+							1,
+							2,
+							3,
+							4,
+							5,
+							6,
+							7
+						]
 					}
 				},
 				"folder": {
@@ -3979,6 +4233,44 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_DV_HUB_Geography')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_DV_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "HUB_Geography_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "GeographyAlternateKey",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LOAD_TS",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "HUB_Geography"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_DV_LS')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ASQL_DV_HUB_Product')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -4067,6 +4359,101 @@
 				],
 				"typeProperties": {
 					"tableName": "[[dbo].[LINK_InternetSales]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_DV_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_DV_SAT_Geography')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_DV_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "HUB_Geography_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "City",
+						"type": "nvarchar"
+					},
+					{
+						"name": "StateProvinceCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "StateProvinceName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CountryRegionCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EnglishCountryRegionName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PostalCode",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SAT_Geography_HDIFF",
+						"type": "varchar"
+					},
+					{
+						"name": "LOAD_TS",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "SAT_Geography"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_DV_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ASQL_DV_SAT_Geography_Latest')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_DV_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "HUB_Geography_HK",
+						"type": "varchar"
+					},
+					{
+						"name": "SAT_Geography_HDIFF",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "vw_latest_sat_geography"
 				}
 			},
 			"dependsOn": [
@@ -4699,6 +5086,63 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStoreSinkFileStore1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your destination data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStore_ls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureDataLakeStoreFile",
+				"typeProperties": {
+					"fileName": "[parameters('AzureDataLakeStoreSinkFileStore1_properties_typeProperties_fileName')]",
+					"folderPath": {
+						"value": "[parameters('AzureDataLakeStoreSinkFileStore1_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStore_ls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStoreSourceFileStore1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStore_ls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureDataLakeStoreFile",
+				"typeProperties": {
+					"folderPath": {
+						"value": "[parameters('AzureDataLakeStoreSourceFileStore1_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStore_ls')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_bgdata_daily')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -4846,6 +5290,63 @@
 					},
 					{
 						"name": "Note",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOB_dvs_geography_incr_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "dvs_geography.csv",
+						"container": "adventureworksdv"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "GeographyAlternateKey",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "StateProvinceCode",
+						"type": "String"
+					},
+					{
+						"name": "StateProvinceName",
+						"type": "String"
+					},
+					{
+						"name": "CountryRegionCode",
+						"type": "String"
+					},
+					{
+						"name": "EnglishCountryRegionName",
+						"type": "String"
+					},
+					{
+						"name": "PostalCode",
 						"type": "String"
 					}
 				]
@@ -5437,7 +5938,7 @@
 				"annotations": [],
 				"type": "FileServer",
 				"typeProperties": {
-					"host": "C:\\Temp",
+					"host": "[parameters('FileSystem_ls_properties_typeProperties_host')]",
 					"userId": "[parameters('FileSystem_ls_properties_typeProperties_userId')]",
 					"password": {
 						"type": "AzureKeyVaultSecret",
@@ -5457,6 +5958,33 @@
 				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntimeFileSystem')]",
 				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault_LS')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Spark1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Spark",
+				"typeProperties": {
+					"host": "[parameters('Spark1_properties_typeProperties_host')]",
+					"port": 443,
+					"serverType": "SparkThriftServer",
+					"thriftTransportProtocol": "HTTP",
+					"authenticationType": "UsernameAndPassword",
+					"username": "[parameters('Spark1_properties_typeProperties_username')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('Spark1_password')]"
+					},
+					"httpPath": "sql/protocolv1/o/1381793306306739/1214-144601-sedan385",
+					"enableSsl": true,
+					"useSystemTrustStore": false,
+					"allowHostNameCNMismatch": false,
+					"allowSelfSignedServerCert": false
+				}
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/azuredatabricks_bigdata_ls')]",
@@ -5519,6 +6047,82 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DataVault_Geography')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "BLOB_dvs_geography_incr_ds",
+								"type": "DatasetReference"
+							},
+							"name": "SourceGeogrpahy",
+							"typeProperties": {}
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "HubGeography",
+							"typeProperties": {}
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Geography_Latest",
+								"type": "DatasetReference"
+							},
+							"name": "SatGeography",
+							"typeProperties": {}
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "SinkHubGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "SinkSatGeography"
+						}
+					],
+					"transformations": [
+						{
+							"name": "HashColumns"
+						},
+						{
+							"name": "CheckNewGeography"
+						},
+						{
+							"name": "NewHubGeography"
+						},
+						{
+							"name": "CheckNewSatGeography"
+						},
+						{
+							"name": "NewSatGeography"
+						}
+					],
+					"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeogrpahy\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatGeography\nSourceGeogrpahy derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey, City, StateProvinceCode, StateProvinceName, CountryRegionCode, EnglishCountryRegionName, PostalCode)) ~> HashColumns\nHashColumns, HubGeography exists(HashColumns@HUB_Geography_HK == HubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS,\n\t\tHUB_Geography_HK\n\t)) ~> NewHubGeography\nHashColumns, SatGeography exists(HashColumns@HUB_Geography_HK == SatGeography@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SatGeography@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatGeography\nCheckNewSatGeography select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t)) ~> NewSatGeography\nNewHubGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubGeography\nNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tSAT_Geography_HDIFF,\n\t\tLOAD_TS\n\t)) ~> SinkSatGeography"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_HUB_Geography')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Geography')]",
+				"[concat(variables('factoryId'), '/datasets/BLOB_dvs_geography_incr_ds')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Geography_Latest')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DataVault_InternetSales')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5532,8 +6136,7 @@
 								"type": "DatasetReference"
 							},
 							"name": "SourceInternetSales",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as double,\n\t\tExtendedAmount as double,\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as double,\n\t\tTotalProductCost as double,\n\t\tSalesAmount as double,\n\t\tTaxAmt as double,\n\t\tFreight as double,\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as date,\n\t\tDueDate as date,\n\t\tShipDate as date\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceInternetSales"
+							"typeProperties": {}
 						},
 						{
 							"dataset": {
@@ -5541,8 +6144,7 @@
 								"type": "DatasetReference"
 							},
 							"name": "LinkInternetSales",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LinkInternetSales"
+							"typeProperties": {}
 						},
 						{
 							"dataset": {
@@ -5550,8 +6152,7 @@
 								"type": "DatasetReference"
 							},
 							"name": "SatInternetSales",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tSAT_InternetSales_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatInternetSales"
+							"typeProperties": {}
 						}
 					],
 					"sinks": [
@@ -5560,47 +6161,41 @@
 								"referenceName": "ASQL_DV_LINK_InternetSales",
 								"type": "DatasetReference"
 							},
-							"name": "SinkLinkInternetSales",
-							"script": "NewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkLinkInternetSales"
+							"name": "SinkLinkInternetSales"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_SAT_InternetSales",
 								"type": "DatasetReference"
 							},
-							"name": "SinkSatInternetSales",
-							"script": "NewSatProduct sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as decimal(19,4),\n\t\tExtendedAmount as decimal(19,4),\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as decimal(19,4),\n\t\tTotalProductCost as decimal(19,4),\n\t\tSalesAmount as decimal(19,4),\n\t\tTaxAmt as decimal(19,4),\n\t\tFreight as decimal(19,4),\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as timestamp,\n\t\tDueDate as timestamp,\n\t\tShipDate as timestamp,\n\t\tSAT_InternetSales_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatInternetSales"
+							"name": "SinkSatInternetSales"
 						}
 					],
 					"transformations": [
 						{
-							"name": "HashColumns",
-							"script": "SourceInternetSales derive(LINK_InternetSales_HK = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tHUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_InternetSales_HDIFF = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber,RevisionNumber,OrderQuantity,UnitPrice,ExtendedAmount,UnitPriceDiscountPct,DiscountAmount,ProductStandardCost,TotalProductCost,SalesAmount,TaxAmt,Freight,CarrierTrackingNumber,CustomerPONumber,OrderDate,DueDate)) ~> HashColumns"
+							"name": "HashColumns"
 						},
 						{
-							"name": "CheckNewLinkInternetSales",
-							"script": "HashColumns, LinkInternetSales exists(HashColumns@LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales"
+							"name": "CheckNewLinkInternetSales"
 						},
 						{
-							"name": "NewLinkInternetSales",
-							"script": "CheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK\n\t))~> NewLinkInternetSales"
+							"name": "NewLinkInternetSales"
 						},
 						{
-							"name": "CheckNewSatInternetSales",
-							"script": "HashColumns, SatInternetSales exists(HashColumns@LINK_InternetSales_HK == SatInternetSales@LINK_InternetSales_HK\n\t&& HashColumns@SAT_InternetSales_HDIFF == SatInternetSales@SAT_InternetSales_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatInternetSales"
+							"name": "CheckNewSatInternetSales"
 						},
 						{
-							"name": "NewSatProduct",
-							"script": "CheckNewSatInternetSales select(mapColumn(\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tLOAD_TS,\n\t\tSAT_InternetSales_HDIFF\n\t))~> NewSatProduct"
+							"name": "NewSatProduct"
 						}
-					]
+					],
+					"script": "\n\nsource(output(\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as double,\n\t\tExtendedAmount as double,\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as double,\n\t\tTotalProductCost as double,\n\t\tSalesAmount as double,\n\t\tTaxAmt as double,\n\t\tFreight as double,\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as date,\n\t\tDueDate as date,\n\t\tShipDate as date\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceInternetSales\nsource(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LinkInternetSales\nsource(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tSAT_InternetSales_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatInternetSales\nSourceInternetSales derive(LINK_InternetSales_HK = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tHUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_InternetSales_HDIFF = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber,RevisionNumber,OrderQuantity,UnitPrice,ExtendedAmount,UnitPriceDiscountPct,DiscountAmount,ProductStandardCost,TotalProductCost,SalesAmount,TaxAmt,Freight,CarrierTrackingNumber,CustomerPONumber,OrderDate,DueDate)) ~> HashColumns\nHashColumns, LinkInternetSales exists(HashColumns@LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales\nCheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK\n\t)) ~> NewLinkInternetSales\nHashColumns, SatInternetSales exists(HashColumns@LINK_InternetSales_HK == SatInternetSales@LINK_InternetSales_HK\n\t&& HashColumns@SAT_InternetSales_HDIFF == SatInternetSales@SAT_InternetSales_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatInternetSales\nCheckNewSatInternetSales select(mapColumn(\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tLOAD_TS,\n\t\tSAT_InternetSales_HDIFF\n\t)) ~> NewSatProduct\nNewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkLinkInternetSales\nNewSatProduct sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as decimal(19,4),\n\t\tExtendedAmount as decimal(19,4),\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as decimal(19,4),\n\t\tTotalProductCost as decimal(19,4),\n\t\tSalesAmount as decimal(19,4),\n\t\tTaxAmt as decimal(19,4),\n\t\tFreight as decimal(19,4),\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as timestamp,\n\t\tDueDate as timestamp,\n\t\tShipDate as timestamp,\n\t\tSAT_InternetSales_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatInternetSales"
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/BLOB_dvs_internetsales_incr_ds')]",
 				"[concat(variables('factoryId'), '/datasets/ASQL_DV_LINK_InternetSales')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_InternetSales_Latest')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_InternetSales')]"
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_InternetSales')]",
+				"[concat(variables('factoryId'), '/datasets/BLOB_dvs_internetsales_incr_ds')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_InternetSales_Latest')]"
 			]
 		},
 		{
@@ -5617,8 +6212,7 @@
 								"type": "DatasetReference"
 							},
 							"name": "SourceProduct",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as double,\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as short,\n\t\tReorderPoint as short,\n\t\tListPrice as double,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceProduct"
+							"typeProperties": {}
 						},
 						{
 							"dataset": {
@@ -5626,8 +6220,7 @@
 								"type": "DatasetReference"
 							},
 							"name": "HubProduct",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubProduct"
+							"typeProperties": {}
 						},
 						{
 							"dataset": {
@@ -5635,8 +6228,7 @@
 								"type": "DatasetReference"
 							},
 							"name": "SatProduct",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tHUB_Product_HK as string,\n\t\tSAT_Product_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatProduct"
+							"typeProperties": {}
 						}
 					],
 					"sinks": [
@@ -5645,47 +6237,41 @@
 								"referenceName": "ASQL_DV_HUB_Product",
 								"type": "DatasetReference"
 							},
-							"name": "SinkHubProduct",
-							"script": "NewHubProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubProduct"
+							"name": "SinkHubProduct"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_SAT_Product",
 								"type": "DatasetReference"
 							},
-							"name": "SinkSatProduct",
-							"script": "NewSatProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatProduct"
+							"name": "SinkSatProduct"
 						}
 					],
 					"transformations": [
 						{
-							"name": "HashColumns",
-							"script": "SourceProduct derive(HUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_Product_HDIFF = sha2(512, ProductAlternateKey\r\n      ,WeightUnitMeasureCode\r\n      ,SizeUnitMeasureCode\r\n      ,EnglishProductName\r\n      ,StandardCost\r\n      ,FinishedGoodsFlag\r\n      ,Color\r\n      ,SafetyStockLevel\r\n      ,ReorderPoint\r\n      ,ListPrice\r\n      ,Size\r\n      ,SizeRange\r\n      ,Weight\r\n      ,ModelName),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns"
+							"name": "HashColumns"
 						},
 						{
-							"name": "CheckNewProduct",
-							"script": "HashColumns, HubProduct exists(HashColumns@HUB_Product_HK == HubProduct@HUB_Product_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewProduct"
+							"name": "CheckNewProduct"
 						},
 						{
-							"name": "NewHubProduct",
-							"script": "CheckNewProduct select(mapColumn(\n\t\tProductAlternateKey,\n\t\tHUB_Product_HK,\n\t\tLOAD_TS\n\t))~> NewHubProduct"
+							"name": "NewHubProduct"
 						},
 						{
-							"name": "CheckNewSatProduct",
-							"script": "HashColumns, SatProduct exists(HashColumns@HUB_Product_HK == SatProduct@HUB_Product_HK\n\t&& HashColumns@SAT_Product_HDIFF == SatProduct@SAT_Product_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatProduct"
+							"name": "CheckNewSatProduct"
 						},
 						{
-							"name": "NewSatProduct",
-							"script": "CheckNewSatProduct select(mapColumn(\n\t\tWeightUnitMeasureCode,\n\t\tSizeUnitMeasureCode,\n\t\tEnglishProductName,\n\t\tStandardCost,\n\t\tFinishedGoodsFlag,\n\t\tColor,\n\t\tSafetyStockLevel,\n\t\tReorderPoint,\n\t\tListPrice,\n\t\tSize,\n\t\tSizeRange,\n\t\tWeight,\n\t\tModelName,\n\t\tHUB_Product_HK,\n\t\tSAT_Product_HDIFF,\n\t\tLOAD_TS\n\t))~> NewSatProduct"
+							"name": "NewSatProduct"
 						}
-					]
+					],
+					"script": "\n\nsource(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as double,\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as short,\n\t\tReorderPoint as short,\n\t\tListPrice as double,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceProduct\nsource(output(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubProduct\nsource(output(\n\t\tHUB_Product_HK as string,\n\t\tSAT_Product_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatProduct\nSourceProduct derive(HUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_Product_HDIFF = sha2(512, ProductAlternateKey\r\n      ,WeightUnitMeasureCode\r\n      ,SizeUnitMeasureCode\r\n      ,EnglishProductName\r\n      ,StandardCost\r\n      ,FinishedGoodsFlag\r\n      ,Color\r\n      ,SafetyStockLevel\r\n      ,ReorderPoint\r\n      ,ListPrice\r\n      ,Size\r\n      ,SizeRange\r\n      ,Weight\r\n      ,ModelName),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, HubProduct exists(HashColumns@HUB_Product_HK == HubProduct@HUB_Product_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewProduct\nCheckNewProduct select(mapColumn(\n\t\tProductAlternateKey,\n\t\tHUB_Product_HK,\n\t\tLOAD_TS\n\t)) ~> NewHubProduct\nHashColumns, SatProduct exists(HashColumns@HUB_Product_HK == SatProduct@HUB_Product_HK\n\t&& HashColumns@SAT_Product_HDIFF == SatProduct@SAT_Product_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatProduct\nCheckNewSatProduct select(mapColumn(\n\t\tWeightUnitMeasureCode,\n\t\tSizeUnitMeasureCode,\n\t\tEnglishProductName,\n\t\tStandardCost,\n\t\tFinishedGoodsFlag,\n\t\tColor,\n\t\tSafetyStockLevel,\n\t\tReorderPoint,\n\t\tListPrice,\n\t\tSize,\n\t\tSizeRange,\n\t\tWeight,\n\t\tModelName,\n\t\tHUB_Product_HK,\n\t\tSAT_Product_HDIFF,\n\t\tLOAD_TS\n\t)) ~> NewSatProduct\nNewHubProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubProduct\nNewSatProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatProduct"
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/BLOB_dvs_product_incr_ds')]",
 				"[concat(variables('factoryId'), '/datasets/ASQL_DV_HUB_Product')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Product_Latest')]",
-				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Product')]"
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Product')]",
+				"[concat(variables('factoryId'), '/datasets/BLOB_dvs_product_incr_ds')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Product_Latest')]"
 			]
 		}
 	]

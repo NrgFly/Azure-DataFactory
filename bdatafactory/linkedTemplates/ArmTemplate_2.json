@@ -7,23 +7,369 @@
 			"metadata": "Data Factory Name",
 			"defaultValue": "bdatafactory"
 		},
-		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
+		"Template_FileShare_ds_properties_typeProperties_fileName": {
 			"type": "string",
-			"defaultValue": "@triggerBody().folderPath"
+			"defaultValue": "*.txt"
 		},
-		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName": {
+		"Template_FileShare_ds_properties_typeProperties_folderPath": {
 			"type": "string",
-			"defaultValue": "@triggerBody().fileName"
+			"defaultValue": "Move"
 		},
-		"event_trigger_filecreate_properties_typeProperties_scope": {
+		"Template_wasb_delete_properties_typeProperties_fileName": {
 			"type": "string",
-			"defaultValue": "/subscriptions/6c405d27-de5e-483c-9a68-0aaaad20b363/resourceGroups/big_data/providers/Microsoft.Storage/storageAccounts/bdatablob"
+			"defaultValue": "*"
+		},
+		"Template_wasb_delete_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_delete_time_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().filename"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().filename"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": ""
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
+		},
+		"Template_wasb_source_ds_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/BLOB_dvs_product_incr_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DataVaultTesting"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "dvs_product_big.csv",
+						"container": "adventureworksdv"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ProductAlternateKey",
+						"type": "String"
+					},
+					{
+						"name": "WeightUnitMeasureCode",
+						"type": "String"
+					},
+					{
+						"name": "SizeUnitMeasureCode",
+						"type": "String"
+					},
+					{
+						"name": "EnglishProductName",
+						"type": "String"
+					},
+					{
+						"name": "StandardCost",
+						"type": "String"
+					},
+					{
+						"name": "FinishedGoodsFlag",
+						"type": "String"
+					},
+					{
+						"name": "Color",
+						"type": "String"
+					},
+					{
+						"name": "SafetyStockLevel",
+						"type": "String"
+					},
+					{
+						"name": "ReorderPoint",
+						"type": "String"
+					},
+					{
+						"name": "ListPrice",
+						"type": "String"
+					},
+					{
+						"name": "Size",
+						"type": "String"
+					},
+					{
+						"name": "SizeRange",
+						"type": "String"
+					},
+					{
+						"name": "Weight",
+						"type": "String"
+					},
+					{
+						"name": "ModelName",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_FileShare_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "FileSystem_ls",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "FileShare",
+				"typeProperties": {
+					"format": {
+						"type": "TextFormat",
+						"columnDelimiter": ",",
+						"rowDelimiter": "",
+						"nullValue": "\\N",
+						"treatEmptyAsNull": true,
+						"skipLineCount": 0,
+						"firstRowAsHeader": false
+					},
+					"fileName": "[parameters('Template_FileShare_ds_properties_typeProperties_fileName')]",
+					"folderPath": "[parameters('Template_FileShare_ds_properties_typeProperties_folderPath')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_delete')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"fileName": "[parameters('Template_wasb_delete_properties_typeProperties_fileName')]",
+					"folderPath": {
+						"value": "[parameters('Template_wasb_delete_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_delete_time')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"folderPath": {
+						"value": "[parameters('Template_wasb_delete_time_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					},
+					"modifiedDatetimeEnd": {
+						"value": "@addseconds(pipeline().TriggerTime, -10)",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_single_sink_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your destination data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					},
+					"filename": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"fileName": {
+						"value": "[parameters('Template_wasb_single_sink_ds_properties_typeProperties_fileName')]",
+						"type": "Expression"
+					},
+					"folderPath": {
+						"value": "[parameters('Template_wasb_single_sink_ds_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_single_source_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					},
+					"filename": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"fileName": {
+						"value": "[parameters('Template_wasb_single_source_ds_properties_typeProperties_fileName')]",
+						"type": "Expression"
+					},
+					"folderPath": {
+						"value": "[parameters('Template_wasb_single_source_ds_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_sink_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your destination data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"fileName": "[parameters('Template_wasb_sink_ds_properties_typeProperties_fileName')]",
+					"folderPath": {
+						"value": "[parameters('Template_wasb_sink_ds_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Template_wasb_source_ds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Template Datasets"
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"folderPath": {
+						"value": "[parameters('Template_wasb_source_ds_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/CopyFiles_DeleteFiles_Blob')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -169,7 +515,6 @@
 												}
 											}
 										},
-										"recursive": true,
 										"logStorageSettings": {
 											"linkedServiceName": {
 												"referenceName": "AzureBlobStorage_LS",
@@ -177,7 +522,8 @@
 											},
 											"path": "logging"
 										},
-										"enableLogging": true
+										"enableLogging": true,
+										"recursive": true
 									}
 								}
 							]
@@ -203,7 +549,11 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_sink_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_delete')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/CopyFiles_Message_Email')]",
@@ -376,7 +726,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_sink_ds')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/CopyFiles_Message_ServiceBus')]",
@@ -598,7 +951,11 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_single_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_single_sink_ds')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/DV_InitialLoad_pl')]",
@@ -622,11 +979,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureDataLakeStoreReadSetting",
+									"type": "AzureDataLakeStoreReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"sink": {
@@ -707,11 +1064,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureDataLakeStoreReadSetting",
+									"type": "AzureDataLakeStoreReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"sink": {
@@ -915,11 +1272,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureDataLakeStoreReadSetting",
+									"type": "AzureDataLakeStoreReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"sink": {
@@ -1030,11 +1387,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureDataLakeStoreReadSetting",
+									"type": "AzureDataLakeStoreReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"sink": {
@@ -1285,8 +1642,8 @@
 								"type": "DatasetReference",
 								"parameters": {}
 							},
-							"recursive": true,
-							"enableLogging": false
+							"enableLogging": false,
+							"recursive": true
 						}
 					}
 				],
@@ -1301,7 +1658,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_FileShare_ds')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Delete files with Azure Data Factory Time')]",
@@ -1333,8 +1692,8 @@
 									}
 								}
 							},
-							"recursive": true,
-							"enableLogging": false
+							"enableLogging": false,
+							"recursive": true
 						}
 					}
 				],
@@ -1349,7 +1708,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_delete_time')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/adf_arrays_sample_pl')]",
@@ -1373,11 +1734,11 @@
 							"source": {
 								"type": "DelimitedTextSource",
 								"storeSettings": {
-									"type": "AzureBlobStorageReadSetting",
+									"type": "AzureBlobStorageReadSettings",
 									"recursive": true
 								},
 								"formatSettings": {
-									"type": "DelimitedTextReadSetting"
+									"type": "DelimitedTextReadSettings"
 								}
 							},
 							"dataset": {
@@ -1413,6 +1774,12 @@
 							},
 							{
 								"activity": "Set_Notes_Alphabet",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "ForEach_Array_Value",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1461,6 +1828,30 @@
 								"type": "Expression"
 							}
 						}
+					},
+					{
+						"name": "ForEach_Array_Value",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('Var_Array_Number')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Wait 1 second",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
+						}
 					}
 				],
 				"variables": {
@@ -1479,6 +1870,30 @@
 					},
 					"Notes_Combined_View": {
 						"type": "Array"
+					},
+					"Var_Array_Text": {
+						"type": "Array",
+						"defaultValue": [
+							"C",
+							"D",
+							"E",
+							"F",
+							"G",
+							"A",
+							"B"
+						]
+					},
+					"Var_Array_Number": {
+						"type": "Array",
+						"defaultValue": [
+							1,
+							2,
+							3,
+							4,
+							5,
+							6,
+							7
+						]
 					}
 				},
 				"folder": {
@@ -3008,278 +3423,6 @@
 				"annotations": []
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DataVault_InternetSales')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "BLOB_dvs_internetsales_incr_ds",
-								"type": "DatasetReference"
-							},
-							"name": "SourceInternetSales",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as double,\n\t\tExtendedAmount as double,\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as double,\n\t\tTotalProductCost as double,\n\t\tSalesAmount as double,\n\t\tTaxAmt as double,\n\t\tFreight as double,\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as date,\n\t\tDueDate as date,\n\t\tShipDate as date\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceInternetSales"
-						},
-						{
-							"dataset": {
-								"referenceName": "ASQL_DV_LINK_InternetSales",
-								"type": "DatasetReference"
-							},
-							"name": "LinkInternetSales",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LinkInternetSales"
-						},
-						{
-							"dataset": {
-								"referenceName": "ASQL_DV_SAT_InternetSales_Latest",
-								"type": "DatasetReference"
-							},
-							"name": "SatInternetSales",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tSAT_InternetSales_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatInternetSales"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ASQL_DV_LINK_InternetSales",
-								"type": "DatasetReference"
-							},
-							"name": "SinkLinkInternetSales",
-							"script": "NewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkLinkInternetSales"
-						},
-						{
-							"dataset": {
-								"referenceName": "ASQL_DV_SAT_InternetSales",
-								"type": "DatasetReference"
-							},
-							"name": "SinkSatInternetSales",
-							"script": "NewSatProduct sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as decimal(19,4),\n\t\tExtendedAmount as decimal(19,4),\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as decimal(19,4),\n\t\tTotalProductCost as decimal(19,4),\n\t\tSalesAmount as decimal(19,4),\n\t\tTaxAmt as decimal(19,4),\n\t\tFreight as decimal(19,4),\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as timestamp,\n\t\tDueDate as timestamp,\n\t\tShipDate as timestamp,\n\t\tSAT_InternetSales_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatInternetSales"
-						}
-					],
-					"transformations": [
-						{
-							"name": "HashColumns",
-							"script": "SourceInternetSales derive(LINK_InternetSales_HK = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tHUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_InternetSales_HDIFF = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber,RevisionNumber,OrderQuantity,UnitPrice,ExtendedAmount,UnitPriceDiscountPct,DiscountAmount,ProductStandardCost,TotalProductCost,SalesAmount,TaxAmt,Freight,CarrierTrackingNumber,CustomerPONumber,OrderDate,DueDate)) ~> HashColumns"
-						},
-						{
-							"name": "CheckNewLinkInternetSales",
-							"script": "HashColumns, LinkInternetSales exists(HashColumns@LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales"
-						},
-						{
-							"name": "NewLinkInternetSales",
-							"script": "CheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK\n\t))~> NewLinkInternetSales"
-						},
-						{
-							"name": "CheckNewSatInternetSales",
-							"script": "HashColumns, SatInternetSales exists(HashColumns@LINK_InternetSales_HK == SatInternetSales@LINK_InternetSales_HK\n\t&& HashColumns@SAT_InternetSales_HDIFF == SatInternetSales@SAT_InternetSales_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatInternetSales"
-						},
-						{
-							"name": "NewSatProduct",
-							"script": "CheckNewSatInternetSales select(mapColumn(\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tLOAD_TS,\n\t\tSAT_InternetSales_HDIFF\n\t))~> NewSatProduct"
-						}
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DataVault_Product')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "BLOB_dvs_product_incr_ds",
-								"type": "DatasetReference"
-							},
-							"name": "SourceProduct",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as double,\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as short,\n\t\tReorderPoint as short,\n\t\tListPrice as double,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceProduct"
-						},
-						{
-							"dataset": {
-								"referenceName": "ASQL_DV_HUB_Product",
-								"type": "DatasetReference"
-							},
-							"name": "HubProduct",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubProduct"
-						},
-						{
-							"dataset": {
-								"referenceName": "ASQL_DV_SAT_Product_Latest",
-								"type": "DatasetReference"
-							},
-							"name": "SatProduct",
-							"typeProperties": {},
-							"script": "source(output(\n\t\tHUB_Product_HK as string,\n\t\tSAT_Product_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatProduct"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ASQL_DV_HUB_Product",
-								"type": "DatasetReference"
-							},
-							"name": "SinkHubProduct",
-							"script": "NewHubProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubProduct"
-						},
-						{
-							"dataset": {
-								"referenceName": "ASQL_DV_SAT_Product",
-								"type": "DatasetReference"
-							},
-							"name": "SinkSatProduct",
-							"script": "NewSatProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatProduct"
-						}
-					],
-					"transformations": [
-						{
-							"name": "HashColumns",
-							"script": "SourceProduct derive(HUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_Product_HDIFF = sha2(512, ProductAlternateKey\r\n      ,WeightUnitMeasureCode\r\n      ,SizeUnitMeasureCode\r\n      ,EnglishProductName\r\n      ,StandardCost\r\n      ,FinishedGoodsFlag\r\n      ,Color\r\n      ,SafetyStockLevel\r\n      ,ReorderPoint\r\n      ,ListPrice\r\n      ,Size\r\n      ,SizeRange\r\n      ,Weight\r\n      ,ModelName),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns"
-						},
-						{
-							"name": "CheckNewProduct",
-							"script": "HashColumns, HubProduct exists(HashColumns@HUB_Product_HK == HubProduct@HUB_Product_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewProduct"
-						},
-						{
-							"name": "NewHubProduct",
-							"script": "CheckNewProduct select(mapColumn(\n\t\tProductAlternateKey,\n\t\tHUB_Product_HK,\n\t\tLOAD_TS\n\t))~> NewHubProduct"
-						},
-						{
-							"name": "CheckNewSatProduct",
-							"script": "HashColumns, SatProduct exists(HashColumns@HUB_Product_HK == SatProduct@HUB_Product_HK\n\t&& HashColumns@SAT_Product_HDIFF == SatProduct@SAT_Product_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatProduct"
-						},
-						{
-							"name": "NewSatProduct",
-							"script": "CheckNewSatProduct select(mapColumn(\n\t\tWeightUnitMeasureCode,\n\t\tSizeUnitMeasureCode,\n\t\tEnglishProductName,\n\t\tStandardCost,\n\t\tFinishedGoodsFlag,\n\t\tColor,\n\t\tSafetyStockLevel,\n\t\tReorderPoint,\n\t\tListPrice,\n\t\tSize,\n\t\tSizeRange,\n\t\tWeight,\n\t\tModelName,\n\t\tHUB_Product_HK,\n\t\tSAT_Product_HDIFF,\n\t\tLOAD_TS\n\t))~> NewSatProduct"
-						}
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DV_IncrementalLoad_pl')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "DV_HUB_Product",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DataVault_Product",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"SourceProduct": {},
-									"HubProduct": {},
-									"SatProduct": {},
-									"SinkHubProduct": {},
-									"SinkSatProduct": {}
-								}
-							},
-							"staging": {}
-						}
-					},
-					{
-						"name": "DataVault_InternetSales",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "DV_HUB_Product",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "DataVault_InternetSales",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"SourceInternetSales": {},
-									"LinkInternetSales": {},
-									"SatInternetSales": {},
-									"SinkLinkInternetSales": {},
-									"SinkSatInternetSales": {}
-								}
-							},
-							"staging": {}
-						}
-					}
-				],
-				"folder": {
-					"name": "DataVaultTesting"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/DataVault_Product')]",
-				"[concat(variables('factoryId'), '/dataflows/DataVault_InternetSales')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/event_trigger_filecreate')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "bdata_adf_variable_append_pl",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"FilePath": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath')]",
-							"FileName": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FileName')]"
-						}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/salesdata/blobs/",
-					"scope": "[parameters('event_trigger_filecreate_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/bdata_adf_variable_append_pl')]"
-			]
 		}
 	]
 }

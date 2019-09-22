@@ -14,6 +14,9 @@
 		"AzureSqlDatabase_LS_connectionString": {
 			"value": ""
 		},
+		"Spark1_password": {
+			"value": ""
+		},
 		"azuredatabricks_bigdata_ls_accessToken": {
 			"value": ""
 		},
@@ -58,6 +61,15 @@
 		},
 		"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
 			"value": "@dataset().FilePath"
+		},
+		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"AzureDataLakeStoreSourceFileStore1_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
 		},
 		"Template_FileShare_ds_properties_typeProperties_fileName": {
 			"value": "*.txt"
@@ -113,8 +125,17 @@
 		"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
 			"value": "https://azueus2bdatakvt.vault.azure.net/"
 		},
+		"FileSystem_ls_properties_typeProperties_host": {
+			"value": "C:\\Temp"
+		},
 		"FileSystem_ls_properties_typeProperties_userId": {
 			"value": "corp\\rayis.imayev"
+		},
+		"Spark1_properties_typeProperties_host": {
+			"value": "eastus2.azuredatabricks.net"
+		},
+		"Spark1_properties_typeProperties_username": {
+			"value": "token"
 		},
 		"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
 			"value": "@triggerBody().folderPath"
