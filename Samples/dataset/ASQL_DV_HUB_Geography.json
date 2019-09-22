@@ -5,6 +5,9 @@
 			"referenceName": "AzureSqlDatabase_DV_LS",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
