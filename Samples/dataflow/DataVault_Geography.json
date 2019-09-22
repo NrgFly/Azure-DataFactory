@@ -20,7 +20,7 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "SatGeography",
+						"referenceName": "ASQL_DV_SAT_Geography_Latest",
 						"type": "DatasetReference"
 					},
 					"name": "SatGeography"
