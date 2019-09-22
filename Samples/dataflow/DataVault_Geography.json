@@ -1,0 +1,65 @@
+{
+	"name": "DataVault_Geography",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "BLOB_dvs_geography_incr_ds",
+						"type": "DatasetReference"
+					},
+					"name": "SourceGeogrpahy"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Geography",
+						"type": "DatasetReference"
+					},
+					"name": "HubGeography"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_Geography_Latest",
+						"type": "DatasetReference"
+					},
+					"name": "SatGeography"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Geography",
+						"type": "DatasetReference"
+					},
+					"name": "SinkHubGeography"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_Geography",
+						"type": "DatasetReference"
+					},
+					"name": "SinkSatGeography"
+				}
+			],
+			"transformations": [
+				{
+					"name": "HashColumns"
+				},
+				{
+					"name": "CheckNewGeography"
+				},
+				{
+					"name": "NewHubGeography"
+				},
+				{
+					"name": "CheckNewSatGeography"
+				},
+				{
+					"name": "NewSatGeography"
+				}
+			],
+			"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeogrpahy\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatGeography\nSourceGeogrpahy derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey, City, StateProvinceCode, StateProvinceName, CountryRegionCode, EnglishCountryRegionName, PostalCode)) ~> HashColumns\nHashColumns, HubGeography exists(HashColumns@HUB_Geography_HK == HubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS,\n\t\tHUB_Geography_HK\n\t)) ~> NewHubGeography\nHashColumns, SatGeography exists(HashColumns@HUB_Geography_HK == SatGeography@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SatGeography@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatGeography\nCheckNewSatGeography select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t)) ~> NewSatGeography\nNewHubGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubGeography\nNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tSAT_Geography_HDIFF,\n\t\tLOAD_TS\n\t)) ~> SinkSatGeography"
+		}
+	}
+}

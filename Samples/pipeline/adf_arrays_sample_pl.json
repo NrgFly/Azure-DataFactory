@@ -5,6 +5,7 @@
 			{
 				"name": "Lookup Notes_Syllabic",
 				"type": "Lookup",
+				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -12,11 +13,13 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
+				"userProperties": [],
 				"typeProperties": {
 					"source": {
 						"type": "DelimitedTextSource",
 						"storeSettings": {
-							"type": "AzureBlobStorageReadSetting"
+							"type": "AzureBlobStorageReadSetting",
+							"recursive": true
 						},
 						"formatSettings": {
 							"type": "DelimitedTextReadSetting"
@@ -32,6 +35,8 @@
 			{
 				"name": "Set_Notes_Alphabet",
 				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
 				"typeProperties": {
 					"variableName": "Notes_Alphabet",
 					"value": {
@@ -55,8 +60,15 @@
 						"dependencyConditions": [
 							"Succeeded"
 						]
+					},
+					{
+						"activity": "ForEach_Array_Value",
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Lookup Notes_Syllabic').output.value",
@@ -67,6 +79,8 @@
 						{
 							"name": "Append Music Notes",
 							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
 							"typeProperties": {
 								"variableName": "Notes_Combined",
 								"value": {
@@ -89,12 +103,37 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"variableName": "Notes_Combined_View",
 					"value": {
 						"value": "@variables('Notes_Combined')",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "ForEach_Array_Value",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('Var_Array_Number')",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Wait 1 second",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
 				}
 			}
 		],
@@ -114,10 +153,35 @@
 			},
 			"Notes_Combined_View": {
 				"type": "Array"
+			},
+			"Var_Array_Text": {
+				"type": "Array",
+				"defaultValue": [
+					"C",
+					"D",
+					"E",
+					"F",
+					"G",
+					"A",
+					"B"
+				]
+			},
+			"Var_Array_Number": {
+				"type": "Array",
+				"defaultValue": [
+					1,
+					2,
+					3,
+					4,
+					5,
+					6,
+					7
+				]
 			}
 		},
 		"folder": {
 			"name": "Sample Pipelines"
-		}
+		},
+		"annotations": []
 	}
 }

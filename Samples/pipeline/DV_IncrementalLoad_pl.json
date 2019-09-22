@@ -3,8 +3,16 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "DV_HUB_Product",
+				"name": "DV_Product",
 				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "DV_Geography",
+						"dependencyConditions": [
+							"Skipped"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -12,6 +20,7 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
+				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "DataVault_Product",
@@ -20,11 +29,11 @@
 				}
 			},
 			{
-				"name": "DataVault_InternetSales",
+				"name": "DV_InternetSales",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "DV_HUB_Product",
+						"activity": "DV_Product",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -37,9 +46,29 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
+				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "DataVault_InternetSales",
+						"type": "DataFlowReference"
+					}
+				}
+			},
+			{
+				"name": "DV_Geography",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DataVault_Geography",
 						"type": "DataFlowReference"
 					}
 				}
@@ -47,6 +76,7 @@
 		],
 		"folder": {
 			"name": "DataVaultTesting"
-		}
+		},
+		"annotations": []
 	}
 }
