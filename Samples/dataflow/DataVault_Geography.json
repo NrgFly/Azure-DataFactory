@@ -17,15 +17,25 @@
 						"type": "DatasetReference"
 					},
 					"name": "HubGeography"
+				},
+				{
+					"dataset": {
+						"referenceName": "SatGeography",
+						"type": "DatasetReference"
+					},
+					"name": "SatGeography"
 				}
 			],
 			"sinks": [],
 			"transformations": [
 				{
 					"name": "HashColumns"
+				},
+				{
+					"name": "CheckNewGeography"
 				}
 			],
-			"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeogrpahy\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubGeography\nSourceGeogrpahy derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns"
+			"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeogrpahy\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatGeography\nSourceGeogrpahy derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, HubGeography exists(HashColumns@HUB_Geography_HK == HubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewGeography"
 		}
 	}
 }
