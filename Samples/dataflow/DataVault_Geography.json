@@ -26,16 +26,27 @@
 					"name": "SatGeography"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Geography",
+						"type": "DatasetReference"
+					},
+					"name": "SinkHubGeography"
+				}
+			],
 			"transformations": [
 				{
 					"name": "HashColumns"
 				},
 				{
 					"name": "CheckNewGeography"
+				},
+				{
+					"name": "NewHubGeography"
 				}
 			],
-			"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeogrpahy\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatGeography\nSourceGeogrpahy derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, HubGeography exists(HashColumns@HUB_Geography_HK == HubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewGeography"
+			"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeogrpahy\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatGeography\nSourceGeogrpahy derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, HubGeography exists(HashColumns@HUB_Geography_HK == HubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS,\n\t\tHUB_Geography_HK\n\t)) ~> NewHubGeography\nNewHubGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubGeography"
 		}
 	}
 }
