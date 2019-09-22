@@ -1,0 +1,31 @@
+{
+	"name": "DataVault_Geography",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "BLOB_dvs_geography_incr_ds",
+						"type": "DatasetReference"
+					},
+					"name": "SourceGeogrpahy"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Geography",
+						"type": "DatasetReference"
+					},
+					"name": "HubGeography"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "HashColumns"
+				}
+			],
+			"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeogrpahy\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubGeography\nSourceGeogrpahy derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns"
+		}
+	}
+}
