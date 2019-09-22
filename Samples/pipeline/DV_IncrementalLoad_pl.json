@@ -61,7 +61,7 @@
 					{
 						"activity": "DV_Customer",
 						"dependencyConditions": [
-							"Skipped"
+							"Succeeded"
 						]
 					}
 				],
