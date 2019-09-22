@@ -9,7 +9,7 @@
 					{
 						"activity": "DV_Geography",
 						"dependencyConditions": [
-							"Succeeded"
+							"Skipped"
 						]
 					}
 				],
