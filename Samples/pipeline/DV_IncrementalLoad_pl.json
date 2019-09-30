@@ -96,6 +96,10 @@
 					"dataflow": {
 						"referenceName": "DataVault_Customer",
 						"type": "DataFlowReference"
+					},
+					"integrationRuntime": {
+						"referenceName": "integrationRuntime-MO-64-16",
+						"type": "IntegrationRuntimeReference"
 					}
 				}
 			}
