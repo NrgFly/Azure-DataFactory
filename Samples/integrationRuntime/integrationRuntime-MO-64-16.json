@@ -1,0 +1,16 @@
+{
+	"name": "integrationRuntime-MO-64-16",
+	"properties": {
+		"type": "Managed",
+		"typeProperties": {
+			"computeProperties": {
+				"location": "AutoResolve",
+				"dataFlowProperties": {
+					"computeType": "MemoryOptimized",
+					"coreCount": 80,
+					"timeToLive": 0
+				}
+			}
+		}
+	}
+}
