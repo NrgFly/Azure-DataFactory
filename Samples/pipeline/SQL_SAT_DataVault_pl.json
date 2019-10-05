@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "SQL_SAT_DataVault_pl",
 	"properties": {
 		"activities": [
 			{
