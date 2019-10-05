@@ -5,6 +5,9 @@
 			"referenceName": "AzureBlobStorage_LS",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {

@@ -1,0 +1,28 @@
+{
+	"name": "ASQL_DV_SAT_Customer_Latest",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "HUB_Customer_HK",
+				"type": "varchar"
+			},
+			{
+				"name": "SAT_Customer_HDIFF",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "vw_latest_sat_customer"
+		}
+	}
+}

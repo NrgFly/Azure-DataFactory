@@ -1,0 +1,106 @@
+{
+	"name": "ASQL_DV_SAT_Customer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "HUB_Customer_HK",
+				"type": "varchar"
+			},
+			{
+				"name": "Title",
+				"type": "nvarchar"
+			},
+			{
+				"name": "FirstName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "MiddleName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "LastName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "NameStyle",
+				"type": "bit"
+			},
+			{
+				"name": "BirthDate",
+				"type": "date"
+			},
+			{
+				"name": "MaritalStatus",
+				"type": "nchar"
+			},
+			{
+				"name": "Suffix",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Gender",
+				"type": "nvarchar"
+			},
+			{
+				"name": "EmailAddress",
+				"type": "nvarchar"
+			},
+			{
+				"name": "YearlyIncome",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "TotalChildren",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "NumberChildrenAtHome",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "HouseOwnerFlag",
+				"type": "nchar"
+			},
+			{
+				"name": "NumberCarsOwned",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "AddressLine1",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AddressLine2",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SAT_Customer_HDIFF",
+				"type": "varchar"
+			},
+			{
+				"name": "LOAD_TS",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "SAT_Customer"
+		}
+	}
+}

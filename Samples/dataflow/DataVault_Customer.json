@@ -1,0 +1,85 @@
+{
+	"name": "DataVault_Customer",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "BLOB_dvs_customer_incr_ds",
+						"type": "DatasetReference"
+					},
+					"name": "SourceCustomer"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Customer",
+						"type": "DatasetReference"
+					},
+					"name": "HubCustomer"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_Customer_Latest",
+						"type": "DatasetReference"
+					},
+					"name": "SatCustomer"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_LINK_CustomerGeography",
+						"type": "DatasetReference"
+					},
+					"name": "LinkCustomerGeography"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Customer",
+						"type": "DatasetReference"
+					},
+					"name": "SinkHubCustomer"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_Customer",
+						"type": "DatasetReference"
+					},
+					"name": "SinkSatCustomer"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_LINK_CustomerGeography",
+						"type": "DatasetReference"
+					},
+					"name": "SinkLinkCustomerGeography"
+				}
+			],
+			"transformations": [
+				{
+					"name": "HashColumns"
+				},
+				{
+					"name": "CheckNewCustomer"
+				},
+				{
+					"name": "NewHubCustomer"
+				},
+				{
+					"name": "CheckNewSatCustomer"
+				},
+				{
+					"name": "NewSatCustomer"
+				},
+				{
+					"name": "CheckNewLinkCustomerGeography"
+				},
+				{
+					"name": "NewLinkCustomerGeography"
+				}
+			],
+			"script": "\n\nsource(output(\n\t\tCustomerAlternateKey as string,\n\t\tGeographyAlternateKey as string,\n\t\tTitle as string,\n\t\tFirstName as string,\n\t\tMiddleName as string,\n\t\tLastName as string,\n\t\tNameStyle as string,\n\t\tBirthDate as string,\n\t\tMaritalStatus as string,\n\t\tSuffix as string,\n\t\tGender as string,\n\t\tEmailAddress as string,\n\t\tYearlyIncome as string,\n\t\tTotalChildren as string,\n\t\tNumberChildrenAtHome as string,\n\t\tHouseOwnerFlag as string,\n\t\tNumberCarsOwned as string,\n\t\tAddressLine1 as string,\n\t\tAddressLine2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceCustomer\nsource(output(\n\t\tHUB_Customer_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubCustomer\nsource(output(\n\t\tHUB_Customer_HK as string,\n\t\tSAT_Customer_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatCustomer\nsource(output(\n\t\tLINK_CustomerGeography_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Geography_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LinkCustomerGeography\nSourceCustomer derive(LINK_CustomerGeography_HK = sha2(512, CustomerAlternateKey, GeographyAlternateKey),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tHUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tSAT_Customer_HDIFF = sha2(512, CustomerAlternateKey, GeographyAlternateKey,Title,FirstName,MiddleName,LastName,NameStyle,BirthDate,MaritalStatus,Suffix,Gender,EmailAddress,YearlyIncome,TotalChildren,NumberChildrenAtHome,HouseOwnerFlag,NumberCarsOwned,AddressLine1,AddressLine2),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, HubCustomer exists(HashColumns@HUB_Customer_HK == HubCustomer@HUB_Customer_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewCustomer\nCheckNewCustomer select(mapColumn(\n\t\tCustomerAlternateKey,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS\n\t)) ~> NewHubCustomer\nHashColumns, SatCustomer exists(HashColumns@HUB_Customer_HK == SatCustomer@HUB_Customer_HK\n\t&& HashColumns@SAT_Customer_HDIFF == SatCustomer@SAT_Customer_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatCustomer\nCheckNewSatCustomer select(mapColumn(\n\t\tTitle,\n\t\tFirstName,\n\t\tMiddleName,\n\t\tLastName,\n\t\tNameStyle,\n\t\tBirthDate,\n\t\tMaritalStatus,\n\t\tSuffix,\n\t\tGender,\n\t\tEmailAddress,\n\t\tYearlyIncome,\n\t\tTotalChildren,\n\t\tNumberChildrenAtHome,\n\t\tHouseOwnerFlag,\n\t\tNumberCarsOwned,\n\t\tAddressLine1,\n\t\tAddressLine2,\n\t\tHUB_Customer_HK,\n\t\tSAT_Customer_HDIFF,\n\t\tLOAD_TS\n\t)) ~> NewSatCustomer\nHashColumns, LinkCustomerGeography exists(HashColumns@LINK_CustomerGeography_HK == LinkCustomerGeography@LINK_CustomerGeography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewLinkCustomerGeography\nCheckNewLinkCustomerGeography select(mapColumn(\n\t\tCustomerAlternateKey,\n\t\tGeographyAlternateKey,\n\t\tLINK_CustomerGeography_HK,\n\t\tHUB_Customer_HK,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t)) ~> NewLinkCustomerGeography\nNewHubCustomer sink(input(\n\t\tHUB_Customer_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkHubCustomer\nNewSatCustomer sink(input(\n\t\tHUB_Customer_HK as string,\n\t\tTitle as string,\n\t\tFirstName as string,\n\t\tMiddleName as string,\n\t\tLastName as string,\n\t\tNameStyle as boolean,\n\t\tBirthDate as date,\n\t\tMaritalStatus as string,\n\t\tSuffix as string,\n\t\tGender as string,\n\t\tEmailAddress as string,\n\t\tYearlyIncome as decimal(19,4),\n\t\tTotalChildren as integer,\n\t\tNumberChildrenAtHome as integer,\n\t\tHouseOwnerFlag as string,\n\t\tNumberCarsOwned as integer,\n\t\tAddressLine1 as string,\n\t\tAddressLine2 as string,\n\t\tSAT_Customer_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkSatCustomer\nNewLinkCustomerGeography sink(input(\n\t\tLINK_CustomerGeography_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Geography_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'table',\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false) ~> SinkLinkCustomerGeography"
+		}
+	}
+}

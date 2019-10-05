@@ -1,0 +1,33 @@
+{
+	"name": "ASQL_DV_HUB_Customer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "HUB_Customer_HK",
+				"type": "varchar"
+			},
+			{
+				"name": "CustomerAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "LOAD_TS",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "HUB_Customer"
+		}
+	}
+}

@@ -1,0 +1,45 @@
+{
+	"name": "ASQL_DV_LINK_CustomerGeography",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_DV_LS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DataVaultTesting"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "LINK_CustomerGeography_HK",
+				"type": "varchar"
+			},
+			{
+				"name": "HUB_Customer_HK",
+				"type": "varchar"
+			},
+			{
+				"name": "HUB_Geography_HK",
+				"type": "varchar"
+			},
+			{
+				"name": "CustomerAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "GeographyAlternateKey",
+				"type": "nvarchar"
+			},
+			{
+				"name": "LOAD_TS",
+				"type": "datetime2",
+				"scale": 7
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "LINK_CustomerGeography"
+		}
+	}
+}
