@@ -303,11 +303,6 @@
 				"defaultValue": "copy"
 			}
 		},
-		"variables": {
-			"FileAction": {
-				"type": "String"
-			}
-		},
 		"folder": {
 			"name": "Switch Activity"
 		},
