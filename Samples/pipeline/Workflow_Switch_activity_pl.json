@@ -85,7 +85,7 @@
 											"copyBehavior": "PreserveHierarchy"
 										},
 										"enableStaging": false,
-										"dataIntegrationUnits": 0
+										"dataIntegrationUnits": 2
 									},
 									"inputs": [
 										{
