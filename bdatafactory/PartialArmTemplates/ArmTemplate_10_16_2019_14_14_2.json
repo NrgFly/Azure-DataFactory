@@ -1,0 +1,708 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "bdatafactory"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Workflow_IF_activity_pl')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conditional File processing",
+				"activities": [
+					{
+						"name": "Get File Names",
+						"description": "Scan the file path on your source storage store and get the container list.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_wasb_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							]
+						}
+					},
+					{
+						"name": "Move Files",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Get File Names",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.FileAction,'move')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Copy Data Files",
+									"description": "Copy each container from source storage store to destination store.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+										},
+										{
+											"name": "Destination",
+											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "BlobSource",
+											"recursive": true
+										},
+										"sink": {
+											"type": "BlobSink",
+											"copyBehavior": "PreserveHierarchy"
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 0
+									},
+									"inputs": [
+										{
+											"referenceName": "Template_wasb_source_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.SourceFilePath",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Template_wasb_sink_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.DestinationFilePath",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Delete Data Files",
+									"type": "Delete",
+									"dependsOn": [
+										{
+											"activity": "Copy Data Files",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "Template_wasb_delete",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.SourceFilePath",
+													"type": "Expression"
+												}
+											}
+										},
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "AzureBlobStorage_LS",
+												"type": "LinkedServiceReference"
+											},
+											"path": "logging"
+										},
+										"enableLogging": true,
+										"recursive": true
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Copy Files",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Get File Names",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.FileAction,'copy')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Copy Data Files 2",
+									"description": "Copy each container from source storage store to destination store.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+										},
+										{
+											"name": "Destination",
+											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "BlobSource",
+											"recursive": true
+										},
+										"sink": {
+											"type": "BlobSink",
+											"copyBehavior": "PreserveHierarchy"
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 0
+									},
+									"inputs": [
+										{
+											"referenceName": "Template_wasb_source_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.SourceFilePath",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Template_wasb_sink_ds",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.DestinationFilePath",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "Delete Files",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Get File Names",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.FileAction,'delete')",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Delete Data Files 2",
+									"type": "Delete",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "Template_wasb_delete",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.SourceFilePath",
+													"type": "Expression"
+												}
+											}
+										},
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "AzureBlobStorage_LS",
+												"type": "LinkedServiceReference"
+											},
+											"path": "logging"
+										},
+										"enableLogging": true,
+										"recursive": true
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"SourceFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales"
+					},
+					"DestinationFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales-staging"
+					},
+					"FileAction": {
+						"type": "string",
+						"defaultValue": "copy"
+					}
+				},
+				"folder": {
+					"name": "Switch Activity"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Workflow_Switch_activity_pl')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Conditional File processing",
+				"activities": [
+					{
+						"name": "Get File Names",
+						"description": "Scan the file path on your source storage store and get the container list.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Template_wasb_source_ds",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							]
+						}
+					},
+					{
+						"name": "Check File Action",
+						"type": "Switch",
+						"dependsOn": [
+							{
+								"activity": "Get File Names",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"on": {
+								"value": "@pipeline().parameters.FileAction",
+								"type": "Expression"
+							},
+							"cases": [
+								{
+									"value": "copy",
+									"activities": [
+										{
+											"name": "Copy Data Files 2",
+											"description": "Copy each container from source storage store to destination store.",
+											"type": "Copy",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "7.00:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"source": {
+													"type": "BlobSource",
+													"recursive": true
+												},
+												"sink": {
+													"type": "BlobSink",
+													"copyBehavior": "PreserveHierarchy"
+												},
+												"enableStaging": false,
+												"dataIntegrationUnits": 2
+											},
+											"inputs": [
+												{
+													"referenceName": "Template_wasb_source_ds",
+													"type": "DatasetReference",
+													"parameters": {
+														"folder": {
+															"value": "@pipeline().parameters.SourceFilePath",
+															"type": "Expression"
+														}
+													}
+												}
+											],
+											"outputs": [
+												{
+													"referenceName": "Template_wasb_sink_ds",
+													"type": "DatasetReference",
+													"parameters": {
+														"folder": {
+															"value": "@pipeline().parameters.DestinationFilePath",
+															"type": "Expression"
+														}
+													}
+												}
+											]
+										}
+									]
+								},
+								{
+									"value": "delete",
+									"activities": [
+										{
+											"name": "Delete Data Files 2",
+											"type": "Delete",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "7.00:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"dataset": {
+													"referenceName": "Template_wasb_delete",
+													"type": "DatasetReference",
+													"parameters": {
+														"folder": {
+															"value": "@pipeline().parameters.SourceFilePath",
+															"type": "Expression"
+														}
+													}
+												},
+												"logStorageSettings": {
+													"linkedServiceName": {
+														"referenceName": "AzureBlobStorage_LS",
+														"type": "LinkedServiceReference"
+													},
+													"path": "logging"
+												},
+												"enableLogging": true,
+												"recursive": true
+											}
+										}
+									]
+								},
+								{
+									"value": "move",
+									"activities": [
+										{
+											"name": "Copy Data Files",
+											"description": "Copy each container from source storage store to destination store.",
+											"type": "Copy",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "7.00:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [
+												{
+													"name": "Source",
+													"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+												},
+												{
+													"name": "Destination",
+													"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+												}
+											],
+											"typeProperties": {
+												"source": {
+													"type": "BlobSource",
+													"recursive": true
+												},
+												"sink": {
+													"type": "BlobSink",
+													"copyBehavior": "PreserveHierarchy"
+												},
+												"enableStaging": false,
+												"dataIntegrationUnits": 0
+											},
+											"inputs": [
+												{
+													"referenceName": "Template_wasb_source_ds",
+													"type": "DatasetReference",
+													"parameters": {
+														"folder": {
+															"value": "@pipeline().parameters.SourceFilePath",
+															"type": "Expression"
+														}
+													}
+												}
+											],
+											"outputs": [
+												{
+													"referenceName": "Template_wasb_sink_ds",
+													"type": "DatasetReference",
+													"parameters": {
+														"folder": {
+															"value": "@pipeline().parameters.DestinationFilePath",
+															"type": "Expression"
+														}
+													}
+												}
+											]
+										},
+										{
+											"name": "Delete Data Files",
+											"type": "Delete",
+											"dependsOn": [
+												{
+													"activity": "Copy Data Files",
+													"dependencyConditions": [
+														"Succeeded"
+													]
+												}
+											],
+											"policy": {
+												"timeout": "7.00:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"dataset": {
+													"referenceName": "Template_wasb_delete",
+													"type": "DatasetReference",
+													"parameters": {
+														"folder": {
+															"value": "@pipeline().parameters.SourceFilePath",
+															"type": "Expression"
+														}
+													}
+												},
+												"logStorageSettings": {
+													"linkedServiceName": {
+														"referenceName": "AzureBlobStorage_LS",
+														"type": "LinkedServiceReference"
+													},
+													"path": "logging"
+												},
+												"enableLogging": true,
+												"recursive": true
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"SourceFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales-source"
+					},
+					"DestinationFilePath": {
+						"type": "String",
+						"defaultValue": "/storesales-staging"
+					},
+					"FileAction": {
+						"type": "string",
+						"defaultValue": "copy"
+					}
+				},
+				"folder": {
+					"name": "Switch Activity"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_SQL_SAT_pl')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "dataflow_SQL_SAT_df",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow_SQL_SAT_df",
+								"type": "DataFlowReference"
+							}
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow_SQL_SAT_df')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_SQL_SAT_df')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "BLOB_dvs_geography_incr_ds",
+								"type": "DatasetReference"
+							},
+							"name": "SourceGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "HUBGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Geography_Latest",
+								"type": "DatasetReference"
+							},
+							"name": "SourceLastSatGeography"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "SinkGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "SinkSatGeography"
+						}
+					],
+					"transformations": [
+						{
+							"name": "HashColumns"
+						},
+						{
+							"name": "CheckNewGeography"
+						},
+						{
+							"name": "NewGeography"
+						},
+						{
+							"name": "CheckNewSatGeography"
+						},
+						{
+							"name": "NewSatGeography"
+						}
+					],
+					"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HUBGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceLastSatGeography\nSourceGeography derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey,City,StateProvinceCode,StateProvinceName,CountryRegionCode,EnglishCountryRegionName,PostalCode)) ~> HashColumns\nHashColumns, HUBGeography exists(HashColumns@HUB_Geography_HK == HUBGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> NewGeography\nHashColumns, SourceLastSatGeography exists(HashColumns@HUB_Geography_HK == SourceLastSatGeography@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SourceLastSatGeography@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatGeography\nCheckNewSatGeography select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> NewSatGeography\nNewGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS\n\t)) ~> SinkGeography\nNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkSatGeography"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
