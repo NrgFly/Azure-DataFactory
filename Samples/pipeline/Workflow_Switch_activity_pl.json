@@ -265,7 +265,7 @@
 		"parameters": {
 			"SourceFilePath": {
 				"type": "String",
-				"defaultValue": "/storesales"
+				"defaultValue": "/storesales-source"
 			},
 			"DestinationFilePath": {
 				"type": "String",
