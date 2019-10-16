@@ -65,16 +65,7 @@
 										"secureOutput": false,
 										"secureInput": false
 									},
-									"userProperties": [
-										{
-											"name": "Source",
-											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
-										},
-										{
-											"name": "Destination",
-											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
-										}
-									],
+									"userProperties": [],
 									"typeProperties": {
 										"source": {
 											"type": "BlobSource",
