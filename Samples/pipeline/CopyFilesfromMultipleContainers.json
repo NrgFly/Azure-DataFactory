@@ -120,7 +120,10 @@
 											"value": "@pipeline().parameters.DestinationFilePath_trip",
 											"type": "Expression"
 										},
-										"filename": "trip_data.csv"
+										"filename": {
+											"value": "@replace(item().name,'.zip','.csv')",
+											"type": "Expression"
+										}
 									}
 								}
 							]
@@ -245,7 +248,10 @@
 											"value": "@pipeline().parameters.DestinationFilePath_fare",
 											"type": "Expression"
 										},
-										"filename": "trip_fare.csv"
+										"filename": {
+											"value": "@replace(item().name,'.zip','.csv')",
+											"type": "Expression"
+										}
 									}
 								}
 							]
