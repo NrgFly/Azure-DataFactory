@@ -13,8 +13,9 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "taxi_fares.csv",
-				"fileSystem": "sample-data"
+				"fileName": "*.csv",
+				"folderPath": "trip_fare",
+				"fileSystem": "nyctaxidata-staging"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
