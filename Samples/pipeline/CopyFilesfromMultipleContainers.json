@@ -113,7 +113,17 @@
 							"outputs": [
 								{
 									"referenceName": "ADLS_Gen2",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"folder": {
+											"value": "@pipeline().parameters.DestinationFilePath_trip",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@replace(item().name,'.zip','.csv')",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						}
