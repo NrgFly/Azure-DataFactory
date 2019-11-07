@@ -13,8 +13,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "taxi-output",
-				"fileSystem": "sample-data"
+				"folderPath": "taxi_output",
+				"fileSystem": "nyctaxidata-staging"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
