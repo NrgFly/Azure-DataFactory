@@ -68,11 +68,11 @@
 							"userProperties": [
 								{
 									"name": "Source",
-									"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+									"value": "@concat(pipeline().parameters.SourceFilePath_trip,'/',item().name)"
 								},
 								{
 									"name": "Destination",
-									"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+									"value": "@concat(pipeline().parameters.DestinationFilePath_trip,'/',item().name)"
 								}
 							],
 							"typeProperties": {
