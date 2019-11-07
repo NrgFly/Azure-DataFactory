@@ -83,7 +83,8 @@
 								"sink": {
 									"type": "DelimitedTextSink",
 									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
+										"type": "AzureBlobFSWriteSettings",
+										"copyBehavior": "MergeFiles"
 									},
 									"formatSettings": {
 										"type": "DelimitedTextWriteSettings",
@@ -119,10 +120,7 @@
 											"value": "@pipeline().parameters.DestinationFilePath_trip",
 											"type": "Expression"
 										},
-										"filename": {
-											"value": "@replace(item().name,'.zip','.csv')",
-											"type": "Expression"
-										}
+										"filename": "trip_data.csv"
 									}
 								}
 							]
@@ -210,7 +208,8 @@
 								"sink": {
 									"type": "DelimitedTextSink",
 									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
+										"type": "AzureBlobFSWriteSettings",
+										"copyBehavior": "MergeFiles"
 									},
 									"formatSettings": {
 										"type": "DelimitedTextWriteSettings",
@@ -246,10 +245,7 @@
 											"value": "@pipeline().parameters.DestinationFilePath_fare",
 											"type": "Expression"
 										},
-										"filename": {
-											"value": "@replace(item().name,'.zip','.csv')",
-											"type": "Expression"
-										}
+										"filename": "trip_fare.csv"
 									}
 								}
 							]
