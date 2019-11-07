@@ -9,12 +9,18 @@
 		"parameters": {
 			"folder": {
 				"type": "String"
+			},
+			"filename": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
 		"type": "AzureDataLakeStoreFile",
 		"typeProperties": {
-			"fileName": "",
+			"fileName": {
+				"value": "@dataset().filename",
+				"type": "Expression"
+			},
 			"folderPath": {
 				"value": "@dataset().folder",
 				"type": "Expression"
