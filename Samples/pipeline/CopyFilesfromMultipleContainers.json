@@ -92,7 +92,7 @@
 									}
 								},
 								"enableStaging": false,
-								"dataIntegrationUnits": 0
+								"dataIntegrationUnits": 2
 							},
 							"inputs": [
 								{
@@ -219,7 +219,7 @@
 									}
 								},
 								"enableStaging": false,
-								"dataIntegrationUnits": 0
+								"dataIntegrationUnits": 2
 							},
 							"inputs": [
 								{
