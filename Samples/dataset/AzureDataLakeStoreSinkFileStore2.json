@@ -14,10 +14,6 @@
 		"annotations": [],
 		"type": "AzureDataLakeStoreFile",
 		"typeProperties": {
-			"compression": {
-				"type": "ZipDeflate",
-				"level": "Fastest"
-			},
 			"fileName": "",
 			"folderPath": {
 				"value": "@dataset().folder",
