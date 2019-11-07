@@ -54,7 +54,7 @@
 					"isSequential": false,
 					"activities": [
 						{
-							"name": "CopyOneContainer Trip",
+							"name": "Copy Trip",
 							"description": "Copy each container from source storage store to destination store.",
 							"type": "Copy",
 							"dependsOn": [],
@@ -181,7 +181,7 @@
 					"batchCount": 4,
 					"activities": [
 						{
-							"name": "CopyOneContainer Fare",
+							"name": "Copy Fare",
 							"description": "Copy each container from source storage store to destination store.",
 							"type": "Copy",
 							"dependsOn": [],
