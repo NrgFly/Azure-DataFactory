@@ -18,12 +18,8 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "TaxiDemo",
+						"referenceName": "WranglingDataFlow1",
 						"type": "DataFlowReference"
-					},
-					"integrationRuntime": {
-						"referenceName": "integrationRuntimeAzure",
-						"type": "IntegrationRuntimeReference"
 					},
 					"compute": {
 						"computeType": "General",
