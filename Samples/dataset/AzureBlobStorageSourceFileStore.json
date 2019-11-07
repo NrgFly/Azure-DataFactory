@@ -1,0 +1,23 @@
+{
+	"name": "AzureBlobStorageSourceFileStore",
+	"properties": {
+		"description": "Connection to your source data store.",
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"folder": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureBlob",
+		"typeProperties": {
+			"folderPath": {
+				"value": "@dataset().folder",
+				"type": "Expression"
+			}
+		}
+	}
+}
