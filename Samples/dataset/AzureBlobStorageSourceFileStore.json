@@ -14,6 +14,10 @@
 		"annotations": [],
 		"type": "AzureBlob",
 		"typeProperties": {
+			"compression": {
+				"type": "GZip",
+				"level": "Fastest"
+			},
 			"folderPath": {
 				"value": "@dataset().folder",
 				"type": "Expression"
