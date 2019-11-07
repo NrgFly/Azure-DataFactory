@@ -213,7 +213,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
-											"value": "@concat(pipeline().parameters.SourceFilePath)",
+											"value": "@concat(pipeline().parameters.SourceFilePath_fare)",
 											"type": "Expression"
 										},
 										"filename": {
@@ -229,7 +229,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
-											"value": "@concat(pipeline().parameters.DestinationFilePath)",
+											"value": "@concat(pipeline().parameters.DestinationFilePath_fare)",
 											"type": "Expression"
 										},
 										"filename": {
