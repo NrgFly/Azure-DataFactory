@@ -9,6 +9,9 @@
 		"parameters": {
 			"folder": {
 				"type": "String"
+			},
+			"filename": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
@@ -16,6 +19,10 @@
 		"typeProperties": {
 			"compression": {
 				"type": "ZipDeflate"
+			},
+			"fileName": {
+				"value": "@dataset().filename",
+				"type": "Expression"
 			},
 			"folderPath": {
 				"value": "@dataset().folder",
