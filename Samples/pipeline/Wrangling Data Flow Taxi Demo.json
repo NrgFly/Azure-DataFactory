@@ -21,6 +21,10 @@
 						"referenceName": "TaxiDemo",
 						"type": "DataFlowReference"
 					},
+					"integrationRuntime": {
+						"referenceName": "integrationRuntimeAzure",
+						"type": "IntegrationRuntimeReference"
+					},
 					"compute": {
 						"computeType": "General",
 						"coreCount": 8
