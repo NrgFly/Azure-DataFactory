@@ -4,7 +4,7 @@
 		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another",
 		"activities": [
 			{
-				"name": "EnumerateContainersList",
+				"name": "Enumerate Containers List Trips",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
 				"dependsOn": [],
@@ -24,7 +24,8 @@
 							"folder": {
 								"value": "@pipeline().parameters.SourceFilePath",
 								"type": "Expression"
-							}
+							},
+							"filename": "*.zip"
 						}
 					},
 					"fieldList": [
@@ -33,12 +34,12 @@
 				}
 			},
 			{
-				"name": "ForEachContainer",
+				"name": "ForEachContainer Trip",
 				"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "EnumerateContainersList",
+						"activity": "Enumerate Containers List Trips",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -47,13 +48,13 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('EnumerateContainersList').output.childItems",
+						"value": "@activity('Enumerate Containers List Trips').output.childItems",
 						"type": "Expression"
 					},
 					"batchCount": 4,
 					"activities": [
 						{
-							"name": "CopyOneContainer",
+							"name": "CopyOneContainer Trip",
 							"description": "Copy each container from source storage store to destination store.",
 							"type": "Copy",
 							"dependsOn": [],
@@ -112,7 +113,127 @@
 											"type": "Expression"
 										},
 										"filename": {
+											"value": "@replace(item().name,'.zip','.csv')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Enumerate Containers List Fare",
+				"description": "Scan the file path on your source storage store and get the container list.",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "AzureBlobStorageSourceFileStore",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@pipeline().parameters.SourceFilePath_fare",
+								"type": "Expression"
+							},
+							"filename": "*.zip"
+						}
+					},
+					"fieldList": [
+						"childItems"
+					]
+				}
+			},
+			{
+				"name": "ForEachContainer Fare",
+				"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Enumerate Containers List Fare",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Enumerate Containers List Fare').output.childItems",
+						"type": "Expression"
+					},
+					"batchCount": 4,
+					"activities": [
+						{
+							"name": "CopyOneContainer Fare",
+							"description": "Copy each container from source storage store to destination store.",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "Source",
+									"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)"
+								},
+								{
+									"name": "Destination",
+									"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)"
+								}
+							],
+							"typeProperties": {
+								"source": {
+									"type": "BlobSource",
+									"recursive": false
+								},
+								"sink": {
+									"type": "AzureDataLakeStoreSink",
+									"copyBehavior": "PreserveHierarchy"
+								},
+								"enableStaging": false,
+								"dataIntegrationUnits": 0
+							},
+							"inputs": [
+								{
+									"referenceName": "AzureBlobStorageSourceFileStore",
+									"type": "DatasetReference",
+									"parameters": {
+										"folder": {
+											"value": "@concat(pipeline().parameters.SourceFilePath)",
+											"type": "Expression"
+										},
+										"filename": {
 											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureDataLakeStoreSinkFileStore2",
+									"type": "DatasetReference",
+									"parameters": {
+										"folder": {
+											"value": "@concat(pipeline().parameters.DestinationFilePath)",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@replace(item().name,'.zip','.csv')",
 											"type": "Expression"
 										}
 									}
@@ -126,11 +247,19 @@
 		"parameters": {
 			"SourceFilePath": {
 				"type": "String",
-				"defaultValue": "/nyctaxidata-raw"
+				"defaultValue": "/nyctaxidata-raw/trip_data"
 			},
 			"DestinationFilePath": {
 				"type": "String",
-				"defaultValue": "/nyctaxidata-staging"
+				"defaultValue": "/nyctaxidata-staging/trip_data"
+			},
+			"SourceFilePath_fare": {
+				"type": "string",
+				"defaultValue": "/nyctaxidata-raw/trip_fare"
+			},
+			"DestinationFilePath_fare": {
+				"type": "string",
+				"defaultValue": "/nyctaxidata-staging/trip_fare"
 			}
 		},
 		"annotations": []
