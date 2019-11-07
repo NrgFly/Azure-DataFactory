@@ -4,7 +4,7 @@
 		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another",
 		"activities": [
 			{
-				"name": "Enumerate Containers List Trips",
+				"name": "List of Trips",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
 				"dependsOn": [],
@@ -39,7 +39,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Enumerate Containers List Trips",
+						"activity": "List of Trips",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -131,7 +131,7 @@
 				}
 			},
 			{
-				"name": "Enumerate Containers List Fare",
+				"name": "List of Fares",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
 				"dependsOn": [],
@@ -166,7 +166,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Enumerate Containers List Fare",
+						"activity": "List of Fares",
 						"dependencyConditions": [
 							"Succeeded"
 						]
