@@ -81,8 +81,15 @@
 									"recursive": false
 								},
 								"sink": {
-									"type": "AzureDataLakeStoreSink",
-									"copyBehavior": "PreserveHierarchy"
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
 								},
 								"enableStaging": false,
 								"dataIntegrationUnits": 0
@@ -105,18 +112,8 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "AzureDataLakeStoreSinkFileStore2",
-									"type": "DatasetReference",
-									"parameters": {
-										"folder": {
-											"value": "@concat(pipeline().parameters.DestinationFilePath)",
-											"type": "Expression"
-										},
-										"filename": {
-											"value": "@replace(item().name,'.zip','.csv')",
-											"type": "Expression"
-										}
-									}
+									"referenceName": "ADLS_Gen2",
+									"type": "DatasetReference"
 								}
 							]
 						}
