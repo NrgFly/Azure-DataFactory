@@ -18,7 +18,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "WranglingDataFlow2",
+						"referenceName": "TaxiDemo",
 						"type": "DataFlowReference"
 					},
 					"compute": {
