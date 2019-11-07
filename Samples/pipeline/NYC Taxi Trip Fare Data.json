@@ -259,7 +259,6 @@
 			},
 			{
 				"name": "NYC Taxi Distance Trip",
-				"description": "Joining and Aggregating New York City Taxi Data",
 				"type": "ExecuteWranglingDataflow",
 				"dependsOn": [
 					{
@@ -285,12 +284,8 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "WranglingDataFlow1",
+						"referenceName": "NYC_Taxi_Distance_Trip_wdf",
 						"type": "DataFlowReference"
-					},
-					"compute": {
-						"computeType": "General",
-						"coreCount": 8
 					}
 				}
 			}
