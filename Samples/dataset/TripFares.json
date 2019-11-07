@@ -13,7 +13,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "*.csv",
+				"fileName": "trip_fare_1.csv",
 				"folderPath": "trip_fare",
 				"fileSystem": "nyctaxidata-staging"
 			},
