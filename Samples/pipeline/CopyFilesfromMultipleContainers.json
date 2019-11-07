@@ -22,7 +22,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"folder": {
-								"value": "@pipeline().parameters.SourceFilePath",
+								"value": "@pipeline().parameters.SourceFilePath_trip",
 								"type": "Expression"
 							},
 							"filename": "*.zip"
@@ -100,7 +100,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
-											"value": "@concat(pipeline().parameters.SourceFilePath)",
+											"value": "@concat(pipeline().parameters.SourceFilePath_trip)",
 											"type": "Expression"
 										},
 										"filename": {
@@ -134,7 +134,14 @@
 				"name": "Enumerate Containers List Fare",
 				"description": "Scan the file path on your source storage store and get the container list.",
 				"type": "GetMetadata",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "ForEachContainer Trip",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -252,11 +259,11 @@
 			}
 		],
 		"parameters": {
-			"SourceFilePath": {
+			"SourceFilePath_trip": {
 				"type": "String",
 				"defaultValue": "/nyctaxidata-raw/trip_data"
 			},
-			"DestinationFilePath": {
+			"DestinationFilePath_trip": {
 				"type": "String",
 				"defaultValue": "/nyctaxidata-staging/trip_data"
 			},
