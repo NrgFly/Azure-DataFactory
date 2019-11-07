@@ -51,7 +51,7 @@
 						"value": "@activity('Enumerate Containers List Trips').output.childItems",
 						"type": "Expression"
 					},
-					"isSequential": true,
+					"isSequential": false,
 					"activities": [
 						{
 							"name": "CopyOneContainer Trip",
