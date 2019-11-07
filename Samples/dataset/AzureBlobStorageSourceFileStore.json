@@ -15,8 +15,7 @@
 		"type": "AzureBlob",
 		"typeProperties": {
 			"compression": {
-				"type": "GZip",
-				"level": "Fastest"
+				"type": "ZipDeflate"
 			},
 			"folderPath": {
 				"value": "@dataset().folder",
