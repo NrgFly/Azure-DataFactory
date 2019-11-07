@@ -23,10 +23,10 @@
 						"referenceName": "TaxiSink",
 						"type": "DatasetReference"
 					},
-					"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> Sink1"
+					"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['trip_data_output.csv'],\n\ttruncate: true,\n\tquoteAll: true,\n\tpartitionBy('hash', 1)) ~> Sink1"
 				}
 			],
-			"script": "section Section1; shared #\"TripData\" = let AdfDoc = Web.Contents(\"https://bdataadlsgen2.dfs.core.windows.net/nyctaxidata-staging/trip_data/trip_data_1.csv?sv=2018-03-28&sig=3qrnr9xHVqPPEviAfhyg8Ke8OeoZi53JlnHNif4t9PE%3D&spr=https&se=2019-11-08T19%3A31%3A51Z&srt=sco&ss=bf&sp=rwl\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]), TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName)) in TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData\r\nin\r\n  Source;"
+			"script": "section Section1; shared #\"TripData\" = let AdfDoc = Web.Contents(\"https://bdataadlsgen2.dfs.core.windows.net/nyctaxidata-staging/trip_data/trip_data_1.csv?sv=2018-03-28&sig=adtvHjQqkEIg9%2BwdlOpP6W%2F3Uo1vU8Cx0IuTSIYwmWI%3D&spr=https&se=2019-11-08T19%3A43%3A23Z&srt=sco&ss=bf&sp=rwl\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]), TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName)) in TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData\r\nin\r\n  Source;"
 		}
 	}
 }
