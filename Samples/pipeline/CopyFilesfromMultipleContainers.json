@@ -77,7 +77,7 @@
 							"typeProperties": {
 								"source": {
 									"type": "BlobSource",
-									"recursive": true
+									"recursive": false
 								},
 								"sink": {
 									"type": "AzureDataLakeStoreSink",
@@ -92,7 +92,11 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
-											"value": "@concat(pipeline().parameters.SourceFilePath,'/',item().name)",
+											"value": "@concat(pipeline().parameters.SourceFilePath)",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@item().name",
 											"type": "Expression"
 										}
 									}
@@ -104,7 +108,11 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"folder": {
-											"value": "@concat(pipeline().parameters.DestinationFilePath,'/',item().name)",
+											"value": "@concat(pipeline().parameters.DestinationFilePath)",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@item().name",
 											"type": "Expression"
 										}
 									}
