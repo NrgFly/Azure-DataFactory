@@ -1,0 +1,32 @@
+{
+	"name": "WranglingDataFlow1",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "TripData",
+					"script": "",
+					"dataset": {
+						"referenceName": "TripData",
+						"type": "DatasetReference"
+					},
+					"typeProperties": {
+						"readMode": null
+					}
+				}
+			],
+			"sinks": [
+				{
+					"name": "Sink1",
+					"dataset": {
+						"referenceName": "TaxiSink",
+						"type": "DatasetReference"
+					},
+					"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> Sink1"
+				}
+			],
+			"script": "section Section1; shared #\"TripData\" = let AdfDoc = Web.Contents(\"https://bdataadlsgen2.dfs.core.windows.net/nyctaxidata-staging/trip_data/trip_data_1.csv?sv=2018-03-28&sig=FZzHRog6Yu3n5jdc%2FFx7e20d5LtdfHKzdrEgIcewUqU%3D&spr=https&se=2019-11-08T17%3A17%3A51Z&srt=sco&ss=bf&sp=rwl\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]), TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName)) in TrimmedHeaders;shared UserQuery = let Source = #\"TripData\" in Source;"
+		}
+	}
+}
