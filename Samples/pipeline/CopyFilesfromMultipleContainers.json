@@ -34,7 +34,7 @@
 				}
 			},
 			{
-				"name": "ForEachContainer Trip",
+				"name": "For Each Trips",
 				"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
 				"type": "ForEach",
 				"dependsOn": [
@@ -48,7 +48,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Enumerate Containers List Trips').output.childItems",
+						"value": "@activity('List of Trips').output.childItems",
 						"type": "Expression"
 					},
 					"isSequential": false,
@@ -161,7 +161,7 @@
 				}
 			},
 			{
-				"name": "ForEachContainer Fare",
+				"name": "For Each Fare",
 				"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
 				"type": "ForEach",
 				"dependsOn": [
@@ -175,7 +175,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Enumerate Containers List Fare').output.childItems",
+						"value": "@activity('List of Fares').output.childItems",
 						"type": "Expression"
 					},
 					"batchCount": 4,
