@@ -1,5 +1,5 @@
 {
-	"name": "CopyFilesfromMultipleContainers",
+	"name": "NYC Taxi Trip Fare Data",
 	"properties": {
 		"description": "Copy all files across multiple containers or buckets from one file-based storage store to another",
 		"activities": [
@@ -275,6 +275,9 @@
 				"type": "string",
 				"defaultValue": "/nyctaxidata-staging/trip_fare"
 			}
+		},
+		"folder": {
+			"name": "Wrangling Data Flow Demos"
 		},
 		"annotations": []
 	}
