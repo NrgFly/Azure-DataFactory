@@ -468,8 +468,10 @@
 						"Content-Type": "application/json"
 					},
 					"body": {
-						"value": "{\"DataFactoryName\":\"@{pipeline().DataFactory}\",\"PipelineName\":\"@{pipeline().Pipeline}\",\"ErrorMessage\":\"@variables('var_activity_error_message')\",\"EmailTo\":\"@pipeline().parameters.var_email_address\"}",
-						"type": "Expression"
+						"DataFactoryName": "@{pipeline().DataFactory}",
+						"PipelineName": "@{pipeline().Pipeline}",
+						"ErrorMessage": "@variables('var_activity_error_message')",
+						"EmailTo": "@pipeline().parameters.var_email_address"
 					}
 				}
 			}
