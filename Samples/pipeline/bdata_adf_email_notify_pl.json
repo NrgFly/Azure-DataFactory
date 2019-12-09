@@ -470,7 +470,7 @@
 					"body": {
 						"DataFactoryName": "@{pipeline().DataFactory}",
 						"PipelineName": "@{pipeline().Pipeline}",
-						"ErrorMessage": "@variables('var_activity_error_message')",
+						"ErrorMessage": "@activity('Metadata Store 01').output.error.message",
 						"EmailTo": "@pipeline().parameters.var_email_address"
 					}
 				}
