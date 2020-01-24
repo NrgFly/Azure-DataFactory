@@ -14,6 +14,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"variableName": "var_file_list_check",
 					"value": {
@@ -33,6 +34,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@variables('var_file_list')",
@@ -42,6 +44,7 @@
 						{
 							"name": "Copy Data Blob to SQL",
 							"type": "Copy",
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -49,6 +52,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"source": {
 									"type": "BlobSource",
@@ -101,6 +105,7 @@
 									]
 								}
 							],
+							"userProperties": [],
 							"typeProperties": {
 								"variableName": "var_logging",
 								"value": {
@@ -127,6 +132,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"url": "https://prod-31.eastus.logic.azure.com:443/workflows/001cc7857fac4b41bd535a8ca3ec9e3e/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=f-qhwimTZz8R7fgJ3nz5VTqx0sPOD4akHLeBIDDt5Mg",
 								"method": "POST",
@@ -147,6 +153,7 @@
 			{
 				"name": "Metadata Store 01",
 				"type": "GetMetadata",
+				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -154,6 +161,7 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
+				"userProperties": [],
 				"typeProperties": {
 					"dataset": {
 						"referenceName": "AzureBlob_storesales_store01",
@@ -175,6 +183,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Metadata Store 01').output.childitems",
@@ -184,6 +193,8 @@
 						{
 							"name": "Build filename list 01",
 							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
 							"typeProperties": {
 								"variableName": "var_file_list",
 								"value": {
@@ -206,6 +217,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"variableName": "var_logging",
 					"value": {
@@ -231,6 +243,7 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@variables('var_logging')",
@@ -240,6 +253,7 @@
 						{
 							"name": "Stored Procedure",
 							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -247,6 +261,7 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
+							"userProperties": [],
 							"typeProperties": {
 								"storedProcedureName": "[dbo].[sp_adf_pipeline_log_update]",
 								"storedProcedureParameters": {
@@ -366,6 +381,7 @@
 									]
 								}
 							],
+							"userProperties": [],
 							"typeProperties": {
 								"expression": {
 									"value": "@equals(split(item(),'|')[12], 'Failed')",
@@ -390,6 +406,7 @@
 											"secureOutput": false,
 											"secureInput": false
 										},
+										"userProperties": [],
 										"typeProperties": {
 											"url": "https://prod-29.eastus.logic.azure.com:443/workflows/b254c91f0139447aa4bf23657e729aff/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=c1ZLiBHQ2uyBi47Hc88M6S_JMPEbamGSJYEeI1YFQbU",
 											"method": "POST",
@@ -401,12 +418,16 @@
 												"PipelineName": "@{pipeline().Pipeline}",
 												"ErrorMessage": "@variables('var_activity_error_message')",
 												"EmailTo": "@pipeline().parameters.var_email_address"
-											}
+											},
+											"linkedServices": [],
+											"datasets": []
 										}
 									},
 									{
 										"name": "Get Error Message",
 										"type": "SetVariable",
+										"dependsOn": [],
+										"userProperties": [],
 										"typeProperties": {
 											"variableName": "var_activity_error_message",
 											"value": {
@@ -419,6 +440,39 @@
 							}
 						}
 					]
+				}
+			},
+			{
+				"name": "Email Alert - Failure",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Metadata Store 01",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-29.eastus.logic.azure.com:443/workflows/b254c91f0139447aa4bf23657e729aff/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=c1ZLiBHQ2uyBi47Hc88M6S_JMPEbamGSJYEeI1YFQbU",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"DataFactoryName": "@{pipeline().DataFactory}",
+						"PipelineName": "@{pipeline().Pipeline}",
+						"ErrorMessage": "@activity('Metadata Store 01').Error.message",
+						"EmailTo": "@pipeline().parameters.var_email_address"
+					}
 				}
 			}
 		],
@@ -450,7 +504,8 @@
 		},
 		"folder": {
 			"name": "Sample Pipelines"
-		}
+		},
+		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }

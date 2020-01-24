@@ -1,5 +1,5 @@
 {
-	"name": "AzureDataLakeStoreSinkFileStore1",
+	"name": "AzureDataLakeStoreSinkFileStore",
 	"properties": {
 		"description": "Connection to your destination data store.",
 		"linkedServiceName": {

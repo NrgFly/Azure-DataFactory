@@ -1,19 +1,29 @@
 {
-	"name": "AzureDataLakeStoreSourceFileStore1",
+	"name": "AzureBlobStorageSourceFileStore",
 	"properties": {
 		"description": "Connection to your source data store.",
 		"linkedServiceName": {
-			"referenceName": "AzureDataLakeStore_ls",
+			"referenceName": "AzureBlobStorage_LS",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
 			"folder": {
 				"type": "String"
+			},
+			"filename": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
-		"type": "AzureDataLakeStoreFile",
+		"type": "AzureBlob",
 		"typeProperties": {
+			"compression": {
+				"type": "ZipDeflate"
+			},
+			"fileName": {
+				"value": "@dataset().filename",
+				"type": "Expression"
+			},
 			"folderPath": {
 				"value": "@dataset().folder",
 				"type": "Expression"

@@ -1,0 +1,84 @@
+{
+	"name": "TripData",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage_Gen2",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "TaxiDemo"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "trip_data_1.csv",
+				"folderPath": "trip_data",
+				"fileSystem": "nyctaxidata-staging"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "medallion",
+				"type": "String"
+			},
+			{
+				"name": "hack_license",
+				"type": "String"
+			},
+			{
+				"name": "vendor_id",
+				"type": "String"
+			},
+			{
+				"name": "rate_code",
+				"type": "String"
+			},
+			{
+				"name": "store_and_fwd_flag",
+				"type": "String"
+			},
+			{
+				"name": "pickup_datetime",
+				"type": "String"
+			},
+			{
+				"name": "dropoff_datetime",
+				"type": "String"
+			},
+			{
+				"name": "passenger_count",
+				"type": "String"
+			},
+			{
+				"name": "trip_time_in_secs",
+				"type": "String"
+			},
+			{
+				"name": "trip_distance",
+				"type": "String"
+			},
+			{
+				"name": "pickup_longitude",
+				"type": "String"
+			},
+			{
+				"name": "pickup_latitude",
+				"type": "String"
+			},
+			{
+				"name": "dropoff_longitude",
+				"type": "String"
+			},
+			{
+				"name": "dropoff_latitude",
+				"type": "String"
+			}
+		]
+	}
+}

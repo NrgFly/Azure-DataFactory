@@ -1,0 +1,26 @@
+{
+	"name": "TaxiSink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage_Gen2",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "TaxiDemo"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "taxi_output",
+				"fileSystem": "nyctaxidata-staging"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

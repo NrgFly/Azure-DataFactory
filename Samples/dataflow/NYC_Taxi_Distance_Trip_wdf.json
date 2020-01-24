@@ -1,0 +1,32 @@
+{
+	"name": "NYC_Taxi_Distance_Trip_wdf",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "TripData",
+					"script": "",
+					"dataset": {
+						"referenceName": "TripData",
+						"type": "DatasetReference"
+					},
+					"typeProperties": {
+						"readMode": null
+					}
+				}
+			],
+			"sinks": [
+				{
+					"name": "Sink1",
+					"dataset": {
+						"referenceName": "TaxiSink",
+						"type": "DatasetReference"
+					},
+					"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\ttruncate: true,\n\tquoteAll: true) ~> Sink1"
+				}
+			],
+			"script": "section Section1; shared #\"TripData\" = let AdfDoc = Web.Contents(\"https://bdataadlsgen2.dfs.core.windows.net/nyctaxidata-staging/trip_data/trip_data_1.csv?sv=2018-03-28&sig=On4A%2BKZBoXW0Ro4Q3x%2FWTJjNuIoB6f2SKAptnVXioWU%3D&spr=https&se=2019-11-08T20%3A49%3A38Z&srt=sco&ss=bf&sp=rwl\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]), TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName)) in TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData,\r\n  ChangedType = Table.TransformColumnTypes(Source, {{\"trip_distance\", type number}, {\"pickup_longitude\", type number}, {\"pickup_latitude\", type number}, {\"dropoff_longitude\", type number}, {\"dropoff_latitude\", type number}}),\r\n  Lat1_Rad = Table.AddColumn(ChangedType, \"Lat1_Rad\", each ([pickup_latitude] / 180) * Number.PI),\r\n  Lon1_Rad = Table.AddColumn(Lat1_Rad, \"Lon1_Rad\", each ([pickup_longitude] / 180) * Number.PI),\r\n  Lat2_Rad = Table.AddColumn(Lon1_Rad, \"Lat2_Rad\", each ([dropoff_latitude] / 180)    * Number.PI),\r\n  Lon2_Rad = Table.AddColumn(Lat2_Rad, \"Lon2_Rad\", each ([dropoff_longitude] / 180) * Number.PI),\r\n  Distance_Mi = Table.AddColumn(Lon2_Rad, \"Distance_Mi\", each Number.Acos(Number.Sin([Lat1_Rad]) * Number.Sin([Lat2_Rad]) + Number.Cos([Lat1_Rad]) * Number.Cos([Lat2_Rad]) * Number.Cos([Lon2_Rad]-[Lon1_Rad])) * 3959),\r\n  RemovedColumns = Table.RemoveColumns(Distance_Mi, {\"Lat1_Rad\", \"Lon1_Rad\", \"Lat2_Rad\", \"Lon2_Rad\"})\r\nin\r\n  RemovedColumns;"
+		}
+	}
+}
