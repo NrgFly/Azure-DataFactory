@@ -1,0 +1,12 @@
+{
+	"name": "dataflow_SQL_SAT_2_df",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [],
+			"sinks": [],
+			"transformations": [],
+			"script": ""
+		}
+	}
+}
