@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow_SQL_SAT_2_df",
+						"referenceName": "dataflow_SQL_SAT_df",
 						"type": "DataFlowReference"
 					},
 					"compute": {
