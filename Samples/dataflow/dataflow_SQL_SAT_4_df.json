@@ -1,5 +1,5 @@
 {
-	"name": "dataflow1",
+	"name": "dataflow_SQL_SAT_4_df",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
