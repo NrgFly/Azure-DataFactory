@@ -17,6 +17,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "SourceHubGeography"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_Geography_Latest",
+						"type": "DatasetReference"
+					},
+					"name": "SourceSatGeography"
 				}
 			],
 			"sinks": [
@@ -26,6 +33,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "SinkHubGeography"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_SAT_Geography",
+						"type": "DatasetReference"
+					},
+					"name": "sinkSatGeography"
 				}
 			],
 			"transformations": [
@@ -37,9 +51,15 @@
 				},
 				{
 					"name": "SelectNewGeography"
+				},
+				{
+					"name": "CheckNewSatgeogrphy"
+				},
+				{
+					"name": "SelectNewSatGeography"
 				}
 			],
-			"script": "source(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceHubGeography\nSourceGeography derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey,City,StateProvinceCode,StateProvinceName,CountryRegionCode,EnglishCountryRegionName,PostalCode)) ~> HashColumns\nHashColumns, SourceHubGeography exists(HashColumns@HUB_Geography_HK == SourceHubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewGeography\nSelectNewGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkHubGeography"
+			"script": "source(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceHubGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceSatGeography\nSourceGeography derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey,City,StateProvinceCode,StateProvinceName,CountryRegionCode,EnglishCountryRegionName,PostalCode)) ~> HashColumns\nHashColumns, SourceHubGeography exists(HashColumns@HUB_Geography_HK == SourceHubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewGeography\nHashColumns, SourceSatGeography exists(HashColumns@HUB_Geography_HK == SourceSatGeography@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SourceSatGeography@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatgeogrphy\nCheckNewSatgeogrphy select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewSatGeography\nSelectNewGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkHubGeography\nSelectNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tSAT_Geography_HDIFF,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkSatGeography"
 		}
 	}
 }
