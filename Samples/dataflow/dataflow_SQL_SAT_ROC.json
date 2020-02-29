@@ -1,5 +1,5 @@
 {
-	"name": "dataflow2",
+	"name": "dataflow_SQL_SAT_ROC",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
