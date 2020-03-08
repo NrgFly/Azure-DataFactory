@@ -20,9 +20,11 @@
 		},
 		"schema": [
 			{
+				"name": "Age Groups",
 				"type": "String"
 			},
 			{
+				"name": " Influenza hospitalizations per 100K",
 				"type": "String"
 			}
 		]
