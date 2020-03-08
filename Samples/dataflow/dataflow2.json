@@ -1,0 +1,20 @@
+{
+	"name": "dataflow2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_dataflow_sample",
+						"type": "DatasetReference"
+					},
+					"name": "srcdatafile"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"script": "source(output(\n\t\tCountry as string,\n\t\t{ Population} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> srcdatafile"
+		}
+	}
+}
