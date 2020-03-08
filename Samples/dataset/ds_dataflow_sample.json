@@ -5,12 +5,17 @@
 			"referenceName": "AzureBlobStorage_LS",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"filename": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "Country_Data.csv",
+				"fileName": "Influenza hospitalizations per 100K.csv",
 				"container": "dataflows"
 			},
 			"columnDelimiter": ",",
