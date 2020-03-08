@@ -1,5 +1,5 @@
 {
-	"name": "dataflow2",
+	"name": "df_flatten_task",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
