@@ -20,17 +20,14 @@
 				"name": {
 					"type": "string"
 				},
-				"city": {
-					"type": "string"
+				"age": {
+					"type": "integer"
 				},
 				"cars": {
 					"type": "array",
 					"items": {
 						"type": "string"
 					}
-				},
-				"job": {
-					"type": "string"
 				}
 			}
 		}

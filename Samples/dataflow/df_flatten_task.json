@@ -14,7 +14,7 @@
 			],
 			"sinks": [],
 			"transformations": [],
-			"script": "source(output(\n\t\tname as string,\n\t\tcity as string,\n\t\tcars as string[],\n\t\tjob as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinferDriftedColumnTypes: true) ~> srcdatafile"
+			"script": "source(output(\n\t\tname as string,\n\t\tage as string,\n\t\tcars as string[]\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinferDriftedColumnTypes: true,\n\tsingleDocument: true) ~> srcdatafile"
 		}
 	}
 }
