@@ -10,7 +10,6 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "Influenza hospitalizations per 100K.csv",
 				"container": "dataflows"
 			},
 			"columnDelimiter": ",",
@@ -18,15 +17,6 @@
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": [
-			{
-				"name": "Age Groups",
-				"type": "String"
-			},
-			{
-				"name": " Influenza hospitalizations per 100K",
-				"type": "String"
-			}
-		]
+		"schema": []
 	}
 }
