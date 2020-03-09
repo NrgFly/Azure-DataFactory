@@ -16,9 +16,15 @@
 			"transformations": [
 				{
 					"name": "Flatten1"
+				},
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "Flatten2"
 				}
 			],
-			"script": "source(output(\n\t\tage as short,\n\t\tcars as string[],\n\t\tname as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 100,\n\tinferDriftedColumnTypes: true,\n\tsingleDocument: true,\n\twildcardPaths:['Influenza hospitalizations per 100K.csv']) ~> srcdatafile\nsrcdatafile foldDown(unroll(cars),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten1"
+			"script": "source(output(\n\t\tage as short,\n\t\tcars as string[],\n\t\tname as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 100,\n\tinferDriftedColumnTypes: true,\n\tsingleDocument: true,\n\twildcardPaths:['Influenza hospitalizations per 100K.csv']) ~> srcdatafile\nsrcdatafile foldDown(unroll(cars),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten1\nsrcdatafile select(mapColumn(\n\t\tage,\n\t\tcars,\n\t\tname\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 foldDown(unroll(cars),\n\tmapColumn(\n\t\tage,\n\t\tcars,\n\t\tname\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten2"
 		}
 	}
 }
