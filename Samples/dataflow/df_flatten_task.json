@@ -14,7 +14,7 @@
 			],
 			"sinks": [],
 			"transformations": [],
-			"script": "source(output(\n\t\t{Age Groups} as string,\n\t\t{ Influenza hospitalizations per 100K} as ()\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> srcdatafile"
+			"script": "source(output(\n\t\t{Age Groups} as string,\n\t\t{ Influenza hospitalizations per 100K} as ()\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinferDriftedColumnTypes: true) ~> srcdatafile"
 		}
 	}
 }
