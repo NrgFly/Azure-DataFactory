@@ -1,0 +1,38 @@
+{
+	"name": "ds_json_dataflow_sample",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Influenza hospitalizations per 100K.csv",
+				"container": "dataflows"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"city": {
+					"type": "string"
+				},
+				"cars": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"job": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}
