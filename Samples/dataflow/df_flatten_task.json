@@ -15,16 +15,13 @@
 			"sinks": [],
 			"transformations": [
 				{
-					"name": "Flatten1"
+					"name": "Flatten3"
 				},
 				{
-					"name": "Select1"
-				},
-				{
-					"name": "Flatten2"
+					"name": "Flatten4"
 				}
 			],
-			"script": "source(output(\n\t\tage as short,\n\t\tcars as string[],\n\t\tname as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 100,\n\tinferDriftedColumnTypes: true,\n\tsingleDocument: true,\n\twildcardPaths:['Influenza hospitalizations per 100K.csv']) ~> srcdatafile\nsrcdatafile foldDown(unroll(cars),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten1\nsrcdatafile select(mapColumn(\n\t\tage,\n\t\tcars,\n\t\tname\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 foldDown(unroll(cars),\n\tmapColumn(\n\t\tage,\n\t\tcars,\n\t\tname\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten2"
+			"script": "source(output(\n\t\tbatters as (batter as (id as short, type as string)[]),\n\t\tid as short,\n\t\tname as string,\n\t\tppu as double,\n\t\ttopping as (id as short, type as string)[],\n\t\ttype as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 100,\n\tinferDriftedColumnTypes: true,\n\tsingleDocument: true,\n\twildcardPaths:['Influenza hospitalizations per 100K.csv']) ~> srcdatafile\nsrcdatafile foldDown(unroll(topping, topping),\n\tmapColumn(\n\t\tbatters,\n\t\tid,\n\t\tname,\n\t\tppu,\n\t\ttopping,\n\t\ttype\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten3\nFlatten3 foldDown(unroll(batters.batter),\n\tmapColumn(\n\t\tbatters,\n\t\tid,\n\t\tname,\n\t\tppu,\n\t\ttopping,\n\t\ttype\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten4"
 		}
 	}
 }
