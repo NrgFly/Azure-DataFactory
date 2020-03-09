@@ -10,25 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "Influenza hospitalizations per 100K.csv",
 				"container": "dataflows"
-			}
-		},
-		"schema": {
-			"type": "object",
-			"properties": {
-				"name": {
-					"type": "string"
-				},
-				"age": {
-					"type": "integer"
-				},
-				"cars": {
-					"type": "array",
-					"items": {
-						"type": "string"
-					}
-				}
 			}
 		}
 	}
