@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow1",
+						"referenceName": "df_DAVG_PASS",
 						"type": "DataFlowReference"
 					},
 					"compute": {
