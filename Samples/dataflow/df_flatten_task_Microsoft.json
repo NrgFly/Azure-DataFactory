@@ -1,5 +1,5 @@
 {
-	"name": "df_flatten_task",
+	"name": "df_flatten_task_Microsoft",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
