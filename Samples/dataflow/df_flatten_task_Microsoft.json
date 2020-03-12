@@ -22,9 +22,15 @@
 				},
 				{
 					"name": "Flatten3"
+				},
+				{
+					"name": "Flatten4"
+				},
+				{
+					"name": "Flatten5"
 				}
 			],
-			"script": "source(output(\n\t\tgoods as (customers as string[], orders as (orderId as short, orderTotal as double, shipped as (orderItems as (itemName as string, itemQty as short)[]))[], trade as boolean),\n\t\tlocation as string,\n\t\tname as string,\n\t\tsatellites as string[]\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 100,\n\tinferDriftedColumnTypes: true,\n\tsingleDocument: true,\n\twildcardPaths:['Influenza hospitalizations per 100K.csv']) ~> srcdatafile\nsrcdatafile foldDown(unroll(goods.customers),\n\tmapColumn(\n\t\tname,\n\t\tcustomers = goods.customers\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten1\nsrcdatafile foldDown(unroll(goods.orders.shipped.orderItems),\n\tmapColumn(\n\t\tname,\n\t\titemName = goods.orders.shipped.orderItems.itemName,\n\t\titemQty = goods.orders.shipped.orderItems.itemQty,\n\t\tlocation,\n\t\torderId = goods.orders.orderId\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten2\nsrcdatafile foldDown(unroll(goods.orders, goods.orders),\n\tmapColumn(\n\t\tname,\n\t\titemName = goods.orders.shipped.orderItems.itemName,\n\t\tcustomers = goods.customers,\n\t\tlocation\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten3"
+			"script": "source(output(\n\t\tgoods as (customers as string[], orders as (orderId as short, orderTotal as double, shipped as (orderItems as (itemName as string, itemQty as short)[]))[], trade as boolean),\n\t\tlocation as string,\n\t\tname as string,\n\t\tsatellites as string[]\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tlimit: 100,\n\tinferDriftedColumnTypes: true,\n\tsingleDocument: true,\n\twildcardPaths:['microsoft.json']) ~> srcdatafile\nsrcdatafile foldDown(unroll(goods.customers),\n\tmapColumn(\n\t\tname,\n\t\tcustomers = goods.customers\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten1\nsrcdatafile foldDown(unroll(goods.orders.shipped.orderItems),\n\tmapColumn(\n\t\tname,\n\t\titemName = goods.orders.shipped.orderItems.itemName,\n\t\titemQty = goods.orders.shipped.orderItems.itemQty,\n\t\tlocation,\n\t\torderId = goods.orders.orderId\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten2\nsrcdatafile foldDown(unroll(goods.orders, goods.orders),\n\tmapColumn(\n\t\tname,\n\t\titemName = goods.orders.shipped.orderItems.itemName,\n\t\tcustomers = goods.customers,\n\t\tlocation\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten3\nFlatten3 foldDown(unroll(itemName),\n\tmapColumn(\n\t\tname,\n\t\titemName = itemName,\n\t\tcustomers,\n\t\tlocation\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten4\nFlatten4 foldDown(mapColumn(\n\t\tname,\n\t\titemName,\n\t\tcustomers,\n\t\tlocation\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten5"
 		}
 	}
 }
