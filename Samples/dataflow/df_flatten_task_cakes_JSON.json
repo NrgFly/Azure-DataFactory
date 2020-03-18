@@ -9,7 +9,7 @@
 						"referenceName": "ds_json_dataflow_sample",
 						"type": "DatasetReference"
 					},
-					"name": "SourceJSONFile"
+					"name": "SourceJSONCakes"
 				}
 			],
 			"sinks": [
@@ -18,18 +18,18 @@
 						"referenceName": "ds_dataflow_output",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "SinkFlattenOutput"
 				}
 			],
 			"transformations": [
 				{
-					"name": "Flatten7"
+					"name": "FlattenTopping"
 				},
 				{
-					"name": "Flatten8"
+					"name": "FlattenBatter"
 				}
 			],
-			"script": "source(output(\n\t\tbatters as (batter as (id as short, type as string)[]),\n\t\tid as short,\n\t\tname as string,\n\t\tppu as double,\n\t\ttopping as (id as short, type as string)[],\n\t\ttype as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tsingleDocument: true,\n\twildcardPaths:['OneJSON_Object.json']) ~> SourceJSONFile\nSourceJSONFile foldDown(unroll(topping),\n\tmapColumn(\n\t\tid,\n\t\tname,\n\t\tppu,\n\t\ttopping_id = topping.id,\n\t\ttype,\n\t\ttopping_type = topping.type,\n\t\tbatters\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten7\nFlatten7 foldDown(unroll(batters.batter, batters.batter),\n\tmapColumn(\n\t\tid,\n\t\tname,\n\t\tppu,\n\t\ttopping_id,\n\t\ttype,\n\t\ttopping_type,\n\t\tbatter_id = batters.batter.id,\n\t\tbatter_type = batters.batter.type\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Flatten8\nFlatten8 sink(input(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['flatten_output.csv'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+			"script": "source(output(\n\t\tbatters as (batter as (id as short, type as string)[]),\n\t\tid as short,\n\t\tname as string,\n\t\tppu as double,\n\t\ttopping as (id as short, type as string)[],\n\t\ttype as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tsingleDocument: true,\n\twildcardPaths:['OneJSON_Object.json']) ~> SourceJSONCakes\nSourceJSONCakes foldDown(unroll(topping),\n\tmapColumn(\n\t\tid,\n\t\tname,\n\t\tppu,\n\t\ttopping_id = topping.id,\n\t\ttype,\n\t\ttopping_type = topping.type,\n\t\tbatters\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> FlattenTopping\nFlattenTopping foldDown(unroll(batters.batter, batters.batter),\n\tmapColumn(\n\t\tid,\n\t\tname,\n\t\tppu,\n\t\ttopping_id,\n\t\ttype,\n\t\ttopping_type,\n\t\tbatter_id = batters.batter.id,\n\t\tbatter_type = batters.batter.type\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> FlattenBatter\nFlattenBatter sink(input(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['flatten_output.csv'],\n\tmapColumn(\n\t\tid,\n\t\tname,\n\t\tppu,\n\t\ttopping_id,\n\t\ttype,\n\t\ttopping_type,\n\t\tbatter_id,\n\t\tbatter_type\n\t),\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkFlattenOutput"
 		}
 	}
 }
