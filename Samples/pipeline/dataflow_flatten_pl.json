@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "df_flatten_task_cakes_JSON",
+				"name": "Data Flow Flatten JSON with cakes",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
