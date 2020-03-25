@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "wdf_json_file",
+						"referenceName": "wdf_json_file_copy1",
 						"type": "DataFlowReference"
 					}
 				}
