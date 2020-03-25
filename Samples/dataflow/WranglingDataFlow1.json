@@ -1,0 +1,29 @@
+{
+	"name": "WranglingDataFlow1",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "ds_dataflow_sample",
+					"script": "",
+					"dataset": {
+						"referenceName": "ds_dataflow_sample",
+						"type": "DatasetReference"
+					}
+				}
+			],
+			"sinks": [
+				{
+					"name": "Sink1",
+					"dataset": {
+						"referenceName": "ds_dataflow_output",
+						"type": "DatasetReference"
+					},
+					"script": "sink(input(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['adf_wdf_output.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> Sink1"
+				}
+			],
+			"script": "section Section1;\r\nshared ds_dataflow_sample = let\r\n  AdfDoc = AzureStorage.BlobContents(\"https://bdatablob.blob.core.windows.net/dataflows/ManyJSON_Objects - CSV.csv\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \"|\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv])\r\nin\r\n  Csv;\r\nshared UserQuery = let\r\n  Source = ds_dataflow_sample\r\nin\r\n  Source;\r\n"
+		}
+	}
+}
