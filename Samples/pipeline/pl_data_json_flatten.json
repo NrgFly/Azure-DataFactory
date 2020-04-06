@@ -42,23 +42,32 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Get JSON data').output.events",
+						"value": "@activity('Get JSON data').output.firstRow.events",
 						"type": "Expression"
 					},
 					"activities": [
 						{
-							"name": "Wait1",
-							"type": "Wait",
+							"name": "Set variable1",
+							"type": "SetVariable",
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"waitTimeInSeconds": 1
+								"variableName": "event",
+								"value": {
+									"value": "@item()",
+									"type": "Expression"
+								}
 							}
 						}
 					]
 				}
 			}
 		],
+		"variables": {
+			"event": {
+				"type": "String"
+			}
+		},
 		"annotations": []
 	}
 }
