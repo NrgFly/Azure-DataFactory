@@ -1,0 +1,64 @@
+{
+	"name": "pl_data_json_flatten",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get JSON data",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true
+						}
+					},
+					"dataset": {
+						"referenceName": "ls_json_flatten_data",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "For Each Events",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get JSON data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get JSON data').output.events",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait1",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": []
+	}
+}
