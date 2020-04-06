@@ -61,13 +61,6 @@
 							"typeProperties": {
 								"storedProcedureName": "[dbo].[sp_adf_pipeline_log_event]",
 								"storedProcedureParameters": {
-									"last_update": {
-										"value": {
-											"value": "@item().last_update",
-											"type": "Expression"
-										},
-										"type": "DateTime"
-									},
 									"process": {
 										"value": {
 											"value": "@item().process",
@@ -88,6 +81,13 @@
 											"type": "Expression"
 										},
 										"type": "DateTime"
+									},
+									"last_update": {
+										"value": {
+											"value": "@item().last_update",
+											"type": "Expression"
+										},
+										"type": "Datetime"
 									}
 								}
 							},
