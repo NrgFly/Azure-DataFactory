@@ -47,16 +47,53 @@
 					},
 					"activities": [
 						{
-							"name": "Set variable1",
-							"type": "SetVariable",
+							"name": "Log Event",
+							"type": "SqlServerStoredProcedure",
 							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "event",
-								"value": {
-									"value": "@item()",
-									"type": "Expression"
+								"storedProcedureName": "[dbo].[sp_adf_pipeline_log_event]",
+								"storedProcedureParameters": {
+									"last_update": {
+										"value": {
+											"value": "@item().last_update",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"process": {
+										"value": {
+											"value": "@item().process",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"start_time": {
+										"value": {
+											"value": "@item().start_time",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"stop_time": {
+										"value": {
+											"value": "@item().stop_time",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									}
 								}
+							},
+							"linkedServiceName": {
+								"referenceName": "AzureSqlDatabase_LS",
+								"type": "LinkedServiceReference"
 							}
 						}
 					]
@@ -65,7 +102,7 @@
 		],
 		"variables": {
 			"event": {
-				"type": "String"
+				"type": "Array"
 			}
 		},
 		"annotations": []
