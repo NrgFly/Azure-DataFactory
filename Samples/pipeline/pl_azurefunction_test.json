@@ -48,6 +48,25 @@
 					"referenceName": "ls_af_gettime",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "WebHook",
+				"type": "WebHook",
+				"dependsOn": [
+					{
+						"activity": "Azure Function",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime-WH?code=EzOt81JcICeAzV2c4OqFBSy0Hrar9aCHEygHaClJJm7iHds1wYtfKg==",
+					"method": "POST",
+					"body": "{\n    timezone: \"Eastern Standard Time\"\n}",
+					"timeout": "00:10:00"
+				}
 			}
 		],
 		"annotations": []
