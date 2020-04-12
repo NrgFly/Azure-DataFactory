@@ -65,7 +65,7 @@
 					"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime-WH?code=EzOt81JcICeAzV2c4OqFBSy0Hrar9aCHEygHaClJJm7iHds1wYtfKg==",
 					"method": "POST",
 					"body": "{\n    timezone: \"Eastern Standard Time\"\n}",
-					"timeout": "00:10:00"
+					"timeout": "00:00:10"
 				}
 			}
 		],
