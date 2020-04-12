@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime?code=WPbrtWZpOERh8z8dl2UjJ/Xu8XsaRHk6I49KKikRWzr38B8n6fax4w==",
 					"method": "POST",
-					"body": "{\n    timezone: \"GMT Standard Time\"\n}"
+					"body": "{\n    timezone: \"Eastern Standard Time\"\n}"
 				}
 			}
 		],
