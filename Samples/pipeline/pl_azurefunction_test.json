@@ -62,7 +62,7 @@
 				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
-					"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime-WH?code=EzOt81JcICeAzV2c4OqFBSy0Hrar9aCHEygHaClJJm7iHds1wYtfKg==",
+					"url": "https://bd-eus2-fapp-premium.azurewebsites.net/api/GetTime-WH?code=VZ9IxLSe15mrjBP26agjAHNPMOykew6OmfrquqPHaSEb2A902Ha0oQ==",
 					"method": "POST",
 					"headers": {
 						"Content-Type": "application/json"
