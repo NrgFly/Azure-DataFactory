@@ -5,7 +5,14 @@
 			{
 				"name": "Web Activity",
 				"type": "WebActivity",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "WebHook",
+						"dependencyConditions": [
+							"Skipped"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -25,9 +32,9 @@
 				"type": "AzureFunctionActivity",
 				"dependsOn": [
 					{
-						"activity": "Web Activity",
+						"activity": "WebHook",
 						"dependencyConditions": [
-							"Succeeded"
+							"Skipped"
 						]
 					}
 				],
@@ -52,14 +59,7 @@
 			{
 				"name": "WebHook",
 				"type": "WebHook",
-				"dependsOn": [
-					{
-						"activity": "Azure Function",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime-WH?code=EzOt81JcICeAzV2c4OqFBSy0Hrar9aCHEygHaClJJm7iHds1wYtfKg==",
@@ -70,7 +70,7 @@
 					"body": {
 						"timezone": "Eastern Standard Time"
 					},
-					"timeout": "10:00:0",
+					"timeout": "00:01:0",
 					"reportStatusOnCallBack": true
 				}
 			}
