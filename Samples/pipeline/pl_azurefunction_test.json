@@ -70,7 +70,7 @@
 					"body": {
 						"timezone": "Eastern Standard Time"
 					},
-					"timeout": "00:10:00",
+					"timeout": "00:09:00",
 					"reportStatusOnCallBack": true
 				}
 			}
