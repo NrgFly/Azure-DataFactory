@@ -70,8 +70,18 @@
 					"body": {
 						"timezone": "Eastern Standard Time"
 					},
-					"timeout": "00:01:0",
+					"timeout": "00:10:00",
 					"reportStatusOnCallBack": true
+				}
+			},
+			{
+				"name": "WebHook1",
+				"type": "WebHook",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"timeout": "00:10:00"
 				}
 			}
 		],
