@@ -71,7 +71,7 @@
 						"timezone": "Eastern Standard Time"
 					},
 					"timeout": "00:09:00",
-					"reportStatusOnCallBack": true
+					"reportStatusOnCallBack": false
 				}
 			}
 		],
