@@ -5,14 +5,7 @@
 			{
 				"name": "Web Activity",
 				"type": "WebActivity",
-				"dependsOn": [
-					{
-						"activity": "WebHook",
-						"dependencyConditions": [
-							"Skipped"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -59,7 +52,14 @@
 			{
 				"name": "WebHook",
 				"type": "WebHook",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Web Activity",
+						"dependencyConditions": [
+							"Skipped"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime-WH?code=EzOt81JcICeAzV2c4OqFBSy0Hrar9aCHEygHaClJJm7iHds1wYtfKg==",
