@@ -1,0 +1,20 @@
+{
+	"name": "df_PASS_BI",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "BLOB_dvs_geography_incr_ds",
+						"type": "DatasetReference"
+					},
+					"name": "SourceGeography"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"script": "source(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeography"
+		}
+	}
+}
