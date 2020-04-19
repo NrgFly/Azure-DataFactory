@@ -5,7 +5,14 @@
 			{
 				"name": "Web Activity",
 				"type": "WebActivity",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "WebHook",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -23,14 +30,7 @@
 			{
 				"name": "Azure Function",
 				"type": "AzureFunctionActivity",
-				"dependsOn": [
-					{
-						"activity": "Web Activity",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
