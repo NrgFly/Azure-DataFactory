@@ -25,9 +25,9 @@
 				"type": "AzureFunctionActivity",
 				"dependsOn": [
 					{
-						"activity": "WebHook",
+						"activity": "Web Activity",
 						"dependencyConditions": [
-							"Skipped"
+							"Succeeded"
 						]
 					}
 				],
@@ -54,9 +54,9 @@
 				"type": "WebHook",
 				"dependsOn": [
 					{
-						"activity": "Web Activity",
+						"activity": "Azure Function",
 						"dependencyConditions": [
-							"Skipped"
+							"Succeeded"
 						]
 					}
 				],
