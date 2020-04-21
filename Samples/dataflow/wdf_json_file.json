@@ -1,0 +1,29 @@
+{
+	"name": "wdf_json_file",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "ds_dataflow_sample",
+					"script": "",
+					"dataset": {
+						"referenceName": "ds_dataflow_sample",
+						"type": "DatasetReference"
+					}
+				}
+			],
+			"sinks": [
+				{
+					"name": "Sink1",
+					"dataset": {
+						"referenceName": "ds_dataflow_output",
+						"type": "DatasetReference"
+					},
+					"script": "sink(input(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['adf_wdf_output.csv'],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> Sink1"
+				}
+			],
+			"script": "section Section1;\r\nshared ds_dataflow_sample = let\r\n  AdfDoc = AzureStorage.BlobContents(\"https://bdatablob.blob.core.windows.net/dataflows/ManyJSON_Objects - CSV.csv\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \"|\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv])\r\nin\r\n  Csv;\r\nshared UserQuery = let\r\n  Source = ds_dataflow_sample,\r\n  #\"Renamed columns\" = Table.RenameColumns(Source, {{\"Column1\", \"column\"}}),\r\n  #\"Parse JSON\" = Table.TransformColumns(#\"Renamed columns\",{},Json.Document),\r\n  #\"Expand JSON\" = Table.ExpandRecordColumn(#\"Parse JSON\", \"column\", {\"id\", \"type\", \"name\", \"ppu\", \"batters\", \"topping\"}, {\"id\", \"type\", \"name\", \"ppu\", \"batters\", \"topping\"}),\r\n  #\"Unroll topping\" = Table.ExpandListColumn(#\"Expand JSON\", \"topping\"),\r\n  #\"Expand topping\" = Table.ExpandRecordColumn(#\"Unroll topping\", \"topping\", {\"id\", \"type\"}, {\"topping.id\", \"topping.type\"}),\r\n  #\"Expand batters\" = Table.ExpandRecordColumn(#\"Expand topping\", \"batters\", {\"batter\"}, {\"batter\"}),\r\n  #\"Unroll batter\" = Table.ExpandListColumn(#\"Expand batters\", \"batter\"),\r\n  #\"Expand batter\" = Table.ExpandRecordColumn(#\"Unroll batter\", \"batter\", {\"id\", \"type\"}, {\"batter.id\", \"batter.type\"})\r\nin\r\n  #\"Expand batter\";\r\n"
+		}
+	}
+}

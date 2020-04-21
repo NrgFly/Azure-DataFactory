@@ -1,9 +1,9 @@
 {
-	"name": "dataflow_SQL_SAT_pl",
+	"name": "dataflow_flatten_pl",
 	"properties": {
 		"activities": [
 			{
-				"name": "dataflow_SQL_SAT_df",
+				"name": "Data Flow Flatten JSON with cakes",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -16,8 +16,12 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow_SQL_SAT_df",
+						"referenceName": "df_flatten_task_cakes_JSON",
 						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
 					}
 				}
 			}

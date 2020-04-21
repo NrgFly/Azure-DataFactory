@@ -1,0 +1,80 @@
+{
+	"name": "pl_azurefunction_test",
+	"properties": {
+		"activities": [
+			{
+				"name": "Web Activity",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "WebHook",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime?code=WPbrtWZpOERh8z8dl2UjJ/Xu8XsaRHk6I49KKikRWzr38B8n6fax4w==",
+					"method": "POST",
+					"body": "{\n    timezone: \"Eastern Standard Time\"\n}"
+				}
+			},
+			{
+				"name": "Azure Function",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "GetTime-AF ",
+					"method": "POST",
+					"body": "{\n    timezone: \"Eastern Standard Time\"\n}"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_af_gettime",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "WebHook",
+				"type": "WebHook",
+				"dependsOn": [
+					{
+						"activity": "Azure Function",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime-WH?code=EzOt81JcICeAzV2c4OqFBSy0Hrar9aCHEygHaClJJm7iHds1wYtfKg==",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"timezone": "Eastern Standard Time"
+					},
+					"timeout": "00:09:00",
+					"reportStatusOnCallBack": false
+				}
+			}
+		],
+		"annotations": []
+	}
+}
