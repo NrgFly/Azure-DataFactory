@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage_LS'"
 		},
+		"AzureDataLakeStorage_Gen2_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage_Gen2'"
+		},
 		"AzureSqlDatabase_DV_LS_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_DV_LS'"
@@ -26,6 +30,18 @@
 		"azuredatabricks_bigdata_ls_accessToken": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accessToken' of 'azuredatabricks_bigdata_ls'"
+		},
+		"ls_af_gettime_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'ls_af_gettime'"
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().filename"
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
 		},
 		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 			"type": "string",
@@ -83,15 +99,11 @@
 			"type": "string",
 			"defaultValue": "@dataset().FilePath"
 		},
-		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_fileName": {
+		"AzureDataLakeStoreSinkFileStore_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": ""
 		},
-		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().folder"
-		},
-		"AzureDataLakeStoreSourceFileStore1_properties_typeProperties_folderPath": {
+		"AzureDataLakeStoreSinkFileStore_properties_typeProperties_folderPath": {
 			"type": "string",
 			"defaultValue": "@dataset().folder"
 		},
@@ -146,6 +158,10 @@
 		"validation_adls_source_ds_properties_typeProperties_folderPath": {
 			"type": "string",
 			"defaultValue": "@dataset().FileFolder"
+		},
+		"AzureDataLakeStorage_Gen2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://bdataadlsgen2.dfs.core.windows.net"
 		},
 		"AzureDataLakeStore_ls_properties_typeProperties_dataLakeStoreUri": {
 			"type": "string",
@@ -225,11 +241,20 @@
 					"AzureBlobStorage_LS_connectionString": {
 						"value": "[parameters('AzureBlobStorage_LS_connectionString')]"
 					},
+					"AzureDataLakeStorage_Gen2_accountKey": {
+						"value": "[parameters('AzureDataLakeStorage_Gen2_accountKey')]"
+					},
 					"Spark1_password": {
 						"value": "[parameters('Spark1_password')]"
 					},
 					"azuredatabricks_bigdata_ls_accessToken": {
 						"value": "[parameters('azuredatabricks_bigdata_ls_accessToken')]"
+					},
+					"ls_af_gettime_functionKey": {
+						"value": "[parameters('ls_af_gettime_functionKey')]"
+					},
+					"AzureDataLakeStorage_Gen2_properties_typeProperties_url": {
+						"value": "[parameters('AzureDataLakeStorage_Gen2_properties_typeProperties_url')]"
 					},
 					"AzureDataLakeStore_ls_properties_typeProperties_dataLakeStoreUri": {
 						"value": "[parameters('AzureDataLakeStore_ls_properties_typeProperties_dataLakeStoreUri')]"
@@ -251,6 +276,12 @@
 					},
 					"Spark1_properties_typeProperties_username": {
 						"value": "[parameters('Spark1_properties_typeProperties_username')]"
+					},
+					"AzureBlobStorageSourceFileStore_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlobStorageSourceFileStore_properties_typeProperties_fileName')]"
+					},
+					"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath')]"
 					},
 					"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 						"value": "[parameters('AzureBlob_bgdata_daily_properties_typeProperties_fileName')]"
@@ -281,27 +312,6 @@
 					},
 					"AzureBlob_storesales_store02_properties_typeProperties_folderPath": {
 						"value": "[parameters('AzureBlob_storesales_store02_properties_typeProperties_folderPath')]"
-					},
-					"AzureBlob_storesales_store03_properties_typeProperties_fileName": {
-						"value": "[parameters('AzureBlob_storesales_store03_properties_typeProperties_fileName')]"
-					},
-					"AzureBlob_storesales_store03_properties_typeProperties_folderPath": {
-						"value": "[parameters('AzureBlob_storesales_store03_properties_typeProperties_folderPath')]"
-					},
-					"AzureBlob_storesales_storesall_properties_typeProperties_fileName": {
-						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_fileName')]"
-					},
-					"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
-						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_folderPath')]"
-					},
-					"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_fileName": {
-						"value": "[parameters('AzureDataLakeStoreSinkFileStore1_properties_typeProperties_fileName')]"
-					},
-					"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_folderPath": {
-						"value": "[parameters('AzureDataLakeStoreSinkFileStore1_properties_typeProperties_folderPath')]"
-					},
-					"AzureDataLakeStoreSourceFileStore1_properties_typeProperties_folderPath": {
-						"value": "[parameters('AzureDataLakeStoreSourceFileStore1_properties_typeProperties_folderPath')]"
 					}
 				}
 			},
@@ -321,11 +331,23 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"AzureSqlDatabase_DV_LS_connectionString": {
-						"value": "[parameters('AzureSqlDatabase_DV_LS_connectionString')]"
+					"AzureBlob_storesales_store03_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlob_storesales_store03_properties_typeProperties_fileName')]"
 					},
-					"AzureSqlDatabase_LS_connectionString": {
-						"value": "[parameters('AzureSqlDatabase_LS_connectionString')]"
+					"AzureBlob_storesales_store03_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlob_storesales_store03_properties_typeProperties_folderPath')]"
+					},
+					"AzureBlob_storesales_storesall_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_fileName')]"
+					},
+					"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureBlob_storesales_storesall_properties_typeProperties_folderPath')]"
+					},
+					"AzureDataLakeStoreSinkFileStore_properties_typeProperties_fileName": {
+						"value": "[parameters('AzureDataLakeStoreSinkFileStore_properties_typeProperties_fileName')]"
+					},
+					"AzureDataLakeStoreSinkFileStore_properties_typeProperties_folderPath": {
+						"value": "[parameters('AzureDataLakeStoreSinkFileStore_properties_typeProperties_folderPath')]"
 					},
 					"Template_wasb_delete_properties_typeProperties_fileName": {
 						"value": "[parameters('Template_wasb_delete_properties_typeProperties_fileName')]"
@@ -356,15 +378,6 @@
 					},
 					"Template_wasb_source_ds_properties_typeProperties_folderPath": {
 						"value": "[parameters('Template_wasb_source_ds_properties_typeProperties_folderPath')]"
-					},
-					"validation_adls_source_ds_properties_typeProperties_folderPath": {
-						"value": "[parameters('validation_adls_source_ds_properties_typeProperties_folderPath')]"
-					},
-					"FileSystem_ls_properties_typeProperties_host": {
-						"value": "[parameters('FileSystem_ls_properties_typeProperties_host')]"
-					},
-					"FileSystem_ls_properties_typeProperties_userId": {
-						"value": "[parameters('FileSystem_ls_properties_typeProperties_userId')]"
 					}
 				}
 			},
@@ -386,11 +399,20 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"Template_FileShare_ds_properties_typeProperties_fileName": {
-						"value": "[parameters('Template_FileShare_ds_properties_typeProperties_fileName')]"
+					"AzureSqlDatabase_DV_LS_connectionString": {
+						"value": "[parameters('AzureSqlDatabase_DV_LS_connectionString')]"
 					},
-					"Template_FileShare_ds_properties_typeProperties_folderPath": {
-						"value": "[parameters('Template_FileShare_ds_properties_typeProperties_folderPath')]"
+					"AzureSqlDatabase_LS_connectionString": {
+						"value": "[parameters('AzureSqlDatabase_LS_connectionString')]"
+					},
+					"validation_adls_source_ds_properties_typeProperties_folderPath": {
+						"value": "[parameters('validation_adls_source_ds_properties_typeProperties_folderPath')]"
+					},
+					"FileSystem_ls_properties_typeProperties_host": {
+						"value": "[parameters('FileSystem_ls_properties_typeProperties_host')]"
+					},
+					"FileSystem_ls_properties_typeProperties_userId": {
+						"value": "[parameters('FileSystem_ls_properties_typeProperties_userId')]"
 					}
 				}
 			},
@@ -412,6 +434,32 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"Template_FileShare_ds_properties_typeProperties_fileName": {
+						"value": "[parameters('Template_FileShare_ds_properties_typeProperties_fileName')]"
+					},
+					"Template_FileShare_ds_properties_typeProperties_folderPath": {
+						"value": "[parameters('Template_FileShare_ds_properties_typeProperties_folderPath')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_2')]"
+			]
+		},
+		{
+			"name": "ArmTemplate_4",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_4.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
 					"event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath": {
 						"value": "[parameters('event_trigger_filecreate_properties_bdata_adf_variable_append_pl_parameters_FilePath')]"
 					},
@@ -424,7 +472,7 @@
 				}
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_2')]"
+				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_3')]"
 			]
 		}
 	]

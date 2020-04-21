@@ -8,6 +8,9 @@
 		"AzureBlobStorage_LS_connectionString": {
 			"value": ""
 		},
+		"AzureDataLakeStorage_Gen2_accountKey": {
+			"value": ""
+		},
 		"AzureSqlDatabase_DV_LS_connectionString": {
 			"value": ""
 		},
@@ -19,6 +22,15 @@
 		},
 		"azuredatabricks_bigdata_ls_accessToken": {
 			"value": ""
+		},
+		"ls_af_gettime_functionKey": {
+			"value": ""
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_fileName": {
+			"value": "@dataset().filename"
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
 		},
 		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 			"value": "@dataset().FileName"
@@ -62,13 +74,10 @@
 		"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
 			"value": "@dataset().FilePath"
 		},
-		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_fileName": {
+		"AzureDataLakeStoreSinkFileStore_properties_typeProperties_fileName": {
 			"value": ""
 		},
-		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_folderPath": {
-			"value": "@dataset().folder"
-		},
-		"AzureDataLakeStoreSourceFileStore1_properties_typeProperties_folderPath": {
+		"AzureDataLakeStoreSinkFileStore_properties_typeProperties_folderPath": {
 			"value": "@dataset().folder"
 		},
 		"Template_FileShare_ds_properties_typeProperties_fileName": {
@@ -109,6 +118,9 @@
 		},
 		"validation_adls_source_ds_properties_typeProperties_folderPath": {
 			"value": "@dataset().FileFolder"
+		},
+		"AzureDataLakeStorage_Gen2_properties_typeProperties_url": {
+			"value": "https://bdataadlsgen2.dfs.core.windows.net"
 		},
 		"AzureDataLakeStore_ls_properties_typeProperties_dataLakeStoreUri": {
 			"value": "https://azueus2devadlsbdatalake.azuredatalakestore.net/webhdfs/v1"

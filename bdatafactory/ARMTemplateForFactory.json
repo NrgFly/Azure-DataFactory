@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage_LS'"
 		},
+		"AzureDataLakeStorage_Gen2_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage_Gen2'"
+		},
 		"AzureSqlDatabase_DV_LS_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_DV_LS'"
@@ -26,6 +30,18 @@
 		"azuredatabricks_bigdata_ls_accessToken": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accessToken' of 'azuredatabricks_bigdata_ls'"
+		},
+		"ls_af_gettime_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'ls_af_gettime'"
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_fileName": {
+			"type": "string",
+			"defaultValue": "@dataset().filename"
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
+			"type": "string",
+			"defaultValue": "@dataset().folder"
 		},
 		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
 			"type": "string",
@@ -83,15 +99,11 @@
 			"type": "string",
 			"defaultValue": "@dataset().FilePath"
 		},
-		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_fileName": {
+		"AzureDataLakeStoreSinkFileStore_properties_typeProperties_fileName": {
 			"type": "string",
 			"defaultValue": ""
 		},
-		"AzureDataLakeStoreSinkFileStore1_properties_typeProperties_folderPath": {
-			"type": "string",
-			"defaultValue": "@dataset().folder"
-		},
-		"AzureDataLakeStoreSourceFileStore1_properties_typeProperties_folderPath": {
+		"AzureDataLakeStoreSinkFileStore_properties_typeProperties_folderPath": {
 			"type": "string",
 			"defaultValue": "@dataset().folder"
 		},
@@ -146,6 +158,10 @@
 		"validation_adls_source_ds_properties_typeProperties_folderPath": {
 			"type": "string",
 			"defaultValue": "@dataset().FileFolder"
+		},
+		"AzureDataLakeStorage_Gen2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://bdataadlsgen2.dfs.core.windows.net"
 		},
 		"AzureDataLakeStore_ls_properties_typeProperties_dataLakeStoreUri": {
 			"type": "string",
@@ -826,7 +842,11 @@
 									"SinkSatProduct": {}
 								}
 							},
-							"staging": {}
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							}
 						}
 					},
 					{
@@ -861,7 +881,11 @@
 									"SinkSatInternetSales": {}
 								}
 							},
-							"staging": {}
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							}
 						}
 					},
 					{
@@ -896,7 +920,11 @@
 									"SinkSatGeography": {}
 								}
 							},
-							"staging": {}
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							}
 						}
 					},
 					{
@@ -926,7 +954,11 @@
 									"SinkLinkCustomerGeography": {}
 								}
 							},
-							"staging": {}
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							}
 						}
 					}
 				],
@@ -1702,6 +1734,334 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Template_wasb_delete_time')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/NYC Taxi Trip Fare Data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Copy all files across multiple containers or buckets from one file-based storage store to another",
+				"activities": [
+					{
+						"name": "List of Trips",
+						"description": "Scan the file path on your source storage store and get the container list.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "AzureBlobStorageSourceFileStore",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath_trip",
+										"type": "Expression"
+									},
+									"filename": "*.zip"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							]
+						}
+					},
+					{
+						"name": "For Each Trips",
+						"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "List of Trips",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('List of Trips').output.childItems",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "Copy Trip",
+									"description": "Copy each container from source storage store to destination store.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@concat(pipeline().parameters.SourceFilePath_trip,'/',item().name)"
+										},
+										{
+											"name": "Destination",
+											"value": "@concat(pipeline().parameters.DestinationFilePath_trip,'/',item().name)"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "BlobSource",
+											"recursive": false
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ""
+											}
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 2
+									},
+									"inputs": [
+										{
+											"referenceName": "AzureBlobStorageSourceFileStore",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.SourceFilePath_trip)",
+													"type": "Expression"
+												},
+												"filename": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ADLS_Gen2",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.DestinationFilePath_trip",
+													"type": "Expression"
+												},
+												"filename": {
+													"value": "@replace(item().name,'.zip','.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "List of Fares",
+						"description": "Scan the file path on your source storage store and get the container list.",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "AzureBlobStorageSourceFileStore",
+								"type": "DatasetReference",
+								"parameters": {
+									"folder": {
+										"value": "@pipeline().parameters.SourceFilePath_fare",
+										"type": "Expression"
+									},
+									"filename": "*.zip"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							]
+						}
+					},
+					{
+						"name": "For Each Fare",
+						"description": "Get the container list from Metadata activity and then iterates each of them to Copy activity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "List of Fares",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('List of Fares').output.childItems",
+								"type": "Expression"
+							},
+							"batchCount": 4,
+							"activities": [
+								{
+									"name": "Copy Fare",
+									"description": "Copy each container from source storage store to destination store.",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@concat(pipeline().parameters.SourceFilePath_trip,'/',item().name)"
+										},
+										{
+											"name": "Destination",
+											"value": "@concat(pipeline().parameters.DestinationFilePath_trip,'/',item().name)"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "BlobSource",
+											"recursive": false
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ""
+											}
+										},
+										"enableStaging": false,
+										"dataIntegrationUnits": 2
+									},
+									"inputs": [
+										{
+											"referenceName": "AzureBlobStorageSourceFileStore",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@concat(pipeline().parameters.SourceFilePath_fare)",
+													"type": "Expression"
+												},
+												"filename": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ADLS_Gen2",
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@pipeline().parameters.DestinationFilePath_fare",
+													"type": "Expression"
+												},
+												"filename": {
+													"value": "@replace(item().name,'.zip','.csv')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "NYC Taxi Distance Trip",
+						"type": "ExecuteWranglingDataflow",
+						"dependsOn": [
+							{
+								"activity": "For Each Trips",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "For Each Fare",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "NYC_Taxi_Distance_Trip_wdf",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"TripData": {},
+									"Sink1": {}
+								}
+							},
+							"staging": {}
+						}
+					}
+				],
+				"parameters": {
+					"SourceFilePath_trip": {
+						"type": "String",
+						"defaultValue": "/nyctaxidata-raw/trip_data"
+					},
+					"DestinationFilePath_trip": {
+						"type": "String",
+						"defaultValue": "/nyctaxidata-staging/trip_data"
+					},
+					"SourceFilePath_fare": {
+						"type": "string",
+						"defaultValue": "/nyctaxidata-raw/trip_fare"
+					},
+					"DestinationFilePath_fare": {
+						"type": "string",
+						"defaultValue": "/nyctaxidata-staging/trip_fare"
+					}
+				},
+				"folder": {
+					"name": "Wrangling Data Flow Demos"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/AzureBlobStorageSourceFileStore')]",
+				"[concat(variables('factoryId'), '/dataflows/NYC_Taxi_Distance_Trip_wdf')]",
+				"[concat(variables('factoryId'), '/datasets/ADLS_Gen2')]"
 			]
 		},
 		{
@@ -2631,7 +2991,57 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Template_wasb_source_ds')]"
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_source_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_sink_ds')]",
+				"[concat(variables('factoryId'), '/datasets/Template_wasb_delete')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Wrangling Data Flow Taxi Demo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Joining and Aggregating New York City Taxi Data using Wrangling Data Flows",
+				"activities": [
+					{
+						"name": "Taxi Demo",
+						"description": "Joining and Aggregating New York City Taxi Data",
+						"type": "ExecuteWranglingDataflow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "TaxiDemo",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"TripData": {},
+									"TripFares": {},
+									"Sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"computeType": "General",
+								"coreCount": 8
+							}
+						}
+					}
+				],
+				"folder": {
+					"name": "Wrangling Data Flow Demos"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/TaxiDemo')]"
 			]
 		},
 		{
@@ -3271,6 +3681,39 @@
 									}
 								}
 							]
+						}
+					},
+					{
+						"name": "Email Alert - Failure",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Metadata Store 01",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://prod-29.eastus.logic.azure.com:443/workflows/b254c91f0139447aa4bf23657e729aff/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=c1ZLiBHQ2uyBi47Hc88M6S_JMPEbamGSJYEeI1YFQbU",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"DataFactoryName": "@{pipeline().DataFactory}",
+								"PipelineName": "@{pipeline().Pipeline}",
+								"ErrorMessage": "@activity('Metadata Store 01').Error.message",
+								"EmailTo": "@pipeline().parameters.var_email_address"
+							}
 						}
 					}
 				],
@@ -4591,13 +5034,13 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_SQL_SAT_pl')]",
+			"name": "[concat(parameters('factoryName'), '/dataflow_flatten_pl')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "dataflow_SQL_SAT_df",
+						"name": "Data Flow Flatten JSON with cakes",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -4610,25 +5053,436 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "dataflow_SQL_SAT_df",
+								"referenceName": "df_flatten_task_cakes_JSON",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"SourceGeography": {},
-									"HUBGeography": {},
-									"SourceLastSatGeography": {},
-									"SinkGeography": {},
-									"SinkSatGeography": {}
+									"SourceJSONCakes": {},
+									"SinkFlattenOutput": {}
 								}
 							},
-							"staging": {}
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							}
 						}
 					}
 				],
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow_SQL_SAT_df')]"
+				"[concat(variables('factoryId'), '/dataflows/df_flatten_task_cakes_JSON')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_DF_PASS_BI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "df_PASS_BI",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_PASS_BI",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceGeography": {},
+									"SourceHUBGeography": {},
+									"SourceSatGeographyLatest": {},
+									"SinkHubGeography": {},
+									"SinkSatGeography": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							}
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_PASS_BI')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_azurefunction_test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Web Activity",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "WebHook",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime?code=WPbrtWZpOERh8z8dl2UjJ/Xu8XsaRHk6I49KKikRWzr38B8n6fax4w==",
+							"method": "POST",
+							"headers": {},
+							"body": "{\n    timezone: \"Eastern Standard Time\"\n}"
+						}
+					},
+					{
+						"name": "Azure Function",
+						"type": "AzureFunctionActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"functionName": "GetTime-AF ",
+							"method": "POST",
+							"headers": {},
+							"body": "{\n    timezone: \"Eastern Standard Time\"\n}"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_af_gettime",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "WebHook",
+						"type": "WebHook",
+						"dependsOn": [
+							{
+								"activity": "Azure Function",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime-WH?code=EzOt81JcICeAzV2c4OqFBSy0Hrar9aCHEygHaClJJm7iHds1wYtfKg==",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"timezone": "Eastern Standard Time"
+							},
+							"timeout": "00:09:00",
+							"reportStatusOnCallBack": false
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_af_gettime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_data_json_flatten')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get JSON data",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								}
+							},
+							"dataset": {
+								"referenceName": "ls_json_flatten_data",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "For Each Events",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get JSON data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get JSON data').output.firstRow.events",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Log Event",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[sp_adf_pipeline_log_event]",
+										"storedProcedureParameters": {
+											"process": {
+												"value": {
+													"value": "@item().process",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"start_time": {
+												"value": {
+													"value": "@item().start_time",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"stop_time": {
+												"value": {
+													"value": "@item().stop_time",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"last_update": {
+												"value": {
+													"value": "@item().last_update",
+													"type": "Expression"
+												},
+												"type": "Datetime"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase_LS",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"variables": {
+					"event": {
+						"type": "Array"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ls_json_flatten_data')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_data_json_flatten_corrected')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get JSON data",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								}
+							},
+							"dataset": {
+								"referenceName": "ls_json_flatten_data",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "For Each Events",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get JSON data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get JSON data').output.firstRow.events",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Log Event",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[sp_adf_pipeline_log_event]",
+										"storedProcedureParameters": {
+											"process": {
+												"value": {
+													"value": "@item().process",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"start_time": {
+												"value": {
+													"value": "@item().start_time",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"stop_time": {
+												"value": {
+													"value": "@if(contains(string(item()),'\"stop_time\":'),item().stop_time,null)",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"last_update": {
+												"value": {
+													"value": "@if(contains(string(item()),'\"last_update\":'),item().last_update,utcNow())",
+													"type": "Expression"
+												},
+												"type": "Datetime"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "AzureSqlDatabase_LS",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"variables": {
+					"event": {
+						"type": "Array"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ls_json_flatten_data')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_Gen2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage_Gen2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "string"
+					},
+					"filename": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "TaxiDemo"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().folder",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage_Gen2')]"
 			]
 		},
 		{
@@ -5520,6 +6374,44 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorageSourceFileStore')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to your source data store.",
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "String"
+					},
+					"filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureBlob",
+				"typeProperties": {
+					"compression": {
+						"type": "ZipDeflate"
+					},
+					"fileName": {
+						"value": "[parameters('AzureBlobStorageSourceFileStore_properties_typeProperties_fileName')]",
+						"type": "Expression"
+					},
+					"folderPath": {
+						"value": "[parameters('AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath')]",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlob_bgdata_daily')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -5860,7 +6752,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStoreSinkFileStore1')]",
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStoreSinkFileStore')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -5877,37 +6769,9 @@
 				"annotations": [],
 				"type": "AzureDataLakeStoreFile",
 				"typeProperties": {
-					"fileName": "[parameters('AzureDataLakeStoreSinkFileStore1_properties_typeProperties_fileName')]",
+					"fileName": "[parameters('AzureDataLakeStoreSinkFileStore_properties_typeProperties_fileName')]",
 					"folderPath": {
-						"value": "[parameters('AzureDataLakeStoreSinkFileStore1_properties_typeProperties_folderPath')]",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStore_ls')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStoreSourceFileStore1')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Connection to your source data store.",
-				"linkedServiceName": {
-					"referenceName": "AzureDataLakeStore_ls",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"folder": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"type": "AzureDataLakeStoreFile",
-				"typeProperties": {
-					"folderPath": {
-						"value": "[parameters('AzureDataLakeStoreSourceFileStore1_properties_typeProperties_folderPath')]",
+						"value": "[parameters('AzureDataLakeStoreSinkFileStore_properties_typeProperties_folderPath')]",
 						"type": "Expression"
 					}
 				}
@@ -6438,6 +7302,37 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/TaxiSink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage_Gen2",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "TaxiDemo"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "taxi_output",
+						"fileSystem": "nyctaxidata-staging"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage_Gen2')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Template_FileShare_ds')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -6676,6 +7571,310 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/TripData')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage_Gen2",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "TaxiDemo"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "trip_data_1.csv",
+						"folderPath": "trip_data",
+						"fileSystem": "nyctaxidata-staging"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "medallion",
+						"type": "String"
+					},
+					{
+						"name": "hack_license",
+						"type": "String"
+					},
+					{
+						"name": "vendor_id",
+						"type": "String"
+					},
+					{
+						"name": "rate_code",
+						"type": "String"
+					},
+					{
+						"name": "store_and_fwd_flag",
+						"type": "String"
+					},
+					{
+						"name": "pickup_datetime",
+						"type": "String"
+					},
+					{
+						"name": "dropoff_datetime",
+						"type": "String"
+					},
+					{
+						"name": "passenger_count",
+						"type": "String"
+					},
+					{
+						"name": "trip_time_in_secs",
+						"type": "String"
+					},
+					{
+						"name": "trip_distance",
+						"type": "String"
+					},
+					{
+						"name": "pickup_longitude",
+						"type": "String"
+					},
+					{
+						"name": "pickup_latitude",
+						"type": "String"
+					},
+					{
+						"name": "dropoff_longitude",
+						"type": "String"
+					},
+					{
+						"name": "dropoff_latitude",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage_Gen2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TripFares')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage_Gen2",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "TaxiDemo"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "trip_fare_1.csv",
+						"folderPath": "trip_fare",
+						"fileSystem": "nyctaxidata-staging"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "medallion",
+						"type": "String"
+					},
+					{
+						"name": "hack_license",
+						"type": "String"
+					},
+					{
+						"name": "vendor_id",
+						"type": "String"
+					},
+					{
+						"name": "pickup_datetime",
+						"type": "String"
+					},
+					{
+						"name": "payment_type",
+						"type": "String"
+					},
+					{
+						"name": "fare_amount",
+						"type": "String"
+					},
+					{
+						"name": "surcharge",
+						"type": "String"
+					},
+					{
+						"name": "mta_tax",
+						"type": "String"
+					},
+					{
+						"name": "tip_amount",
+						"type": "String"
+					},
+					{
+						"name": "tolls_amount",
+						"type": "String"
+					},
+					{
+						"name": "total_amount",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage_Gen2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_dataflow_output')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "dataflows"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					},
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_dataflow_sample')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "ManyJSON_Objects - CSV.csv",
+						"container": "dataflows"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "{\"id\":\"0001\",\"type\":\"donut\",\"name\":\"Cake\",\"ppu\":0.55,\"batters\":{\"batter\":[{\"id\":\"1001\",\"type\":\"Regular\"},{\"id\":\"1002\",\"type\":\"Chocolate\"},{\"id\":\"1003\",\"type\":\"Blueberry\"},{\"id\":\"1004\",\"type\":\"Devil's Food\"}]},\"topping\":[{\"id\":\"5001\",\"type\":\"None\"},{\"id\":\"5002\",\"type\":\"Glazed\"},{\"id\":\"5005\",\"type\":\"Sugar\"},{\"id\":\"5007\",\"type\":\"Powdered Sugar\"},{\"id\":\"5006\",\"type\":\"Chocolate with Sprinkles\"},{\"id\":\"5003\",\"type\":\"Chocolate\"},{\"id\":\"5004\",\"type\":\"Maple\"}]}",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_json_dataflow_sample')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "dataflows"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_json_flatten_data')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "json_data_file.json",
+						"container": "dataflows"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"events": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"process": {
+										"type": "string"
+									},
+									"start_time": {
+										"type": "string"
+									},
+									"stop_time": {
+										"type": "string"
+									},
+									"last_update": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage_LS')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/validation_adls_source_ds')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -6723,6 +7922,23 @@
 				"type": "AzureBlobStorage",
 				"typeProperties": {
 					"connectionString": "[parameters('AzureBlobStorage_LS_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage_Gen2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage_Gen2_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage_Gen2_accountKey')]"
+					}
 				}
 			},
 			"dependsOn": []
@@ -6877,6 +8093,23 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ls_af_gettime')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "https://bd-eus2-fapp.azurewebsites.net",
+					"functionKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_af_gettime_functionKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/event_trigger_filecreate')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -6931,32 +8164,28 @@
 								"referenceName": "BLOB_dvs_customer_incr_ds",
 								"type": "DatasetReference"
 							},
-							"name": "SourceCustomer",
-							"typeProperties": {}
+							"name": "SourceCustomer"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_HUB_Customer",
 								"type": "DatasetReference"
 							},
-							"name": "HubCustomer",
-							"typeProperties": {}
+							"name": "HubCustomer"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_SAT_Customer_Latest",
 								"type": "DatasetReference"
 							},
-							"name": "SatCustomer",
-							"typeProperties": {}
+							"name": "SatCustomer"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_LINK_CustomerGeography",
 								"type": "DatasetReference"
 							},
-							"name": "LinkCustomerGeography",
-							"typeProperties": {}
+							"name": "LinkCustomerGeography"
 						}
 					],
 					"sinks": [
@@ -7005,7 +8234,7 @@
 							"name": "NewLinkCustomerGeography"
 						}
 					],
-					"script": "\n\nsource(output(\n\t\tCustomerAlternateKey as string,\n\t\tGeographyAlternateKey as string,\n\t\tTitle as string,\n\t\tFirstName as string,\n\t\tMiddleName as string,\n\t\tLastName as string,\n\t\tNameStyle as string,\n\t\tBirthDate as string,\n\t\tMaritalStatus as string,\n\t\tSuffix as string,\n\t\tGender as string,\n\t\tEmailAddress as string,\n\t\tYearlyIncome as string,\n\t\tTotalChildren as string,\n\t\tNumberChildrenAtHome as string,\n\t\tHouseOwnerFlag as string,\n\t\tNumberCarsOwned as string,\n\t\tAddressLine1 as string,\n\t\tAddressLine2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceCustomer\nsource(output(\n\t\tHUB_Customer_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubCustomer\nsource(output(\n\t\tHUB_Customer_HK as string,\n\t\tSAT_Customer_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatCustomer\nsource(output(\n\t\tLINK_CustomerGeography_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Geography_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LinkCustomerGeography\nSourceCustomer derive(LINK_CustomerGeography_HK = sha2(512, CustomerAlternateKey, GeographyAlternateKey),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tHUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tSAT_Customer_HDIFF = sha2(512, CustomerAlternateKey, GeographyAlternateKey,Title,FirstName,MiddleName,LastName,NameStyle,BirthDate,MaritalStatus,Suffix,Gender,EmailAddress,YearlyIncome,TotalChildren,NumberChildrenAtHome,HouseOwnerFlag,NumberCarsOwned,AddressLine1,AddressLine2),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, HubCustomer exists(HashColumns@HUB_Customer_HK == HubCustomer@HUB_Customer_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewCustomer\nCheckNewCustomer select(mapColumn(\n\t\tCustomerAlternateKey,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewHubCustomer\nHashColumns, SatCustomer exists(HashColumns@HUB_Customer_HK == SatCustomer@HUB_Customer_HK\n\t&& HashColumns@SAT_Customer_HDIFF == SatCustomer@SAT_Customer_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatCustomer\nCheckNewSatCustomer select(mapColumn(\n\t\tTitle,\n\t\tFirstName,\n\t\tMiddleName,\n\t\tLastName,\n\t\tNameStyle,\n\t\tBirthDate,\n\t\tMaritalStatus,\n\t\tSuffix,\n\t\tGender,\n\t\tEmailAddress,\n\t\tYearlyIncome,\n\t\tTotalChildren,\n\t\tNumberChildrenAtHome,\n\t\tHouseOwnerFlag,\n\t\tNumberCarsOwned,\n\t\tAddressLine1,\n\t\tAddressLine2,\n\t\tHUB_Customer_HK,\n\t\tSAT_Customer_HDIFF,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewSatCustomer\nHashColumns, LinkCustomerGeography exists(HashColumns@LINK_CustomerGeography_HK == LinkCustomerGeography@LINK_CustomerGeography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewLinkCustomerGeography\nCheckNewLinkCustomerGeography select(mapColumn(\n\t\tCustomerAlternateKey,\n\t\tGeographyAlternateKey,\n\t\tLINK_CustomerGeography_HK,\n\t\tHUB_Customer_HK,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewLinkCustomerGeography\nNewHubCustomer sink(input(\n\t\tHUB_Customer_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkHubCustomer\nNewSatCustomer sink(input(\n\t\tHUB_Customer_HK as string,\n\t\tTitle as string,\n\t\tFirstName as string,\n\t\tMiddleName as string,\n\t\tLastName as string,\n\t\tNameStyle as boolean,\n\t\tBirthDate as date,\n\t\tMaritalStatus as string,\n\t\tSuffix as string,\n\t\tGender as string,\n\t\tEmailAddress as string,\n\t\tYearlyIncome as decimal(19,4),\n\t\tTotalChildren as integer,\n\t\tNumberChildrenAtHome as integer,\n\t\tHouseOwnerFlag as string,\n\t\tNumberCarsOwned as integer,\n\t\tAddressLine1 as string,\n\t\tAddressLine2 as string,\n\t\tSAT_Customer_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkSatCustomer\nNewLinkCustomerGeography sink(input(\n\t\tLINK_CustomerGeography_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Geography_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkLinkCustomerGeography"
+					"script": "source(output(\n\t\tCustomerAlternateKey as string,\n\t\tGeographyAlternateKey as string,\n\t\tTitle as string,\n\t\tFirstName as string,\n\t\tMiddleName as string,\n\t\tLastName as string,\n\t\tNameStyle as string,\n\t\tBirthDate as string,\n\t\tMaritalStatus as string,\n\t\tSuffix as string,\n\t\tGender as string,\n\t\tEmailAddress as string,\n\t\tYearlyIncome as string,\n\t\tTotalChildren as string,\n\t\tNumberChildrenAtHome as string,\n\t\tHouseOwnerFlag as string,\n\t\tNumberCarsOwned as string,\n\t\tAddressLine1 as string,\n\t\tAddressLine2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceCustomer\nsource(output(\n\t\tHUB_Customer_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubCustomer\nsource(output(\n\t\tHUB_Customer_HK as string,\n\t\tSAT_Customer_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatCustomer\nsource(output(\n\t\tLINK_CustomerGeography_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Geography_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LinkCustomerGeography\nSourceCustomer derive(LINK_CustomerGeography_HK = sha2(512, CustomerAlternateKey, GeographyAlternateKey),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tHUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tSAT_Customer_HDIFF = sha2(512, CustomerAlternateKey, GeographyAlternateKey,Title,FirstName,MiddleName,LastName,NameStyle,BirthDate,MaritalStatus,Suffix,Gender,EmailAddress,YearlyIncome,TotalChildren,NumberChildrenAtHome,HouseOwnerFlag,NumberCarsOwned,AddressLine1,AddressLine2),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, HubCustomer exists(HashColumns@HUB_Customer_HK == HubCustomer@HUB_Customer_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewCustomer\nCheckNewCustomer select(mapColumn(\n\t\tCustomerAlternateKey,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewHubCustomer\nHashColumns, SatCustomer exists(HashColumns@HUB_Customer_HK == SatCustomer@HUB_Customer_HK\n\t&& HashColumns@SAT_Customer_HDIFF == SatCustomer@SAT_Customer_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatCustomer\nCheckNewSatCustomer select(mapColumn(\n\t\tTitle,\n\t\tFirstName,\n\t\tMiddleName,\n\t\tLastName,\n\t\tNameStyle,\n\t\tBirthDate,\n\t\tMaritalStatus,\n\t\tSuffix,\n\t\tGender,\n\t\tEmailAddress,\n\t\tYearlyIncome,\n\t\tTotalChildren,\n\t\tNumberChildrenAtHome,\n\t\tHouseOwnerFlag,\n\t\tNumberCarsOwned,\n\t\tAddressLine1,\n\t\tAddressLine2,\n\t\tHUB_Customer_HK,\n\t\tSAT_Customer_HDIFF,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewSatCustomer\nHashColumns, LinkCustomerGeography exists(HashColumns@LINK_CustomerGeography_HK == LinkCustomerGeography@LINK_CustomerGeography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewLinkCustomerGeography\nCheckNewLinkCustomerGeography select(mapColumn(\n\t\tCustomerAlternateKey,\n\t\tGeographyAlternateKey,\n\t\tLINK_CustomerGeography_HK,\n\t\tHUB_Customer_HK,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewLinkCustomerGeography\nNewHubCustomer sink(input(\n\t\tHUB_Customer_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkHubCustomer\nNewSatCustomer sink(input(\n\t\tHUB_Customer_HK as string,\n\t\tTitle as string,\n\t\tFirstName as string,\n\t\tMiddleName as string,\n\t\tLastName as string,\n\t\tNameStyle as boolean,\n\t\tBirthDate as date,\n\t\tMaritalStatus as string,\n\t\tSuffix as string,\n\t\tGender as string,\n\t\tEmailAddress as string,\n\t\tYearlyIncome as decimal(19,4),\n\t\tTotalChildren as integer,\n\t\tNumberChildrenAtHome as integer,\n\t\tHouseOwnerFlag as string,\n\t\tNumberCarsOwned as integer,\n\t\tAddressLine1 as string,\n\t\tAddressLine2 as string,\n\t\tSAT_Customer_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkSatCustomer\nNewLinkCustomerGeography sink(input(\n\t\tLINK_CustomerGeography_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Geography_HK as string,\n\t\tCustomerAlternateKey as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkLinkCustomerGeography"
 				}
 			},
 			"dependsOn": [
@@ -7029,24 +8258,21 @@
 								"referenceName": "BLOB_dvs_geography_incr_ds",
 								"type": "DatasetReference"
 							},
-							"name": "SourceGeogrpahy",
-							"typeProperties": {}
+							"name": "SourceGeogrpahy"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_HUB_Geography",
 								"type": "DatasetReference"
 							},
-							"name": "HubGeography",
-							"typeProperties": {}
+							"name": "HubGeography"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_SAT_Geography_Latest",
 								"type": "DatasetReference"
 							},
-							"name": "SatGeography",
-							"typeProperties": {}
+							"name": "SatGeography"
 						}
 					],
 					"sinks": [
@@ -7082,7 +8308,7 @@
 							"name": "NewSatGeography"
 						}
 					],
-					"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeogrpahy\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatGeography\nSourceGeogrpahy derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey, City, StateProvinceCode, StateProvinceName, CountryRegionCode, EnglishCountryRegionName, PostalCode)) ~> HashColumns\nHashColumns, HubGeography exists(HashColumns@HUB_Geography_HK == HubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS,\n\t\tHUB_Geography_HK\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewHubGeography\nHashColumns, SatGeography exists(HashColumns@HUB_Geography_HK == SatGeography@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SatGeography@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatGeography\nCheckNewSatGeography select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewSatGeography\nNewHubGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkHubGeography\nNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tSAT_Geography_HDIFF,\n\t\tLOAD_TS\n\t)) ~> SinkSatGeography"
+					"script": "source(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeogrpahy\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatGeography\nSourceGeogrpahy derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey, City, StateProvinceCode, StateProvinceName, CountryRegionCode, EnglishCountryRegionName, PostalCode)) ~> HashColumns\nHashColumns, HubGeography exists(HashColumns@HUB_Geography_HK == HubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS,\n\t\tHUB_Geography_HK\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewHubGeography\nHashColumns, SatGeography exists(HashColumns@HUB_Geography_HK == SatGeography@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SatGeography@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatGeography\nCheckNewSatGeography select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewSatGeography\nNewHubGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkHubGeography\nNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tSAT_Geography_HDIFF,\n\t\tLOAD_TS\n\t)) ~> SinkSatGeography"
 				}
 			},
 			"dependsOn": [
@@ -7105,24 +8331,21 @@
 								"referenceName": "BLOB_dvs_internetsales_incr_ds",
 								"type": "DatasetReference"
 							},
-							"name": "SourceInternetSales",
-							"typeProperties": {}
+							"name": "SourceInternetSales"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_LINK_InternetSales",
 								"type": "DatasetReference"
 							},
-							"name": "LinkInternetSales",
-							"typeProperties": {}
+							"name": "LinkInternetSales"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_SAT_InternetSales_Latest",
 								"type": "DatasetReference"
 							},
-							"name": "SatInternetSales",
-							"typeProperties": {}
+							"name": "SatInternetSales"
 						}
 					],
 					"sinks": [
@@ -7158,7 +8381,7 @@
 							"name": "NewSatProduct"
 						}
 					],
-					"script": "\n\nsource(output(\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as double,\n\t\tExtendedAmount as double,\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as double,\n\t\tTotalProductCost as double,\n\t\tSalesAmount as double,\n\t\tTaxAmt as double,\n\t\tFreight as double,\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as date,\n\t\tDueDate as date,\n\t\tShipDate as date\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceInternetSales\nsource(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LinkInternetSales\nsource(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tSAT_InternetSales_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatInternetSales\nSourceInternetSales derive(LINK_InternetSales_HK = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tHUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_InternetSales_HDIFF = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber,RevisionNumber,OrderQuantity,UnitPrice,ExtendedAmount,UnitPriceDiscountPct,DiscountAmount,ProductStandardCost,TotalProductCost,SalesAmount,TaxAmt,Freight,CarrierTrackingNumber,CustomerPONumber,OrderDate,DueDate)) ~> HashColumns\nHashColumns, LinkInternetSales exists(HashColumns@LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales\nCheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewLinkInternetSales\nHashColumns, SatInternetSales exists(HashColumns@LINK_InternetSales_HK == SatInternetSales@LINK_InternetSales_HK\n\t&& HashColumns@SAT_InternetSales_HDIFF == SatInternetSales@SAT_InternetSales_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatInternetSales\nCheckNewSatInternetSales select(mapColumn(\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tLOAD_TS,\n\t\tSAT_InternetSales_HDIFF\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewSatProduct\nNewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkLinkInternetSales\nNewSatProduct sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as decimal(19,4),\n\t\tExtendedAmount as decimal(19,4),\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as decimal(19,4),\n\t\tTotalProductCost as decimal(19,4),\n\t\tSalesAmount as decimal(19,4),\n\t\tTaxAmt as decimal(19,4),\n\t\tFreight as decimal(19,4),\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as timestamp,\n\t\tDueDate as timestamp,\n\t\tShipDate as timestamp,\n\t\tSAT_InternetSales_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkSatInternetSales"
+					"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as double,\n\t\tExtendedAmount as double,\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as double,\n\t\tTotalProductCost as double,\n\t\tSalesAmount as double,\n\t\tTaxAmt as double,\n\t\tFreight as double,\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as date,\n\t\tDueDate as date,\n\t\tShipDate as date\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceInternetSales\nsource(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> LinkInternetSales\nsource(output(\n\t\tLINK_InternetSales_HK as string,\n\t\tSAT_InternetSales_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatInternetSales\nSourceInternetSales derive(LINK_InternetSales_HK = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber),\n\t\tHUB_Customer_HK = sha2(512, CustomerAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tHUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_InternetSales_HDIFF = sha2(512, ProductAlternateKey,CustomerAlternateKey,SalesOrderNumber,SalesOrderLineNumber,RevisionNumber,OrderQuantity,UnitPrice,ExtendedAmount,UnitPriceDiscountPct,DiscountAmount,ProductStandardCost,TotalProductCost,SalesAmount,TaxAmt,Freight,CarrierTrackingNumber,CustomerPONumber,OrderDate,DueDate)) ~> HashColumns\nHashColumns, LinkInternetSales exists(HashColumns@LINK_InternetSales_HK == LinkInternetSales@LINK_InternetSales_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewLinkInternetSales\nCheckNewLinkInternetSales select(mapColumn(\n\t\tProductAlternateKey,\n\t\tCustomerAlternateKey,\n\t\tSalesOrderNumber,\n\t\tSalesOrderLineNumber,\n\t\tLINK_InternetSales_HK,\n\t\tHUB_Customer_HK,\n\t\tLOAD_TS,\n\t\tHUB_Product_HK\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewLinkInternetSales\nHashColumns, SatInternetSales exists(HashColumns@LINK_InternetSales_HK == SatInternetSales@LINK_InternetSales_HK\n\t&& HashColumns@SAT_InternetSales_HDIFF == SatInternetSales@SAT_InternetSales_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatInternetSales\nCheckNewSatInternetSales select(mapColumn(\n\t\tRevisionNumber,\n\t\tOrderQuantity,\n\t\tUnitPrice,\n\t\tExtendedAmount,\n\t\tUnitPriceDiscountPct,\n\t\tDiscountAmount,\n\t\tProductStandardCost,\n\t\tTotalProductCost,\n\t\tSalesAmount,\n\t\tTaxAmt,\n\t\tFreight,\n\t\tCarrierTrackingNumber,\n\t\tCustomerPONumber,\n\t\tOrderDate,\n\t\tDueDate,\n\t\tShipDate,\n\t\tLINK_InternetSales_HK,\n\t\tLOAD_TS,\n\t\tSAT_InternetSales_HDIFF\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewSatProduct\nNewLinkInternetSales sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tHUB_Customer_HK as string,\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tCustomerAlternateKey as string,\n\t\tSalesOrderNumber as string,\n\t\tSalesOrderLineNumber as integer,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkLinkInternetSales\nNewSatProduct sink(input(\n\t\tLINK_InternetSales_HK as string,\n\t\tRevisionNumber as integer,\n\t\tOrderQuantity as integer,\n\t\tUnitPrice as decimal(19,4),\n\t\tExtendedAmount as decimal(19,4),\n\t\tUnitPriceDiscountPct as double,\n\t\tDiscountAmount as double,\n\t\tProductStandardCost as decimal(19,4),\n\t\tTotalProductCost as decimal(19,4),\n\t\tSalesAmount as decimal(19,4),\n\t\tTaxAmt as decimal(19,4),\n\t\tFreight as decimal(19,4),\n\t\tCarrierTrackingNumber as string,\n\t\tCustomerPONumber as string,\n\t\tOrderDate as timestamp,\n\t\tDueDate as timestamp,\n\t\tShipDate as timestamp,\n\t\tSAT_InternetSales_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkSatInternetSales"
 				}
 			},
 			"dependsOn": [
@@ -7181,24 +8404,21 @@
 								"referenceName": "BLOB_dvs_product_incr_ds",
 								"type": "DatasetReference"
 							},
-							"name": "SourceProduct",
-							"typeProperties": {}
+							"name": "SourceProduct"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_HUB_Product",
 								"type": "DatasetReference"
 							},
-							"name": "HubProduct",
-							"typeProperties": {}
+							"name": "HubProduct"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_SAT_Product_Latest",
 								"type": "DatasetReference"
 							},
-							"name": "SatProduct",
-							"typeProperties": {}
+							"name": "SatProduct"
 						}
 					],
 					"sinks": [
@@ -7234,7 +8454,7 @@
 							"name": "NewSatProduct"
 						}
 					],
-					"script": "\n\nsource(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as double,\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as short,\n\t\tReorderPoint as short,\n\t\tListPrice as double,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceProduct\nsource(output(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubProduct\nsource(output(\n\t\tHUB_Product_HK as string,\n\t\tSAT_Product_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatProduct\nSourceProduct derive(HUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_Product_HDIFF = sha2(512, ProductAlternateKey\r\n      ,WeightUnitMeasureCode\r\n      ,SizeUnitMeasureCode\r\n      ,EnglishProductName\r\n      ,StandardCost\r\n      ,FinishedGoodsFlag\r\n      ,Color\r\n      ,SafetyStockLevel\r\n      ,ReorderPoint\r\n      ,ListPrice\r\n      ,Size\r\n      ,SizeRange\r\n      ,Weight\r\n      ,ModelName),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, HubProduct exists(HashColumns@HUB_Product_HK == HubProduct@HUB_Product_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewProduct\nCheckNewProduct select(mapColumn(\n\t\tProductAlternateKey,\n\t\tHUB_Product_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewHubProduct\nHashColumns, SatProduct exists(HashColumns@HUB_Product_HK == SatProduct@HUB_Product_HK\n\t&& HashColumns@SAT_Product_HDIFF == SatProduct@SAT_Product_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatProduct\nCheckNewSatProduct select(mapColumn(\n\t\tWeightUnitMeasureCode,\n\t\tSizeUnitMeasureCode,\n\t\tEnglishProductName,\n\t\tStandardCost,\n\t\tFinishedGoodsFlag,\n\t\tColor,\n\t\tSafetyStockLevel,\n\t\tReorderPoint,\n\t\tListPrice,\n\t\tSize,\n\t\tSizeRange,\n\t\tWeight,\n\t\tModelName,\n\t\tHUB_Product_HK,\n\t\tSAT_Product_HDIFF,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewSatProduct\nNewHubProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkHubProduct\nNewSatProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkSatProduct"
+					"script": "source(output(\n\t\tProductAlternateKey as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as double,\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as short,\n\t\tReorderPoint as short,\n\t\tListPrice as double,\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceProduct\nsource(output(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HubProduct\nsource(output(\n\t\tHUB_Product_HK as string,\n\t\tSAT_Product_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SatProduct\nSourceProduct derive(HUB_Product_HK = sha2(512, ProductAlternateKey),\n\t\tSAT_Product_HDIFF = sha2(512, ProductAlternateKey\r\n      ,WeightUnitMeasureCode\r\n      ,SizeUnitMeasureCode\r\n      ,EnglishProductName\r\n      ,StandardCost\r\n      ,FinishedGoodsFlag\r\n      ,Color\r\n      ,SafetyStockLevel\r\n      ,ReorderPoint\r\n      ,ListPrice\r\n      ,Size\r\n      ,SizeRange\r\n      ,Weight\r\n      ,ModelName),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, HubProduct exists(HashColumns@HUB_Product_HK == HubProduct@HUB_Product_HK,\n\tnegate:true,\n\tbroadcast: 'both')~> CheckNewProduct\nCheckNewProduct select(mapColumn(\n\t\tProductAlternateKey,\n\t\tHUB_Product_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewHubProduct\nHashColumns, SatProduct exists(HashColumns@HUB_Product_HK == SatProduct@HUB_Product_HK\n\t&& HashColumns@SAT_Product_HDIFF == SatProduct@SAT_Product_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatProduct\nCheckNewSatProduct select(mapColumn(\n\t\tWeightUnitMeasureCode,\n\t\tSizeUnitMeasureCode,\n\t\tEnglishProductName,\n\t\tStandardCost,\n\t\tFinishedGoodsFlag,\n\t\tColor,\n\t\tSafetyStockLevel,\n\t\tReorderPoint,\n\t\tListPrice,\n\t\tSize,\n\t\tSizeRange,\n\t\tWeight,\n\t\tModelName,\n\t\tHUB_Product_HK,\n\t\tSAT_Product_HDIFF,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> NewSatProduct\nNewHubProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tProductAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkHubProduct\nNewSatProduct sink(input(\n\t\tHUB_Product_HK as string,\n\t\tWeightUnitMeasureCode as string,\n\t\tSizeUnitMeasureCode as string,\n\t\tEnglishProductName as string,\n\t\tStandardCost as decimal(19,4),\n\t\tFinishedGoodsFlag as boolean,\n\t\tColor as string,\n\t\tSafetyStockLevel as integer,\n\t\tReorderPoint as integer,\n\t\tListPrice as decimal(19,4),\n\t\tSize as string,\n\t\tSizeRange as string,\n\t\tWeight as double,\n\t\tModelName as string,\n\t\tSAT_Product_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkSatProduct"
 				}
 			},
 			"dependsOn": [
@@ -7242,6 +8462,158 @@
 				"[concat(variables('factoryId'), '/datasets/ASQL_DV_HUB_Product')]",
 				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Product_Latest')]",
 				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Product')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/NYC_Taxi_Distance_Trip_wdf')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "WranglingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"name": "TripData",
+							"script": "",
+							"dataset": {
+								"referenceName": "TripData",
+								"type": "DatasetReference"
+							}
+						}
+					],
+					"sinks": [
+						{
+							"name": "Sink1",
+							"dataset": {
+								"referenceName": "TaxiSink",
+								"type": "DatasetReference"
+							},
+							"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\ttruncate: true,\n\tquoteAll: true) ~> Sink1"
+						}
+					],
+					"script": "section Section1; shared #\"TripData\" = let AdfDoc = Web.Contents(\"https://bdataadlsgen2.dfs.core.windows.net/nyctaxidata-staging/trip_data/trip_data_1.csv?sv=2018-03-28&sig=On4A%2BKZBoXW0Ro4Q3x%2FWTJjNuIoB6f2SKAptnVXioWU%3D&spr=https&se=2019-11-08T20%3A49%3A38Z&srt=sco&ss=bf&sp=rwl\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]), TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName)) in TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData,\r\n  ChangedType = Table.TransformColumnTypes(Source, {{\"trip_distance\", type number}, {\"pickup_longitude\", type number}, {\"pickup_latitude\", type number}, {\"dropoff_longitude\", type number}, {\"dropoff_latitude\", type number}}),\r\n  Lat1_Rad = Table.AddColumn(ChangedType, \"Lat1_Rad\", each ([pickup_latitude] / 180) * Number.PI),\r\n  Lon1_Rad = Table.AddColumn(Lat1_Rad, \"Lon1_Rad\", each ([pickup_longitude] / 180) * Number.PI),\r\n  Lat2_Rad = Table.AddColumn(Lon1_Rad, \"Lat2_Rad\", each ([dropoff_latitude] / 180)    * Number.PI),\r\n  Lon2_Rad = Table.AddColumn(Lat2_Rad, \"Lon2_Rad\", each ([dropoff_longitude] / 180) * Number.PI),\r\n  Distance_Mi = Table.AddColumn(Lon2_Rad, \"Distance_Mi\", each Number.Acos(Number.Sin([Lat1_Rad]) * Number.Sin([Lat2_Rad]) + Number.Cos([Lat1_Rad]) * Number.Cos([Lat2_Rad]) * Number.Cos([Lon2_Rad]-[Lon1_Rad])) * 3959),\r\n  RemovedColumns = Table.RemoveColumns(Distance_Mi, {\"Lat1_Rad\", \"Lon1_Rad\", \"Lat2_Rad\", \"Lon2_Rad\"})\r\nin\r\n  RemovedColumns;"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/TripData')]",
+				"[concat(variables('factoryId'), '/datasets/TaxiSink')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TaxiDemo')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "WranglingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"name": "TripData",
+							"script": "",
+							"dataset": {
+								"referenceName": "TripData",
+								"type": "DatasetReference"
+							}
+						},
+						{
+							"name": "TripFares",
+							"script": "",
+							"dataset": {
+								"referenceName": "TripFares",
+								"type": "DatasetReference"
+							}
+						}
+					],
+					"sinks": [
+						{
+							"name": "Sink1",
+							"dataset": {
+								"referenceName": "TaxiSink",
+								"type": "DatasetReference"
+							},
+							"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> Sink1"
+						}
+					],
+					"script": "section Section1; shared #\"TripData\" = let AdfDoc = Web.Contents(\"https://bdataadlsgen2.dfs.core.windows.net/nyctaxidata-staging/trip_data/trip_data_1.csv?sv=2018-03-28&sig=GqfnzpNsitPfmZH8AwnhXmymQUcC4VSLFZAg9z%2BFJuA%3D&spr=https&se=2019-11-08T19%3A15%3A35Z&srt=sco&ss=bf&sp=rwl\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]), TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName)) in TrimmedHeaders;shared #\"TripFares\" = let AdfDoc = Web.Contents(\"https://bdataadlsgen2.dfs.core.windows.net/nyctaxidata-staging/trip_fare/trip_fare_1.csv?sv=2018-03-28&sig=1p0MCkz9EoTNb5RmDfw1HL%2F2Sl2QKvOllBw0kbSgbGs%3D&spr=https&se=2019-11-08T19%3A15%3A37Z&srt=sco&ss=bf&sp=rwl\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]), TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName)) in TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData,\r\n  #\"Inner Join\" = Table.NestedJoin(Source, {\"medallion\", \"hack_license\", \"vendor_id\", \"pickup_datetime\"}, TripFares, {\"medallion\", \"hack_license\", \"vendor_id\", \"pickup_datetime\"}, \"TripFares\", JoinKind.Inner),\r\n  #\"Expanding Joined Tables\" = Table.ExpandTableColumn(#\"Inner Join\", \"TripFares\", {\"medallion\", \"hack_license\", \"vendor_id\", \"pickup_datetime\", \"payment_type\", \"fare_amount\", \"surcharge\", \"mta_tax\", \"tip_amount\", \"tolls_amount\", \"total_amount\"}, {\"TripFares.medallion\", \"TripFares.hack_license\", \"TripFares.vendor_id\", \"TripFares.pickup_datetime\", \"TripFares.payment_type\", \"TripFares.fare_amount\", \"TripFares.surcharge\", \"TripFares.mta_tax\", \"TripFares.tip_amount\", \"TripFares.tolls_amount\", \"TripFares.total_amount\"}),\r\n  #\"Converting to Decimal Types\" = Table.TransformColumnTypes(#\"Expanding Joined Tables\", {{\"TripFares.total_amount\", type number}, {\"passenger_count\", type number}, {\"trip_time_in_secs\", type number}, {\"trip_distance\", type number}}),\r\n  #\"Grouped rows\" = Table.Group(#\"Converting to Decimal Types\", {\"vendor_id\"}, {{\"total_passenger_count\", each List.Sum([passenger_count]), type number}, {\"total_trip_time_in_secs\", each List.Sum([trip_time_in_secs]), type number}, {\"total_trip_distance\", each List.Sum([trip_distance]), type number}, {\"total_trip_fare\", each List.Sum([TripFares.total_amount]), type number}})\r\nin\r\n  #\"Grouped rows\";"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/TripData')]",
+				"[concat(variables('factoryId'), '/datasets/TripFares')]",
+				"[concat(variables('factoryId'), '/datasets/TaxiSink')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_SQL_SAT_ROC')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "BLOB_dvs_geography_incr_ds",
+								"type": "DatasetReference"
+							},
+							"name": "SourceGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "SourceHubGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Geography_Latest",
+								"type": "DatasetReference"
+							},
+							"name": "SourceSatGeography"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "SinkHubGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "sinkSatGeography"
+						}
+					],
+					"transformations": [
+						{
+							"name": "HashColumns"
+						},
+						{
+							"name": "CheckNewGeography"
+						},
+						{
+							"name": "SelectNewGeography"
+						},
+						{
+							"name": "CheckNewSatgeogrphy"
+						},
+						{
+							"name": "SelectNewSatGeography"
+						}
+					],
+					"script": "source(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceHubGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceSatGeography\nSourceGeography derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey,City,StateProvinceCode,StateProvinceName,CountryRegionCode,EnglishCountryRegionName,PostalCode)) ~> HashColumns\nHashColumns, SourceHubGeography exists(HashColumns@HUB_Geography_HK == SourceHubGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewGeography\nHashColumns, SourceSatGeography exists(HashColumns@HUB_Geography_HK == SourceSatGeography@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SourceSatGeography@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatgeogrphy\nCheckNewSatgeogrphy select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewSatGeography\nSelectNewGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkHubGeography\nSelectNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tSAT_Geography_HDIFF,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkSatGeography"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/BLOB_dvs_geography_incr_ds')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_HUB_Geography')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Geography_Latest')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Geography')]"
 			]
 		},
 		{
@@ -7257,24 +8629,21 @@
 								"referenceName": "BLOB_dvs_geography_incr_ds",
 								"type": "DatasetReference"
 							},
-							"name": "SourceGeography",
-							"typeProperties": {}
+							"name": "SourceGeography"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_HUB_Geography",
 								"type": "DatasetReference"
 							},
-							"name": "HUBGeography",
-							"typeProperties": {}
+							"name": "HUBGeography"
 						},
 						{
 							"dataset": {
 								"referenceName": "ASQL_DV_SAT_Geography_Latest",
 								"type": "DatasetReference"
 							},
-							"name": "SourceLastSatGeography",
-							"typeProperties": {}
+							"name": "SourceLastSatGeography"
 						}
 					],
 					"sinks": [
@@ -7310,7 +8679,7 @@
 							"name": "NewSatGeography"
 						}
 					],
-					"script": "\n\nsource(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HUBGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceLastSatGeography\nSourceGeography derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey,City,StateProvinceCode,StateProvinceName,CountryRegionCode,EnglishCountryRegionName,PostalCode)) ~> HashColumns\nHashColumns, HUBGeography exists(HashColumns@HUB_Geography_HK == HUBGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> NewGeography\nHashColumns, SourceLastSatGeography exists(HashColumns@HUB_Geography_HK == SourceLastSatGeography@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SourceLastSatGeography@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatGeography\nCheckNewSatGeography select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> NewSatGeography\nNewGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS\n\t)) ~> SinkGeography\nNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkSatGeography"
+					"script": "source(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> HUBGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceLastSatGeography\nSourceGeography derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey,City,StateProvinceCode,StateProvinceName,CountryRegionCode,EnglishCountryRegionName,PostalCode)) ~> HashColumns\nHashColumns, HUBGeography exists(HashColumns@HUB_Geography_HK == HUBGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewGeography\nCheckNewGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> NewGeography\nHashColumns, SourceLastSatGeography exists(HashColumns@HUB_Geography_HK == SourceLastSatGeography@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SourceLastSatGeography@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatGeography\nCheckNewSatGeography select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> NewSatGeography\nNewGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tmapColumn(\n\t\tHUB_Geography_HK,\n\t\tGeographyAlternateKey,\n\t\tLOAD_TS\n\t)) ~> SinkGeography\nNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table') ~> SinkSatGeography"
 				}
 			},
 			"dependsOn": [
@@ -7318,6 +8687,155 @@
 				"[concat(variables('factoryId'), '/datasets/ASQL_DV_HUB_Geography')]",
 				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Geography_Latest')]",
 				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Geography')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_PASS_BI')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "BLOB_dvs_geography_incr_ds",
+								"type": "DatasetReference"
+							},
+							"name": "SourceGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "SourceHUBGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Geography_Latest",
+								"type": "DatasetReference"
+							},
+							"name": "SourceSatGeographyLatest"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_HUB_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "SinkHubGeography"
+						},
+						{
+							"dataset": {
+								"referenceName": "ASQL_DV_SAT_Geography",
+								"type": "DatasetReference"
+							},
+							"name": "SinkSatGeography"
+						}
+					],
+					"transformations": [
+						{
+							"name": "HashColumns"
+						},
+						{
+							"name": "CheckNewHubGeography"
+						},
+						{
+							"name": "SelectNewHubGeography"
+						},
+						{
+							"name": "CheckNewSatGeography"
+						},
+						{
+							"name": "SelectNewSatGeography"
+						}
+					],
+					"script": "source(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceHUBGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tSAT_Geography_HDIFF as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceSatGeographyLatest\nSourceGeography derive(HUB_Geography_HK = sha2(512, GeographyAlternateKey),\n\t\tLOAD_TS = currentTimestamp(),\n\t\tSAT_Geography_HDIFF = sha2(512, GeographyAlternateKey,City,StateProvinceCode,StateProvinceName,CountryRegionCode,EnglishCountryRegionName,PostalCode)) ~> HashColumns\nHashColumns, SourceHUBGeography exists(HashColumns@HUB_Geography_HK == SourceHUBGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewHubGeography\nCheckNewHubGeography select(mapColumn(\n\t\tGeographyAlternateKey,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewHubGeography\nHashColumns, SourceSatGeographyLatest exists(HashColumns@HUB_Geography_HK == SourceSatGeographyLatest@HUB_Geography_HK\n\t&& HashColumns@SAT_Geography_HDIFF == SourceSatGeographyLatest@SAT_Geography_HDIFF,\n\tnegate:true,\n\tbroadcast: 'none')~> CheckNewSatGeography\nCheckNewSatGeography select(mapColumn(\n\t\tCity,\n\t\tStateProvinceCode,\n\t\tStateProvinceName,\n\t\tCountryRegionCode,\n\t\tEnglishCountryRegionName,\n\t\tPostalCode,\n\t\tHUB_Geography_HK,\n\t\tLOAD_TS,\n\t\tSAT_Geography_HDIFF\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewSatGeography\nSelectNewHubGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkHubGeography\nSelectNewSatGeography sink(input(\n\t\tHUB_Geography_HK as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string,\n\t\tSAT_Geography_HDIFF as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkSatGeography"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/BLOB_dvs_geography_incr_ds')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_HUB_Geography')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Geography_Latest')]",
+				"[concat(variables('factoryId'), '/datasets/ASQL_DV_SAT_Geography')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_flatten_task_cakes_JSON')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_json_dataflow_sample",
+								"type": "DatasetReference"
+							},
+							"name": "SourceJSONCakes"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_dataflow_output",
+								"type": "DatasetReference"
+							},
+							"name": "SinkFlattenOutput"
+						}
+					],
+					"transformations": [
+						{
+							"name": "FlattenTopping"
+						},
+						{
+							"name": "FlattenBatter"
+						}
+					],
+					"script": "source(output(\n\t\tbatters as (batter as (id as short, type as string)[]),\n\t\tid as short,\n\t\tname as string,\n\t\tppu as double,\n\t\ttopping as (id as short, type as string)[],\n\t\ttype as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tsingleDocument: true,\n\twildcardPaths:['ManyJSON_Objects.json']) ~> SourceJSONCakes\nSourceJSONCakes foldDown(unroll(topping),\n\tmapColumn(\n\t\tid,\n\t\tcake_type = type,\n\t\tcake_name = name,\n\t\tppu,\n\t\ttopping_id = topping.id,\n\t\ttopping_type = topping.type,\n\t\tbatters\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> FlattenTopping\nFlattenTopping foldDown(unroll(batters.batter, batters.batter),\n\tmapColumn(\n\t\tid,\n\t\tcake_type,\n\t\tcake_name,\n\t\tppu,\n\t\ttopping_id,\n\t\ttopping_type,\n\t\tbatter_id = batters.batter.id,\n\t\tbatter_type = batters.batter.type\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> FlattenBatter\nFlattenBatter sink(input(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tpartitionFileNames:['flatten_output.csv'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkFlattenOutput"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_json_dataflow_sample')]",
+				"[concat(variables('factoryId'), '/datasets/ds_dataflow_output')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/wdf_json_file')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "WranglingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"name": "ds_dataflow_sample",
+							"script": "",
+							"dataset": {
+								"referenceName": "ds_dataflow_sample",
+								"type": "DatasetReference"
+							}
+						}
+					],
+					"sinks": [
+						{
+							"name": "Sink1",
+							"dataset": {
+								"referenceName": "ds_dataflow_output",
+								"type": "DatasetReference"
+							},
+							"script": "sink(input(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['adf_wdf_output.csv'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Sink1"
+						}
+					],
+					"script": "section Section1;\r\nshared ds_dataflow_sample = let\r\n  AdfDoc = AzureStorage.BlobContents(\"https://bdatablob.blob.core.windows.net/dataflows/ManyJSON_Objects - CSV.csv\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \"|\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv])\r\nin\r\n  Csv;\r\nshared UserQuery = let\r\n  Source = ds_dataflow_sample,\r\n  #\"Renamed columns\" = Table.RenameColumns(Source, {{\"Column1\", \"column\"}}),\r\n  #\"Parse JSON\" = Table.TransformColumns(#\"Renamed columns\",{},Json.Document),\r\n  #\"Expand JSON\" = Table.ExpandRecordColumn(#\"Parse JSON\", \"column\", {\"id\", \"type\", \"name\", \"ppu\", \"batters\", \"topping\"}, {\"id\", \"type\", \"name\", \"ppu\", \"batters\", \"topping\"}),\r\n  #\"Unroll topping\" = Table.ExpandListColumn(#\"Expand JSON\", \"topping\"),\r\n  #\"Expand topping\" = Table.ExpandRecordColumn(#\"Unroll topping\", \"topping\", {\"id\", \"type\"}, {\"topping.id\", \"topping.type\"}),\r\n  #\"Expand batters\" = Table.ExpandRecordColumn(#\"Expand topping\", \"batters\", {\"batter\"}, {\"batter\"}),\r\n  #\"Unroll batter\" = Table.ExpandListColumn(#\"Expand batters\", \"batter\"),\r\n  #\"Expand batter\" = Table.ExpandRecordColumn(#\"Unroll batter\", \"batter\", {\"id\", \"type\"}, {\"batter.id\", \"batter.type\"})\r\nin\r\n  #\"Expand batter\";\r\n"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_dataflow_sample')]",
+				"[concat(variables('factoryId'), '/datasets/ds_dataflow_output')]"
 			]
 		}
 	]
