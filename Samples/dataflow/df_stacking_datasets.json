@@ -19,13 +19,24 @@
 					"name": "SourceHeader"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_df_temperature_output",
+						"type": "DatasetReference"
+					},
+					"name": "SingOutputDataset"
+				}
+			],
 			"transformations": [
 				{
 					"name": "FilterCanadaData"
+				},
+				{
+					"name": "CombineDatasets"
 				}
 			],
-			"script": "source(output(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string,\n\t\tColumn_3 as string,\n\t\tColumn_4 as string,\n\t\tColumn_5 as string,\n\t\tColumn_6 as string,\n\t\tColumn_7 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceTemperature\nsource(output(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string,\n\t\tColumn_3 as string,\n\t\tColumn_4 as string,\n\t\tColumn_5 as string,\n\t\tColumn_6 as string,\n\t\tColumn_7 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceHeader\nSourceTemperature filter(ERROR_FUNCTION('')) ~> FilterCanadaData"
+			"script": "source(output(\n\t\tdt as string,\n\t\tAverageTemperature as string,\n\t\tAverageTemperatureUncertainty as string,\n\t\tCity as string,\n\t\tCountry as string,\n\t\tLatitude as string,\n\t\tLongitude as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceTemperature\nsource(output(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string,\n\t\tColumn_3 as string,\n\t\tColumn_4 as string,\n\t\tColumn_5 as string,\n\t\tColumn_6 as string,\n\t\tColumn_7 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceHeader\nSourceTemperature filter(Country == 'Canada') ~> FilterCanadaData\nSourceHeader, FilterCanadaData union(byName: false)~> CombineDatasets\nCombineDatasets sink(input(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['GlobalLandTemperaturesByMajorCity-Canada.csv'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SingOutputDataset"
 		}
 	}
 }
