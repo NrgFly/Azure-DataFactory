@@ -20,24 +20,31 @@
 		},
 		"schema": [
 			{
+				"name": "dt",
 				"type": "String"
 			},
 			{
+				"name": "AverageTemperature",
 				"type": "String"
 			},
 			{
+				"name": "AverageTemperatureUncertainty",
 				"type": "String"
 			},
 			{
+				"name": "City",
 				"type": "String"
 			},
 			{
+				"name": "Country",
 				"type": "String"
 			},
 			{
+				"name": "Latitude",
 				"type": "String"
 			},
 			{
+				"name": "Longitude",
 				"type": "String"
 			}
 		]
