@@ -38,6 +38,9 @@
 			},
 			{
 				"type": "String"
+			},
+			{
+				"type": "String"
 			}
 		]
 	}
