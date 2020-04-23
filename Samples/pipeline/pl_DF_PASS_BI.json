@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_PASS_BI",
+						"referenceName": "df_stacking_datasets",
 						"type": "DataFlowReference"
 					},
 					"compute": {
