@@ -1,0 +1,31 @@
+{
+	"name": "df_stacking_datasets",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_df_temperature_data",
+						"type": "DatasetReference"
+					},
+					"name": "SourceTemperature"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_df_temperature_header",
+						"type": "DatasetReference"
+					},
+					"name": "SourceHeader"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "FilterCanadaData"
+				}
+			],
+			"script": "source(output(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string,\n\t\tColumn_3 as string,\n\t\tColumn_4 as string,\n\t\tColumn_5 as string,\n\t\tColumn_6 as string,\n\t\tColumn_7 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceTemperature\nsource(output(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string,\n\t\tColumn_3 as string,\n\t\tColumn_4 as string,\n\t\tColumn_5 as string,\n\t\tColumn_6 as string,\n\t\tColumn_7 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceHeader\nSourceTemperature filter(ERROR_FUNCTION('')) ~> FilterCanadaData"
+		}
+	}
+}
