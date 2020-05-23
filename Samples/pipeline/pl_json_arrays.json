@@ -31,7 +31,7 @@
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "Set Complete Task output",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
@@ -43,20 +43,40 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "var1",
+					"variableName": "var_json_payload",
 					"value": {
-						"value": "@activity('Get Metadata1').output",
+						"value": "@array(activity('Get Metadata1').output)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Sub Array",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_json_subarray",
+					"value": {
+						"value": "@activity('Get Metadata1').output.childitems",
 						"type": "Expression"
 					}
 				}
 			}
 		],
 		"variables": {
-			"var2": {
+			"var_json_payload": {
 				"type": "Array"
 			},
-			"var1": {
-				"type": "String"
+			"var_json_subarray": {
+				"type": "Array"
 			}
 		},
 		"annotations": []
