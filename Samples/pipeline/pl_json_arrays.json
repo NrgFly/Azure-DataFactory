@@ -43,7 +43,7 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "var2",
+					"variableName": "var1",
 					"value": {
 						"value": "@activity('Get Metadata1').output",
 						"type": "Expression"
@@ -52,11 +52,11 @@
 			}
 		],
 		"variables": {
-			"var": {
-				"type": "String"
-			},
 			"var2": {
 				"type": "Array"
+			},
+			"var1": {
+				"type": "String"
 			}
 		},
 		"annotations": []
