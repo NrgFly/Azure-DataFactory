@@ -1,0 +1,64 @@
+{
+	"name": "pl_json_arrays",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "validation_adls_source_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"FileFolder": "storesales"
+						}
+					},
+					"fieldList": [
+						"childItems",
+						"itemName",
+						"itemType",
+						"lastModified"
+					]
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var2",
+					"value": {
+						"value": "@activity('Get Metadata1').output",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"var": {
+				"type": "String"
+			},
+			"var2": {
+				"type": "Array"
+			}
+		},
+		"annotations": []
+	}
+}
