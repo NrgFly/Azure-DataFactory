@@ -10,6 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
+				"fileName": "ManyJSON_Objects.json",
 				"container": "dataflows"
 			}
 		}
