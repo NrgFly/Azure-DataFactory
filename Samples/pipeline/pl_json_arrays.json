@@ -23,7 +23,10 @@
 						}
 					},
 					"fieldList": [
-						"childItems"
+						"childItems",
+						"itemName",
+						"itemType",
+						"lastModified"
 					]
 				}
 			},
