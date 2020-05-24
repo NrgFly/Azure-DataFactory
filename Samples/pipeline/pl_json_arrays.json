@@ -129,7 +129,7 @@
 								"waitOnCompletion": true,
 								"parameters": {
 									"param_baking_payload": {
-										"value": "@item()",
+										"value": "array(@item())",
 										"type": "Expression"
 									}
 								}
