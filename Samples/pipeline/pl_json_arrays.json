@@ -110,6 +110,11 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('Reading JSON file').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
 					"activities": [
 						{
 							"name": "Execute Baking pipeline",
@@ -121,7 +126,13 @@
 									"referenceName": "pl_json_arrays_sub",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": true
+								"waitOnCompletion": true,
+								"parameters": {
+									"param_baking_payload": {
+										"value": "@item()",
+										"type": "Expression"
+									}
+								}
 							}
 						}
 					]
