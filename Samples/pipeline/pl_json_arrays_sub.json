@@ -72,6 +72,9 @@
 				"type": "Array"
 			}
 		},
+		"folder": {
+			"name": "JSON data"
+		},
 		"annotations": []
 	}
 }

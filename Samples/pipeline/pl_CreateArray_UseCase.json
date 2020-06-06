@@ -59,6 +59,9 @@
 				"type": "String"
 			}
 		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
 		"annotations": []
 	}
 }
