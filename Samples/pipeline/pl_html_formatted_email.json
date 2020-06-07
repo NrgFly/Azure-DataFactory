@@ -97,7 +97,19 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-48.eastus2.logic.azure.com:443/workflows/3e3e32bccb5843e8b5c1ef0821498737/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IKBjhnmOVsuPxor_PYtuyjK9o38fLUB4WNorY-5THro",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"EmailTo": "@variables('var_email_to')",
+						"EmailSubject": "@variables('var_email_subject')",
+						"EmailBody": "@variables('var_email_body')"
+					}
+				}
 			}
 		],
 		"variables": {
