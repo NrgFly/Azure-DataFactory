@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Execute Stored Procedure with Output",
+				"name": "Execute Azure SQL SP with Output",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
