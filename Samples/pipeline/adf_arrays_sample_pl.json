@@ -18,11 +18,11 @@
 					"source": {
 						"type": "DelimitedTextSource",
 						"storeSettings": {
-							"type": "AzureBlobStorageReadSetting",
+							"type": "AzureBlobStorageReadSettings",
 							"recursive": true
 						},
 						"formatSettings": {
-							"type": "DelimitedTextReadSetting"
+							"type": "DelimitedTextReadSettings"
 						}
 					},
 					"dataset": {
@@ -180,7 +180,7 @@
 			}
 		},
 		"folder": {
-			"name": "Sample Pipelines"
+			"name": "Working with Arrays"
 		},
 		"annotations": []
 	}
