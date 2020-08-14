@@ -59,7 +59,14 @@
 				"name": "Set Array",
 				"type": "SetVariable",
 				"dependsOn": [],
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_array",
+					"value": {
+						"value": "@createArray(pipeline().parameters.par_meal_string)",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
