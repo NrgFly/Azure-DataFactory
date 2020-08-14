@@ -9,7 +9,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@pipeline().parameters.meal",
+						"value": "@pipeline().parameters.par_meal_array",
 						"type": "Expression"
 					},
 					"activities": [
@@ -39,7 +39,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@pipeline().parameters.meal",
+						"value": "@variables('var_array')",
 						"type": "Expression"
 					},
 					"activities": [
@@ -71,7 +71,7 @@
 		],
 		"parameters": {
 			"par_meal_array": {
-				"type": "string",
+				"type": "array",
 				"defaultValue": [
 					"Egg",
 					"Greek Yogurt",
