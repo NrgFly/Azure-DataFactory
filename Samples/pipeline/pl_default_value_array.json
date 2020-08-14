@@ -63,7 +63,7 @@
 				"typeProperties": {
 					"variableName": "var_array",
 					"value": {
-						"value": "@createArray(pipeline().parameters.par_meal_string)",
+						"value": "@split(pipeline().parameters.par_meal_string,',')",
 						"type": "Expression"
 					}
 				}
@@ -80,7 +80,7 @@
 			},
 			"par_meal_string": {
 				"type": "string",
-				"defaultValue": "'Egg','Greek Yogurt','Coffee'"
+				"defaultValue": "Egg,Greek Yogurt,Coffee"
 			}
 		},
 		"variables": {
