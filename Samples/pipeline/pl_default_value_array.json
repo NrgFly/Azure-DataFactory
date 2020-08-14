@@ -1,0 +1,37 @@
+{
+	"name": "pl_default_value_array",
+	"properties": {
+		"activities": [
+			{
+				"name": "For Each Meal",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.meal",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait 1 second",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"meal": {
+				"type": "array",
+				"defaultValue": "1"
+			}
+		},
+		"annotations": []
+	}
+}
