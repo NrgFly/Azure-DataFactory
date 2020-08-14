@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "For Each Meal",
+				"name": "Each Parameter Meal",
 				"type": "ForEach",
 				"dependsOn": [],
 				"userProperties": [],
@@ -29,7 +29,9 @@
 		"parameters": {
 			"meal": {
 				"type": "array",
-				"defaultValue": "1"
+				"defaultValue": [
+					1
+				]
 			}
 		},
 		"annotations": []
