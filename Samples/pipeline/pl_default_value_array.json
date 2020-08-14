@@ -30,7 +30,7 @@
 			"meal": {
 				"type": "array",
 				"defaultValue": [
-					1
+					"11"
 				]
 			}
 		},
