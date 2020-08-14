@@ -24,14 +24,61 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Each Variable Meal",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Set Array",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.meal",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait 1 second_copy1",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Set Array",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": []
 			}
 		],
 		"parameters": {
-			"meal": {
-				"type": "array",
+			"par_meal_array": {
+				"type": "string",
 				"defaultValue": [
-					"11"
+					"Egg",
+					"Greek Yogurt",
+					"Coffee"
 				]
+			},
+			"par_meal_string": {
+				"type": "string",
+				"defaultValue": "'Egg','Greek Yogurt','Coffee'"
+			}
+		},
+		"variables": {
+			"var_array": {
+				"type": "Array"
 			}
 		},
 		"annotations": []
