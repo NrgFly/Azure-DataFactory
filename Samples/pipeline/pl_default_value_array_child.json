@@ -1,0 +1,44 @@
+{
+	"name": "pl_default_value_array_child",
+	"properties": {
+		"activities": [
+			{
+				"name": "Each Parameter Meal",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.par_meal_array",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait 1 second",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"par_meal_array": {
+				"type": "array",
+				"defaultValue": [
+					"Egg",
+					"Greek Yogurt",
+					"Coffee"
+				]
+			}
+		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}
