@@ -5,7 +5,14 @@
 			{
 				"name": "Azure Durable Function call",
 				"type": "AzureFunctionActivity",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Set Input for Function App",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -18,7 +25,8 @@
 					"functionName": "orchestrators/DurableFunctions-Orchestrator",
 					"method": "POST",
 					"body": {
-						"timezone": "Dateline Standard Time"
+						"value": "@variables('var_input')",
+						"type": "Expression"
 					}
 				},
 				"linkedServiceName": {
@@ -83,8 +91,49 @@
 					],
 					"timeout": "7.00:00:00"
 				}
+			},
+			{
+				"name": "Set Input for Function App",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_input",
+					"value": {
+						"value": "'{\"timezone\":\"Eastern Standard Time\"}'",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Get Function App Output",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Check Completed Status",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_output",
+					"value": {
+						"value": "@activity('Get Current Function Status').output.output",
+						"type": "Expression"
+					}
+				}
 			}
 		],
+		"variables": {
+			"var_input": {
+				"type": "String"
+			},
+			"var_output": {
+				"type": "String"
+			}
+		},
 		"folder": {
 			"name": "Azure Functions"
 		},
