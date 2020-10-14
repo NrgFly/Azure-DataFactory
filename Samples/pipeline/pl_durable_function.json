@@ -3,23 +3,6 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Web1",
-				"type": "WebActivity",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"url": "https://azu-eus-edu-fapp.azurewebsites.net/runtime/webhooks/durabletask/instances/ba9d8585-0287-4557-acf1-6dc69ae34d21?taskHub=DurableFunctionsHub&connection=Storage&code=TNO4Xlo4gBM8VGeFjHMQcm7KCa7X4Rw1VnZ/i3TApT5IQZSNuFQXxg==",
-					"method": "GET"
-				}
-			},
-			{
 				"name": "Azure Durable Function call",
 				"type": "AzureFunctionActivity",
 				"dependsOn": [],
@@ -41,6 +24,64 @@
 				"linkedServiceName": {
 					"referenceName": "ls_af",
 					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Check Completed Status",
+				"type": "Until",
+				"dependsOn": [
+					{
+						"activity": "Azure Durable Function call",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@not(or(equals(activity('Get Current Function Status').output.runtimeStatus, 'Pending'), equals(activity('Get Current Function Status').output.runtimeStatus, 'Running')))\n\n",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait 5 seconds",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						},
+						{
+							"name": "Get Current Function Status",
+							"type": "WebActivity",
+							"dependsOn": [
+								{
+									"activity": "Wait 5 seconds",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@activity('Azure Durable Function call').output.statusQueryGetUri\n",
+									"type": "Expression"
+								},
+								"method": "GET"
+							}
+						}
+					],
+					"timeout": "7.00:00:00"
 				}
 			}
 		],
