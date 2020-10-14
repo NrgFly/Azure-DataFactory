@@ -99,10 +99,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "var_input",
-					"value": {
-						"value": "'{\"timezone\":\"Eastern Standard Time\"}'",
-						"type": "Expression"
-					}
+					"value": "{\"timezone\":\"Eastern Standard Time\"}"
 				}
 			},
 			{
