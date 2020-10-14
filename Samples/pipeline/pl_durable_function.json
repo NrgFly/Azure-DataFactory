@@ -117,7 +117,7 @@
 				"typeProperties": {
 					"variableName": "var_output",
 					"value": {
-						"value": "@activity('Get Current Function Status').output.output",
+						"value": "@activity('Get Current Function Status').output.output.Response",
 						"type": "Expression"
 					}
 				}
