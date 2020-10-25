@@ -2,17 +2,11 @@
 	"name": "AzureSqlDatabase_DV_LS",
 	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
+		"annotations": [],
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
-			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=bdatasqldbserver.database.windows.net;Initial Catalog=AdventureWorksDataVault;User ID=rayis",
-			"password": {
-				"type": "AzureKeyVaultSecret",
-				"store": {
-					"referenceName": "AzureKeyVault_LS",
-					"type": "LinkedServiceReference"
-				},
-				"secretName": "bdatasqldb-access"
-			}
+			"connectionString": "integrated security=False;encrypt=True;connection timeout=30;data source=azu-eus2-edusqlserver.database.windows.net;initial catalog=azu-eus2-edusqldb;user id=rayis",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkFaVS1FVVMyLURBVEFGQUNUT1JZXzc3YTA4ZTBmLTliNjktNGM1NS1iNDIwLTUzMjMwODg2ZDFiOSINCn0="
 		}
 	}
 }
