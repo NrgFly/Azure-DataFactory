@@ -1,0 +1,65 @@
+{
+	"name": "pl_default_value_array_variable",
+	"properties": {
+		"activities": [
+			{
+				"name": "Each Variable Meal",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Set Array",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('var_array')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait 1 second_copy1",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Set Array",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_array",
+					"value": {
+						"value": "@split(pipeline().parameters.par_meal_string,',')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"par_meal_string": {
+				"type": "string",
+				"defaultValue": "Egg,Greek Yogurt,Coffee"
+			}
+		},
+		"variables": {
+			"var_array": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}

@@ -10,7 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"container": "dataflows"
+				"fileName": "ManyJSON_Objects.json",
+				"container": "adf-dataflows"
 			}
 		}
 	}

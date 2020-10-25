@@ -1,0 +1,155 @@
+{
+	"name": "pl_json_arrays",
+	"properties": {
+		"activities": [
+			{
+				"name": "List of files and folders",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "validation_adls_source_ds",
+						"type": "DatasetReference",
+						"parameters": {
+							"FileFolder": "storesales"
+						}
+					},
+					"fieldList": [
+						"childItems",
+						"itemName",
+						"itemType",
+						"lastModified"
+					]
+				}
+			},
+			{
+				"name": "Set Complete Task output",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "List of files and folders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_json_payload",
+					"value": {
+						"value": "@array(activity('List of files and folders').output)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Sub Array",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "List of files and folders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_json_subarray",
+					"value": {
+						"value": "@activity('List of files and folders').output.childitems",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Reading JSON file",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_json_dataflow_sample",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "For Each JSON element",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Reading JSON file",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Reading JSON file').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Execute Baking pipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_json_arrays_sub",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"param_baking_payload": {
+										"value": "@array(item())",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"var_json_payload": {
+				"type": "Array"
+			},
+			"var_json_subarray": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "JSON data"
+		},
+		"annotations": []
+	}
+}

@@ -1,0 +1,80 @@
+{
+	"name": "pl_json_arrays_sub",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Toppings",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Baking Recepie",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_toppings",
+					"value": {
+						"value": "@variables('var_baking_payload')[0].topping",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Get Batters",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Baking Recepie",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_batters",
+					"value": {
+						"value": "@variables('var_baking_payload')[0].batters.batter",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Get Baking Recepie",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_baking_payload",
+					"value": {
+						"value": "@pipeline().parameters.param_baking_payload",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"param_baking_payload": {
+				"type": "array"
+			}
+		},
+		"variables": {
+			"var_toppings": {
+				"type": "Array"
+			},
+			"var_batters": {
+				"type": "Array"
+			},
+			"var_baking_payload": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "JSON data"
+		},
+		"annotations": []
+	}
+}

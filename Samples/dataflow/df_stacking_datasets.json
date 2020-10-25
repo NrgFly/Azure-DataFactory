@@ -1,0 +1,48 @@
+{
+	"name": "df_stacking_datasets",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_df_temperature_data",
+						"type": "DatasetReference"
+					},
+					"name": "SourceTemperature"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_df_temperature_header",
+						"type": "DatasetReference"
+					},
+					"name": "SourceHeader"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_df_temperature_output",
+						"type": "DatasetReference"
+					},
+					"name": "SingOutputDataset"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FilterCanadaData"
+				},
+				{
+					"name": "CombineDatasets"
+				},
+				{
+					"name": "DataSortColumn"
+				},
+				{
+					"name": "SortOutput"
+				}
+			],
+			"script": "source(output(\n\t\tdt as string,\n\t\tAverageTemperature as string,\n\t\tAverageTemperatureUncertainty as string,\n\t\tCity as string,\n\t\tCountry as string,\n\t\tLatitude as string,\n\t\tLongitude as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceTemperature\nsource(output(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string,\n\t\tColumn_3 as string,\n\t\tColumn_4 as string,\n\t\tColumn_5 as string,\n\t\tColumn_6 as string,\n\t\tColumn_7 as string,\n\t\tColumn_8 as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> SourceHeader\nSourceTemperature filter(Country == 'Canada') ~> FilterCanadaData\nSourceHeader, DataSortColumn union(byName: false)~> CombineDatasets\nFilterCanadaData derive(row_id = 2) ~> DataSortColumn\nCombineDatasets sort(asc(Column_8, true)) ~> SortOutput\nSortOutput sink(input(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['GlobalLandTemperaturesByMajorCity-Canada.csv'],\n\tmapColumn(\n\t\tColumn_1,\n\t\tColumn_2,\n\t\tColumn_3,\n\t\tColumn_4,\n\t\tColumn_5,\n\t\tColumn_6,\n\t\tColumn_7\n\t),\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SingOutputDataset"
+		}
+	}
+}

@@ -26,6 +26,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "JSON data"
+		},
 		"annotations": []
 	}
 }

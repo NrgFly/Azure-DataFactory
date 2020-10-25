@@ -1,0 +1,131 @@
+{
+	"name": "pl_html_formatted_email",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute Azure SQL SP with Output",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[dbo].[sp_top_10_selling_products]",
+						"queryTimeout": "02:00:00"
+					},
+					"dataset": {
+						"referenceName": "ds_azsql_generic",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Set Email Body",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Execute Azure SQL SP with Output",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_email_body",
+					"value": {
+						"value": "@activity('Execute Azure SQL SP with Output').output.value[0].output_result",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Email Recipient",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_email_to",
+					"value": "rimayev@hotmail.com"
+				}
+			},
+			{
+				"name": "Set Email Subject",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_email_subject",
+					"value": "Top 10 Selling Products"
+				}
+			},
+			{
+				"name": "Email Notfication",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Set Email Recipient",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set Email Body",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set Email Subject",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-48.eastus2.logic.azure.com:443/workflows/3e3e32bccb5843e8b5c1ef0821498737/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IKBjhnmOVsuPxor_PYtuyjK9o38fLUB4WNorY-5THro",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"EmailTo": "@variables('var_email_to')",
+						"EmailSubject": "@variables('var_email_subject')",
+						"EmailBody": "@variables('var_email_body')"
+					}
+				}
+			}
+		],
+		"variables": {
+			"var_email_body": {
+				"type": "String"
+			},
+			"var_email_to": {
+				"type": "String"
+			},
+			"var_email_subject": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Azure Functions"
+		},
+		"annotations": []
+	}
+}

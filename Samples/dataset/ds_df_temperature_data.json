@@ -1,0 +1,52 @@
+{
+	"name": "ds_df_temperature_data",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "GlobalLandTemperaturesByMajorCity.csv",
+				"container": "dataflows"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "dt",
+				"type": "String"
+			},
+			{
+				"name": "AverageTemperature",
+				"type": "String"
+			},
+			{
+				"name": "AverageTemperatureUncertainty",
+				"type": "String"
+			},
+			{
+				"name": "City",
+				"type": "String"
+			},
+			{
+				"name": "Country",
+				"type": "String"
+			},
+			{
+				"name": "Latitude",
+				"type": "String"
+			},
+			{
+				"name": "Longitude",
+				"type": "String"
+			}
+		]
+	}
+}

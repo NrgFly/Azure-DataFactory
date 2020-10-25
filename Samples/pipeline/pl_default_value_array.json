@@ -1,0 +1,78 @@
+{
+	"name": "pl_default_value_array",
+	"properties": {
+		"activities": [
+			{
+				"name": "Each Parameter Meal",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.par_meal_array",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "pl_meal_array_child",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_default_value_array_child",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"par_meal_array": {
+										"value": "@item().meal_items",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"par_meal_array": {
+				"type": "array",
+				"defaultValue": [
+					{
+						"meal_type": "Breakfast",
+						"meal_time": "07:00:00",
+						"meal_items": [
+							"Egg",
+							"Greek Yogurt",
+							"Coffee"
+						]
+					},
+					{
+						"meal_type": "Lunch",
+						"meal_time": "12:00:00",
+						"meal_items": [
+							"Greek Salad",
+							"Salmon Bagels",
+							"Tea"
+						]
+					},
+					{
+						"meal_type": "Dinner",
+						"meal_time": "18:00:00",
+						"meal_items": [
+							"Kale Salad",
+							"Lentil Soup",
+							"Water"
+						]
+					}
+				]
+			}
+		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}

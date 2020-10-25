@@ -1,0 +1,67 @@
+{
+	"name": "pl_CreateArray_UseCase",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Job Title",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "JobTitle",
+					"value": "Design Engineer"
+				}
+			},
+			{
+				"name": "Check Job Title",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Set Job Title",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@contains(createArray('Design Engineer', 'Tool Designer', 'Marketing Assistant'),variables('JobTitle'))",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Wait 5 Second",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 5
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Wait 1 Second",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"JobTitle": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}
