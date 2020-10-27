@@ -1,0 +1,34 @@
+{
+	"name": "df_PASS_ADF_DataVault",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "BLOB_dvs_geography_incr_ds",
+						"type": "DatasetReference"
+					},
+					"name": "SourceGeography"
+				},
+				{
+					"dataset": {
+						"referenceName": "ASQL_DV_HUB_Geography",
+						"type": "DatasetReference"
+					},
+					"name": "SourceHUBGeography"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "HashColumns"
+				},
+				{
+					"name": "CheckNewGeography"
+				}
+			],
+			"script": "source(output(\n\t\tGeographyAlternateKey as string,\n\t\tCity as string,\n\t\tStateProvinceCode as string,\n\t\tStateProvinceName as string,\n\t\tCountryRegionCode as string,\n\t\tEnglishCountryRegionName as string,\n\t\tPostalCode as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> SourceGeography\nsource(output(\n\t\tHUB_Geography_HK as string,\n\t\tGeographyAlternateKey as string,\n\t\tLOAD_TS as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SourceHUBGeography\nSourceGeography derive(HUB_Geography_HK = sha2(256, GeographyAlternateKey),\n\t\tSAT_Geography_HDIFF = sha2(256, GeographyAlternateKey,City,StateProvinceCode,StateProvinceName,CountryRegionCode,EnglishCountryRegionName,PostalCode),\n\t\tLOAD_TS = currentTimestamp()) ~> HashColumns\nHashColumns, SourceHUBGeography exists(HashColumns@HUB_Geography_HK == SourceHUBGeography@HUB_Geography_HK,\n\tnegate:true,\n\tbroadcast: 'auto')~> CheckNewGeography"
+		}
+	}
+}
