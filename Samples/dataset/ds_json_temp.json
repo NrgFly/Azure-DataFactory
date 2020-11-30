@@ -20,7 +20,15 @@
 		},
 		"schema": [
 			{
-				"name": "EmpId|EmpName|Detail",
+				"name": "EmpId",
+				"type": "String"
+			},
+			{
+				"name": "EmpName",
+				"type": "String"
+			},
+			{
+				"name": "Detail",
 				"type": "String"
 			}
 		]
