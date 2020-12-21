@@ -1,5 +1,5 @@
 {
-	"name": "pl_durable_function",
+	"name": "pl_durable_function_loop_polling",
 	"properties": {
 		"activities": [
 			{

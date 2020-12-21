@@ -1,5 +1,5 @@
 {
-	"name": "pl_durable_function_loop_pooling_copy1",
+	"name": "pl_durable_function_simple_polling",
 	"properties": {
 		"activities": [
 			{
