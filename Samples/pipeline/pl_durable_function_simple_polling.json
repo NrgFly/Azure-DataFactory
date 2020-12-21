@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Azure Durable Function call",
+				"name": "Call Azure Durable Function",
 				"type": "AzureFunctionActivity",
 				"dependsOn": [
 					{
@@ -69,7 +69,7 @@
 				"type": "WebActivity",
 				"dependsOn": [
 					{
-						"activity": "Azure Durable Function call",
+						"activity": "Call Azure Durable Function",
 						"dependencyConditions": [
 							"Succeeded"
 						]
