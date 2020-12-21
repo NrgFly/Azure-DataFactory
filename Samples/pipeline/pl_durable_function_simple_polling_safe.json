@@ -3,38 +3,6 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Azure Durable Function call",
-				"type": "AzureFunctionActivity",
-				"dependsOn": [
-					{
-						"activity": "Set Input for Function App",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"functionName": "orchestrators/DurableFunctions-Orchestrator",
-					"method": "POST",
-					"body": {
-						"value": "@variables('var_input')",
-						"type": "Expression"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "ls_af",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
 				"name": "Set Input for Function App",
 				"type": "SetVariable",
 				"dependsOn": [],
@@ -49,7 +17,7 @@
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "Get Current Function Status",
+						"activity": "Azure Function Execution",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -65,30 +33,77 @@
 				}
 			},
 			{
-				"name": "Get Current Function Status",
-				"type": "WebActivity",
+				"name": "Azure Function Execution",
+				"type": "Until",
 				"dependsOn": [
 					{
-						"activity": "Azure Durable Function call",
+						"activity": "Set Input for Function App",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					}
 				],
-				"policy": {
-					"timeout": "7.00:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"url": {
-						"value": "@activity('Azure Durable Function call').output.statusQueryGetUri\n",
+					"expression": {
+						"value": "@equals(activity('Get Current Function Status').output.output.Status, 'OK')\n",
 						"type": "Expression"
 					},
-					"method": "GET"
+					"activities": [
+						{
+							"name": "Call Azure Durable Function",
+							"type": "AzureFunctionActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"functionName": "orchestrators/DurableFunctions-Orchestrator",
+								"method": "POST",
+								"body": {
+									"value": "@variables('var_input')",
+									"type": "Expression"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_af",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Get Current Function Status",
+							"type": "WebActivity",
+							"dependsOn": [
+								{
+									"activity": "Call Azure Durable Function",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@activity('Azure Durable Function call').output.statusQueryGetUri\n",
+									"type": "Expression"
+								},
+								"method": "GET"
+							}
+						}
+					],
+					"timeout": "7.00:00:00"
 				}
 			}
 		],
