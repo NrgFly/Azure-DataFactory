@@ -3,18 +3,6 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "If Condition",
-				"type": "IfCondition",
-				"dependsOn": [],
-				"userProperties": []
-			},
-			{
-				"name": "Filter Condition",
-				"type": "Filter",
-				"dependsOn": [],
-				"userProperties": []
-			},
-			{
 				"name": "Set Number Array",
 				"type": "SetVariable",
 				"dependsOn": [],
