@@ -1,5 +1,5 @@
 {
-	"name": "pl_Filter_vs_IF",
+	"name": "pl_Filter_vs_IF_Basic",
 	"properties": {
 		"activities": [
 			{
@@ -30,6 +30,32 @@
 						100
 					]
 				}
+			},
+			{
+				"name": "Filter Positive numbers",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Set Number Array",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "Filter Negative numbers",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Set Number Array",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
 			}
 		],
 		"variables": {
