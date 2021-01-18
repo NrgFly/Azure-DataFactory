@@ -13,8 +13,30 @@
 				"type": "Filter",
 				"dependsOn": [],
 				"userProperties": []
+			},
+			{
+				"name": "Set Number Array",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_number_array",
+					"value": [
+						-100,
+						-50,
+						-25,
+						25,
+						50,
+						100
+					]
+				}
 			}
 		],
+		"variables": {
+			"var_number_array": {
+				"type": "Array"
+			}
+		},
 		"folder": {
 			"name": "Working with Arrays"
 		},
