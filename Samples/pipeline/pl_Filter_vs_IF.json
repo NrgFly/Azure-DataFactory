@@ -1,0 +1,23 @@
+{
+	"name": "pl_Filter_vs_IF",
+	"properties": {
+		"activities": [
+			{
+				"name": "If Condition",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": []
+			},
+			{
+				"name": "Filter Condition",
+				"type": "Filter",
+				"dependsOn": [],
+				"userProperties": []
+			}
+		],
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}
