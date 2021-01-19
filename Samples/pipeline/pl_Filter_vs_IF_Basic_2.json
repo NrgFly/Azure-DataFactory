@@ -44,6 +44,32 @@
 					}
 				],
 				"userProperties": []
+			},
+			{
+				"name": "ForEach Positive numbers",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter Positive numbers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "ForEach Negative numbers",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter Negative numbers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
 			}
 		],
 		"variables": {
