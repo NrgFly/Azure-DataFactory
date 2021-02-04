@@ -1,0 +1,42 @@
+{
+	"name": "pl_SQL_SP_optional_parameter",
+	"properties": {
+		"activities": [
+			{
+				"name": "Exec Azure SQL SP",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[dbo].[sp_get_current_time_zone]",
+						"storedProcedureParameters": {
+							"time_zone": {
+								"type": "String",
+								"value": "Eastern Standard Time"
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_azsql_generic",
+						"type": "DatasetReference"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "SQL"
+		},
+		"annotations": []
+	}
+}
