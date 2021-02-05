@@ -17,11 +17,11 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderStoredProcedureName": "[dbo].[sp_get_current_time_zone]",
+						"sqlReaderStoredProcedureName": "[dbo].[sp_get_week_days]",
 						"storedProcedureParameters": {
-							"time_zone": {
-								"type": "String",
-								"value": "Eastern Standard Time"
+							"week_number": {
+								"type": "Int32",
+								"value": "6"
 							}
 						},
 						"queryTimeout": "02:00:00",
@@ -30,7 +30,8 @@
 					"dataset": {
 						"referenceName": "ds_azsql_generic",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			}
 		],
