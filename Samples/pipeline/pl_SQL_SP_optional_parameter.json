@@ -21,7 +21,7 @@
 						"storedProcedureParameters": {
 							"week_number": {
 								"type": "Int32",
-								"value": "6"
+								"value": "1"
 							}
 						},
 						"queryTimeout": "02:00:00",
