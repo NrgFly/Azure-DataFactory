@@ -1,6 +1,17 @@
 {
 	"name": "pl_passing_array_between_pipelines_child",
 	"properties": {
+		"activities": [
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			}
+		],
 		"parameters": {
 			"par_meal_array": {
 				"type": "array",
