@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"variableName": "var_meal_array",
 					"value": {
-						"value": "[\"Egg\",\"Toast\",\"Coffee\"]'",
+						"value": "@json('[\"Egg\",\"Toast\",\"Coffee\"]')",
 						"type": "Expression"
 					}
 				}
@@ -34,7 +34,7 @@
 					},
 					"waitOnCompletion": true,
 					"parameters": {
-						"par_meal_array": "[\"Egg\",\"Toast\",\"Coffee\"]"
+						"par_meal_array": "@json([\"Egg\",\"Toast\",\"Coffee\"])"
 					}
 				}
 			}
