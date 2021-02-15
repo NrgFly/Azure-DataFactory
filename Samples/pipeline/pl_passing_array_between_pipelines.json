@@ -34,7 +34,7 @@
 					},
 					"waitOnCompletion": true,
 					"parameters": {
-						"par_meal_array": "@json([\"Egg\",\"Toast\",\"Coffee\"])"
+						"par_meal_array": "@json('[\"Egg\",\"Toast\",\"Coffee\"]')"
 					}
 				}
 			}
