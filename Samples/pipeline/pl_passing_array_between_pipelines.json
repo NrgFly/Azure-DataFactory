@@ -3,16 +3,36 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Set Array",
+				"name": "Set Array Variable",
 				"type": "SetVariable",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "pl_passing_array_between_pipelines_child",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "var_meal_array",
 					"value": {
-						"value": "@json('[\"Egg\",\"Toast\",\"Coffee\"]')",
+						"value": "[\"Egg\",\"Toast\",\"Coffee\"]'",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "pl_passing_array_between_pipelines_child",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_passing_array_between_pipelines_child",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
 				}
 			}
 		],
