@@ -10,7 +10,7 @@
 				"typeProperties": {
 					"variableName": "var_meal_array",
 					"value": {
-						"value": "[\"Egg\",\"Toast\",\"Coffee\"]",
+						"value": "JSON([\"Egg\",\"Toast\",\"Coffee\"])",
 						"type": "Expression"
 					}
 				}
