@@ -10,7 +10,7 @@
 				"typeProperties": {
 					"variableName": "var_meal_array",
 					"value": {
-						"value": "@split(pipeline().parameters.par_meal_string,',')",
+						"value": "[\"Egg\",\"Toast\",\"Coffee\"]",
 						"type": "Expression"
 					}
 				}
