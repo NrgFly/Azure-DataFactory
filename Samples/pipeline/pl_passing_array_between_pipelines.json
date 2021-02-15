@@ -10,14 +10,14 @@
 				"typeProperties": {
 					"variableName": "var_meal_array",
 					"value": {
-						"value": "JSON([\"Egg\",\"Toast\",\"Coffee\"])",
+						"value": "@json('[\"Egg\",\"Toast\",\"Coffee\"]')",
 						"type": "Expression"
 					}
 				}
 			}
 		],
 		"parameters": {
-			"param_meal_array": {
+			"par_meal_array": {
 				"type": "array",
 				"defaultValue": [
 					"Egg",
