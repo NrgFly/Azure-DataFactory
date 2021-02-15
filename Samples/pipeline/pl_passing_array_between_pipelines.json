@@ -34,7 +34,7 @@
 					},
 					"waitOnCompletion": true,
 					"parameters": {
-						"par_meal_array": "[{\"feed\":\"BOR\",\"days\":[0]},{\"feed\":\"OSI\",\"days\":[0]}]"
+						"par_meal_array": "[\"Egg\",\"Toast\",\"Coffee\"]"
 					}
 				}
 			}
