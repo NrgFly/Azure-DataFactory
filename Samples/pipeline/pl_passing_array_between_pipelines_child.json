@@ -1,0 +1,29 @@
+{
+	"name": "pl_passing_array_between_pipelines_child",
+	"properties": {
+		"parameters": {
+			"par_meal_array": {
+				"type": "array",
+				"defaultValue": [
+					"Egg",
+					"Toast",
+					"Coffee"
+				]
+			}
+		},
+		"variables": {
+			"var_meal_array": {
+				"type": "Array",
+				"defaultValue": [
+					"Egg",
+					"Toast",
+					"Coffee"
+				]
+			}
+		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}
