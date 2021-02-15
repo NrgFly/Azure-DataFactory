@@ -18,7 +18,12 @@
 		],
 		"parameters": {
 			"par_meal_array": {
-				"type": "array"
+				"type": "array",
+				"defaultValue": [
+					"Egg",
+					"Toast",
+					"Coffee"
+				]
 			}
 		},
 		"variables": {
