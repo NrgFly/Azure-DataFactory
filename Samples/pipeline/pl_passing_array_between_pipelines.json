@@ -29,10 +29,13 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_passing_array_between_pipelines_child",
+						"referenceName": "pl_passing_array_child",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_meal_array": "[{\"feed\":\"BOR\",\"days\":[0]},{\"feed\":\"OSI\",\"days\":[0]}]"
+					}
 				}
 			}
 		],
