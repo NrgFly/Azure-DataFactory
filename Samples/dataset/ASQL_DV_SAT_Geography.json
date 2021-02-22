@@ -5,11 +5,6 @@
 			"referenceName": "AzureSqlDatabase_DV_LS",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"satellite_table": {
-				"type": "string"
-			}
-		},
 		"folder": {
 			"name": "DataVaultTesting"
 		},
