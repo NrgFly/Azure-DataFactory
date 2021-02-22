@@ -21,14 +21,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": {
-					"value": "@dataset().file_name",
-					"type": "Expression"
-				},
-				"container": {
-					"value": "@dataset().file_folder",
-					"type": "Expression"
-				}
+				"container": "adventureworksdv"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
