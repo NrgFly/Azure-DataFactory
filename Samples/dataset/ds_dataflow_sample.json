@@ -11,11 +11,11 @@
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"fileName": "ManyJSON_Objects - CSV.csv",
-				"container": "dataflows"
+				"container": "jsondata"
 			},
 			"columnDelimiter": "|",
 			"escapeChar": "\\",
-			"firstRowAsHeader": false,
+			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
 		"schema": [
