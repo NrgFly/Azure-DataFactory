@@ -1,0 +1,39 @@
+{
+	"name": "pl_passing_array_child",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Array Variable",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_meal_array",
+					"value": {
+						"value": "@pipeline().parameters.par_meal_array",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"par_meal_array": {
+				"type": "array",
+				"defaultValue": [
+					"Egg",
+					"Toast",
+					"Coffee"
+				]
+			}
+		},
+		"variables": {
+			"var_meal_array": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}

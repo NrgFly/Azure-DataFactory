@@ -1,0 +1,35 @@
+{
+	"name": "pl_json_temp_test",
+	"properties": {
+		"activities": [
+			{
+				"name": "WranglingDataFlow1",
+				"type": "ExecuteWranglingDataflow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "WranglingDataFlow1",
+						"type": "DataFlowReference"
+					}
+				}
+			}
+		],
+		"variables": {
+			"var_test": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "JSON data"
+		},
+		"annotations": []
+	}
+}

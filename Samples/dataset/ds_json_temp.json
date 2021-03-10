@@ -1,0 +1,36 @@
+{
+	"name": "ds_json_temp",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage_Gen2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Test_JSON.txt",
+				"fileSystem": "jsondata"
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "EmpId",
+				"type": "String"
+			},
+			{
+				"name": "EmpName",
+				"type": "String"
+			},
+			{
+				"name": "Detail",
+				"type": "String"
+			}
+		]
+	}
+}

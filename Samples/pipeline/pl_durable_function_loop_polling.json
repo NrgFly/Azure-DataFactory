@@ -1,0 +1,139 @@
+{
+	"name": "pl_durable_function_loop_polling",
+	"properties": {
+		"activities": [
+			{
+				"name": "Azure Durable Function call",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [
+					{
+						"activity": "Set Input for Function App",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "orchestrators/DurableFunctions-Orchestrator",
+					"method": "POST",
+					"body": {
+						"value": "@variables('var_input')",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_af",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Check Completed Status",
+				"type": "Until",
+				"dependsOn": [
+					{
+						"activity": "Azure Durable Function call",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@not(or(equals(activity('Get Current Function Status').output.runtimeStatus, 'Pending'), equals(activity('Get Current Function Status').output.runtimeStatus, 'Running')))\n\n",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait 5 seconds",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						},
+						{
+							"name": "Get Current Function Status",
+							"type": "WebActivity",
+							"dependsOn": [
+								{
+									"activity": "Wait 5 seconds",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@activity('Azure Durable Function call').output.statusQueryGetUri\n",
+									"type": "Expression"
+								},
+								"method": "GET"
+							}
+						}
+					],
+					"timeout": "7.00:00:00"
+				}
+			},
+			{
+				"name": "Set Input for Function App",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_input",
+					"value": "{\"timezone\":\"Eastern Standard Time\"}"
+				}
+			},
+			{
+				"name": "Get Function App Output",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Check Completed Status",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_output",
+					"value": {
+						"value": "@activity('Get Current Function Status').output.output.Response",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"var_input": {
+				"type": "String"
+			},
+			"var_output": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Azure Functions"
+		},
+		"annotations": []
+	}
+}

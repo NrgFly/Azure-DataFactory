@@ -1,0 +1,29 @@
+{
+	"name": "wdf_expand_json_column",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "ds_json_temp",
+					"script": "",
+					"dataset": {
+						"referenceName": "ds_json_temp",
+						"type": "DatasetReference"
+					}
+				}
+			],
+			"sinks": [
+				{
+					"name": "Sink1",
+					"dataset": {
+						"referenceName": "ds_json_output_temp",
+						"type": "DatasetReference"
+					},
+					"script": "sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['Test_JSON_output.txt'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Sink1"
+				}
+			],
+			"script": "section Section1;\r\nshared ds_json_temp = let\r\n  AdfDoc = AzureStorage.DataLakeContents(\"https://azuesu2edusa.dfs.core.windows.net/jsondata/Test_JSON.txt\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \"|\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true])\r\nin\r\n  PromotedHeaders;\r\nshared UserQuery = let\r\n  Source = ds_json_temp,\r\n  #\"Parsed JSON\" = Table.TransformColumns(Source, {{\"Detail\", each Json.Document(_), type any}}),\r\n  #\"Expanded Detail\" = Table.ExpandRecordColumn(#\"Parsed JSON\", \"Detail\", {\"id\", \"type\", \"name\"}, {\"Detail.id\", \"Detail.type\", \"Detail.name\"})\r\nin\r\n  #\"Expanded Detail\";\r\n"
+		}
+	}
+}

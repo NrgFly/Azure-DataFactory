@@ -13,7 +13,6 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "dvs_geography.csv",
 				"container": "adventureworksdv"
 			},
 			"columnDelimiter": ",",

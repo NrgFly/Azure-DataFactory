@@ -1,0 +1,85 @@
+{
+	"name": "pl_Filter_vs_IF_Basic_2",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Number Array",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_number_array",
+					"value": [
+						-100,
+						-50,
+						-25,
+						25,
+						50,
+						100
+					]
+				}
+			},
+			{
+				"name": "Filter Positive numbers",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Set Number Array",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "Filter Negative numbers",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Set Number Array",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "ForEach Positive numbers",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter Positive numbers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "ForEach Negative numbers",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter Negative numbers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			}
+		],
+		"variables": {
+			"var_number_array": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}

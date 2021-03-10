@@ -1,0 +1,64 @@
+{
+	"name": "pl_Filter_vs_IF_Basic_3",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Number Array",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_number_array",
+					"value": [
+						-100,
+						-50,
+						-25,
+						25,
+						50,
+						100
+					]
+				}
+			},
+			{
+				"name": "ForEach Numbers",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Set Number Array",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"activities": [
+						{
+							"name": "Check Numbers",
+							"description": "",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": []
+						}
+					]
+				}
+			},
+			{
+				"name": "Check  Numbers",
+				"description": "",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": []
+			}
+		],
+		"variables": {
+			"var_number_array": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}

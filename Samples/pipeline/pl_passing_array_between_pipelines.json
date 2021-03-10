@@ -1,0 +1,67 @@
+{
+	"name": "pl_passing_array_between_pipelines",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Array Variable",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "pl_passing_array_between_pipelines_child",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_meal_array",
+					"value": {
+						"value": "@json('[\"Egg\",\"Toast\",\"Coffee\"]')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "pl_passing_array_between_pipelines_child",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_passing_array_child",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_meal_array": "@json('[\"Egg\",\"Toast\",\"Coffee\"]')"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"par_meal_array": {
+				"type": "array",
+				"defaultValue": [
+					"Egg",
+					"Toast",
+					"Coffee"
+				]
+			}
+		},
+		"variables": {
+			"var_meal_array": {
+				"type": "Array",
+				"defaultValue": [
+					"Egg",
+					"Toast",
+					"Coffee"
+				]
+			}
+		},
+		"folder": {
+			"name": "Working with Arrays"
+		},
+		"annotations": []
+	}
+}

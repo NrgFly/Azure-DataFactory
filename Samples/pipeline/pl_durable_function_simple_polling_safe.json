@@ -1,0 +1,123 @@
+{
+	"name": "pl_durable_function_simple_polling_safe",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Input for Function App",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_input",
+					"value": "{\"timezone\":\"Eastern Standard Time\"}"
+				}
+			},
+			{
+				"name": "Get Function App Output",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Azure Function Execution",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_output",
+					"value": {
+						"value": "@activity('Get Current Function Status').output.output.Response",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Azure Function Execution",
+				"type": "Until",
+				"dependsOn": [
+					{
+						"activity": "Set Input for Function App",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('Get Current Function Status').output.output.Status, 'OK')\n",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Call Azure Durable Function",
+							"type": "AzureFunctionActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"functionName": "orchestrators/DurableFunctions-Orchestrator",
+								"method": "POST",
+								"body": {
+									"value": "@variables('var_input')",
+									"type": "Expression"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_af",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Get Current Function Status",
+							"type": "WebActivity",
+							"dependsOn": [
+								{
+									"activity": "Call Azure Durable Function",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@activity('Azure Durable Function call').output.statusQueryGetUri\n",
+									"type": "Expression"
+								},
+								"method": "GET"
+							}
+						}
+					],
+					"timeout": "0.01:00:00"
+				}
+			}
+		],
+		"variables": {
+			"var_input": {
+				"type": "String"
+			},
+			"var_output": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Azure Functions"
+		},
+		"annotations": []
+	}
+}
