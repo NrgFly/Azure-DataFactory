@@ -11,8 +11,9 @@
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"fileName": "ManyJSON_Objects.json",
-				"container": "adf-dataflows"
+				"container": "jsondata"
 			}
-		}
+		},
+		"schema": {}
 	}
 }
