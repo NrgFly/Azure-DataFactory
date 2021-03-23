@@ -1,0 +1,95 @@
+{
+	"name": "pl_constant_dynamic_JSON",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get List of Files",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_adls_generic_folder",
+						"type": "DatasetReference",
+						"parameters": {
+							"file_folder": "files/system/logs"
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Collect Initial File List",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get List of Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_file_list_initial",
+					"value": {
+						"value": "@activity('Get List of Files').output.childItems",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Merge File List with Constant Values",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Collect Initial File List",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_file_list_merged",
+					"value": {
+						"value": "@json(\n  replace(\n    concat('[',\n      replace(\n        replace(\n          join(\n            variables('var_file_list_initial'),\n            concat('*', \n              variables('var_constant_json'),'}')\n               )\n        , '}*', ', ')\n      , '}{', '},{')\n    , ']')\n  , '}]', concat(',', variables('var_constant_json'),'}') \n  )\n)",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"var_file_list_initial": {
+				"type": "Array"
+			},
+			"var_file_list_merged": {
+				"type": "Array"
+			},
+			"var_constant_json": {
+				"type": "String",
+				"defaultValue": "\"filetype\":\"log\", \"path\":\"files/system/logs\""
+			}
+		},
+		"folder": {
+			"name": "JSON data"
+		},
+		"annotations": []
+	}
+}
