@@ -1,0 +1,95 @@
+{
+	"name": "pl_constant_dynamic_JSON_SQL",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "declare @JSON nvarchar(max) = '@{pipeline().parameters.Input}';\n\nselect\n\t(\n\tselect\n\t\tjson_value(@JSON, 'strict $.name') as name,\n\t\t(\n\t\t\tselect\n\t\t\t\tname,\n\t\t\t\ttype,\n\t\t\t\t'log' as filetype,\n\t\t\t\t'files/system/logs' as path\n\t\t\tfrom\n\t\t\t\topenjson(@JSON, 'strict $.value')\n\t\t\t\t\twith (\n\t\t\t\t\t\tname nvarchar(max) 'strict $.name',\n\t\t\t\t\t\ttype nvarchar(max) 'strict $.type'\n\t\t\t\t\t)\n\t\t\tfor\n\t\t\t\tjson path\n\t\t) as value\n\tfor\n\t\tjson path,\n\t\twithout_array_wrapper\n\t) as Object\n;",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_azsql_generic",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Append variable1",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Output",
+					"value": {
+						"value": "@json(activity('Lookup1').output.firstRow.Object)",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"Input": {
+				"type": "object",
+				"defaultValue": {
+					"name": "var_file_list_initial",
+					"value": [
+						{
+							"name": "01-Monday.log",
+							"type": "File"
+						},
+						{
+							"name": "01-Tuesday.log",
+							"type": "File"
+						},
+						{
+							"name": "01-Wednesday.log",
+							"type": "File"
+						},
+						{
+							"name": "01-Thursday.log",
+							"type": "File"
+						},
+						{
+							"name": "01-Friday.log",
+							"type": "File"
+						}
+					]
+				}
+			}
+		},
+		"variables": {
+			"Output": {
+				"type": "Array",
+				"defaultValue": []
+			}
+		},
+		"folder": {
+			"name": "JSON data"
+		},
+		"annotations": []
+	}
+}
