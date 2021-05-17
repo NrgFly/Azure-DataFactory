@@ -1,0 +1,396 @@
+{
+	"name": "pl_general_email_attachement",
+	"properties": {
+		"activities": [
+			{
+				"name": "Logic App Send Notification Email",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Set Body Request",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-20.canadaeast.logic.azure.com:443/workflows/f74fb74643cb427a9c22455a67090e1f/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8MHT5wxyFbZ4_7gwwuv37rk1KjBuI6NsrBtVU9SfL50",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"value": "@variables('var_web_body_request')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Body Request",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set var_file_list_string",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Email Subject",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Email Body",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Email Body Recipients",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_web_body_request",
+					"value": {
+						"value": "@concat('{\"EmailBody\":\"',variables('var_email_body')\n,'\",\"EmailTo\":\"',variables('var_email_to')\n,'\",\"EmailSubject\":\"',variables('var_email_subject')\n,'\",\"FileList\":\"',variables('var_file_list_string')\n,'\"}\"')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set var_file_list_string",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Create Final File List",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_file_list_string",
+					"value": {
+						"value": "@replace(\n                 replace(\n                              replace(\n                                           string(\n                                                      variables('var_file_list_final')\n                                                     )\n                                           ,'\",\"',',')\n                               ,'[\"','[')\n                  ,'\"]',']')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Email Template Settings",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Email Subject",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Email Template Settings",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_email_subject",
+					"value": {
+						"value": "@concat(\n activity('Email Template Settings').output.firstRow.email_config_attachment.email_subject\n, pipeline().parameters.par_operation_type\n, if(not(\n            equals(pipeline().DataFactory,'omaccefprodadf01')\n            )\n, concat(' - '\n, toUpper(\n                 replace(\n                 replace(pipeline().DataFactory, 'omaccef', ''), 'adf01','')\n                 )\n             ),'')\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Email Body",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Email Template Settings",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_email_body",
+					"value": {
+						"value": "@replace(\nactivity('Email Template Settings').output.firstRow.email_config_attachment.email_body\n, '@operation_type'\n, pipeline().parameters.par_operation_type\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Email Body Recipients",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Email Template Settings",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_email_to",
+					"value": {
+						"value": "@activity('Email Template Settings').output.firstRow.email_config_attachment.email_to",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "For Each File List",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.par_folder_files",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Get List of Files",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"fieldList": [
+									"childItems"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "Keep only files",
+							"type": "Filter",
+							"dependsOn": [
+								{
+									"activity": "Get List of Files",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@activity('Get List of Files').output.childItems",
+									"type": "Expression"
+								},
+								"condition": {
+									"value": "@equals(item().type,'File')",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set File List Start",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Keep only files",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "var_file_list_start",
+								"value": {
+									"value": "@JSON(\nreplace(\nconcat('[',\nreplace(\nreplace(\njoin(activity('Keep only files').output.Value,concat('*\"filetype\":\"',item().filetype,'\", \"path\":\"',item().path,'\"}'))\n, '}*', ', ')\n, '}{', '},{')\n, ']')\n, '}]', concat(', \"filetype\":\"',item().filetype,'\", \"path\":\"',item().path,'\"}') )\n)",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Combine File List Start with Mid",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Set File List Start",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "var_file_list_end",
+								"value": {
+									"value": "@union(variables('var_file_list_start'), variables('var_file_list_mid'))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Preserve File List Mid from End",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Combine File List Start with Mid",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "var_file_list_mid",
+								"value": {
+									"value": "@variables('var_file_list_end')",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Create Final File List",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "For Each File List",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('var_file_list_end')",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Append Final File List",
+							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "var_file_list_final",
+								"value": {
+									"value": "@concat(\n'{\"DisplayName\":\"',item().name\n,'\",\"Path\":\"',item().path,'/', item().name\n,'\",\"FileType\":\"', item().filetype\n,'\"}'\n)\n",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"par_operation_type": {
+				"type": "string",
+				"defaultValue": "IOA Hedge"
+			},
+			"par_folder_files": {
+				"type": "array",
+				"defaultValue": [
+					{
+						"path": "log/",
+						"filetype": "log"
+					},
+					{
+						"path": "processed/",
+						"filetype": "data"
+					}
+				]
+			}
+		},
+		"variables": {
+			"var_web_body_request": {
+				"type": "String"
+			},
+			"var_file_list": {
+				"type": "Array"
+			},
+			"var_file_list_string": {
+				"type": "String"
+			},
+			"var_file_list_start": {
+				"type": "Array"
+			},
+			"var_file_list_end": {
+				"type": "Array"
+			},
+			"var_email_subject": {
+				"type": "String"
+			},
+			"var_email_body": {
+				"type": "String"
+			},
+			"var_email_to": {
+				"type": "String"
+			},
+			"var_file_list_mid": {
+				"type": "Array"
+			},
+			"var_file_list_final": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "eFront General"
+		},
+		"annotations": []
+	}
+}
