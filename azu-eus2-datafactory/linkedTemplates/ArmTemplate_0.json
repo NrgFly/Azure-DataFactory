@@ -1,0 +1,1140 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "azu-eus2-datafactory"
+		},
+		"AzureBlobStorage_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage_LS'"
+		},
+		"AzureDataLakeStorage_Gen2_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage_Gen2'"
+		},
+		"AzureSqlDatabase_DV_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_DV_LS'"
+		},
+		"AzureSqlDatabase_LS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_LS'"
+		},
+		"Spark1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'Spark1'"
+		},
+		"azuredatabricks_bigdata_ls_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'azuredatabricks_bigdata_ls'"
+		},
+		"ls_af_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'ls_af'"
+		},
+		"ls_af_gettime_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'ls_af_gettime'"
+		},
+		"AzureDataLakeStorage_Gen2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://azuesu2edusa.dfs.core.windows.net"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_dataLakeStoreUri": {
+			"type": "string",
+			"defaultValue": "https://azueus2devadlsbdatalake.azuredatalakestore.net/webhdfs/v1"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_tenant": {
+			"type": "string",
+			"defaultValue": "31d5acce-99ba-40b7-b2a1-f329e04fe742"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_subscriptionId": {
+			"type": "string",
+			"defaultValue": "6c405d27-de5e-483c-9a68-0aaaad20b363"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_resourceGroupName": {
+			"type": "string",
+			"defaultValue": "big_data"
+		},
+		"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://azu-eus2-edu-kvt.vault.azure.net/"
+		},
+		"Spark1_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "eastus2.azuredatabricks.net"
+		},
+		"Spark1_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "token"
+		},
+		"ls_af_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://azu-eus-edu-fapp.azurewebsites.net"
+		},
+		"ls_af_gettime_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://bd-eus2-fapp.azurewebsites.net"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/bdata_adf_variable_array_first_element')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set FileList",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "FileList",
+							"value": {
+								"value": "@createArray('File', 'Folder')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "CheckFirstElement",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Array First Element",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(variables('FirstArrayElement'),'Folder')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Wait Files 2 sec",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "Wait Folder 1 sec",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Array First Element",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set FileList",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "FirstArrayElement",
+							"value": {
+								"value": "@variables('FileList')[0]",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"FileList": {
+						"type": "Array"
+					},
+					"FirstArrayElement": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Sample Pipelines"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bdata_adf_variable_array_many_elements')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set Array Variable",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "ArrayVariable",
+							"value": {
+								"value": "@createArray('A', 'B')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "First Element",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set Array Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "ArrayElement_1",
+							"value": {
+								"value": "@variables('ArrayVariable')[0]",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Second Element",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set Array Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "ArrayElement_1",
+							"value": {
+								"value": "@variables('ArrayVariable')[0]",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Check Out of Range",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set Array Variable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "ArrayElement_OutOfRange",
+							"value": {
+								"value": "@variables('ArrayVariable')[2]",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Add New Value",
+						"type": "AppendVariable",
+						"dependsOn": [
+							{
+								"activity": "Check Out of Range",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "ArrayVariable",
+							"value": "C"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"ArrayVariable": {
+						"type": "Array"
+					},
+					"ArrayElement_1": {
+						"type": "String"
+					},
+					"ArrayElement_2": {
+						"type": "String"
+					},
+					"ArrayElement_OutOfRange": {
+						"type": "String"
+					},
+					"ErrorMessage": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Sample Pipelines"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_CreateArray_UseCase')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set Job Title",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "JobTitle",
+							"value": "Design Engineer"
+						}
+					},
+					{
+						"name": "Check Job Title",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Set Job Title",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(createArray('Design Engineer', 'Tool Designer', 'Marketing Assistant'),variables('JobTitle'))",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Wait 5 Second",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 5
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "Wait 1 Second",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"JobTitle": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Working with Arrays"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_default_value_array_child')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Each Parameter Meal",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.par_meal_array",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Wait 1 second",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"par_meal_array": {
+						"type": "array",
+						"defaultValue": [
+							"Egg",
+							"Greek Yogurt",
+							"Coffee"
+						]
+					}
+				},
+				"folder": {
+					"name": "Working with Arrays"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_default_value_array_variable')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Each Variable Meal",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Set Array",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('var_array')",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Wait 1 second_copy1",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Set Array",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "var_array",
+							"value": {
+								"value": "@split(pipeline().parameters.par_meal_string,',')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"par_meal_string": {
+						"type": "string",
+						"defaultValue": "Egg,Greek Yogurt,Coffee"
+					}
+				},
+				"variables": {
+					"var_array": {
+						"type": "Array"
+					}
+				},
+				"folder": {
+					"name": "Working with Arrays"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_json_arrays_sub')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Toppings",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Get Baking Recepie",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "var_toppings",
+							"value": {
+								"value": "@variables('var_baking_payload')[0].topping",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Get Batters",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Get Baking Recepie",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "var_batters",
+							"value": {
+								"value": "@variables('var_baking_payload')[0].batters.batter",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Get Baking Recepie",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "var_baking_payload",
+							"value": {
+								"value": "@pipeline().parameters.param_baking_payload",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"param_baking_payload": {
+						"type": "array"
+					}
+				},
+				"variables": {
+					"var_toppings": {
+						"type": "Array"
+					},
+					"var_batters": {
+						"type": "Array"
+					},
+					"var_baking_payload": {
+						"type": "Array"
+					}
+				},
+				"folder": {
+					"name": "JSON data"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_passing_array_child')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set Array Variable",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "var_meal_array",
+							"value": {
+								"value": "@pipeline().parameters.par_meal_array",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"par_meal_array": {
+						"type": "array",
+						"defaultValue": [
+							"Egg",
+							"Toast",
+							"Coffee"
+						]
+					}
+				},
+				"variables": {
+					"var_meal_array": {
+						"type": "Array"
+					}
+				},
+				"folder": {
+					"name": "Working with Arrays"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage_LS_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage_Gen2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage_Gen2_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage_Gen2_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStore_ls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDataLakeStore",
+				"typeProperties": {
+					"dataLakeStoreUri": "[parameters('AzureDataLakeStore_ls_properties_typeProperties_dataLakeStoreUri')]",
+					"tenant": "[parameters('AzureDataLakeStore_ls_properties_typeProperties_tenant')]",
+					"subscriptionId": "[parameters('AzureDataLakeStore_ls_properties_typeProperties_subscriptionId')]",
+					"resourceGroupName": "[parameters('AzureDataLakeStore_ls_properties_typeProperties_resourceGroupName')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureKeyVault_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('AzureKeyVault_LS_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase_DV_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabase_DV_LS_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase_LS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabase_LS_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Spark1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Spark",
+				"typeProperties": {
+					"host": "[parameters('Spark1_properties_typeProperties_host')]",
+					"port": 443,
+					"serverType": "SparkThriftServer",
+					"thriftTransportProtocol": "HTTP",
+					"authenticationType": "UsernameAndPassword",
+					"username": "[parameters('Spark1_properties_typeProperties_username')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('Spark1_password')]"
+					},
+					"httpPath": "sql/protocolv1/o/1381793306306739/1214-144601-sedan385",
+					"enableSsl": true,
+					"useSystemTrustStore": false,
+					"allowHostNameCNMismatch": false,
+					"allowSelfSignedServerCert": false
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/azuredatabricks_bigdata_ls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://eastus.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('azuredatabricks_bigdata_ls_accessToken')]"
+					},
+					"existingClusterId": "0402-023740-highs255"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_af')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "[parameters('ls_af_properties_typeProperties_functionAppUrl')]",
+					"functionKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_af_functionKey')]"
+					},
+					"authentication": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_af_gettime')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "[parameters('ls_af_gettime_properties_typeProperties_functionAppUrl')]",
+					"functionKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_af_gettime_functionKey')]"
+					},
+					"authentication": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_azurefunction_test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Web Activity",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "WebHook",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime?code=WPbrtWZpOERh8z8dl2UjJ/Xu8XsaRHk6I49KKikRWzr38B8n6fax4w==",
+							"method": "POST",
+							"headers": {},
+							"body": "{\n    timezone: \"Eastern Standard Time\"\n}"
+						}
+					},
+					{
+						"name": "Azure Function",
+						"type": "AzureFunctionActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"functionName": "GetTime-AF ",
+							"method": "POST",
+							"headers": {},
+							"body": "{\n    timezone: \"Eastern Standard Time\"\n}"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_af_gettime",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "WebHook",
+						"type": "WebHook",
+						"dependsOn": [
+							{
+								"activity": "Azure Function",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://bd-eus2-fapp.azurewebsites.net/api/GetTime-WH?code=EzOt81JcICeAzV2c4OqFBSy0Hrar9aCHEygHaClJJm7iHds1wYtfKg==",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"timezone": "Eastern Standard Time"
+							},
+							"timeout": "00:09:00",
+							"reportStatusOnCallBack": false
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "Azure Functions"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_af_gettime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_default_value_array')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Each Parameter Meal",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.par_meal_array",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "pl_meal_array_child",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_default_value_array_child",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"par_meal_array": {
+												"value": "@item().meal_items",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"par_meal_array": {
+						"type": "array",
+						"defaultValue": [
+							{
+								"meal_type": "Breakfast",
+								"meal_time": "07:00:00",
+								"meal_items": [
+									"Egg",
+									"Greek Yogurt",
+									"Coffee"
+								]
+							},
+							{
+								"meal_type": "Lunch",
+								"meal_time": "12:00:00",
+								"meal_items": [
+									"Greek Salad",
+									"Salmon Bagels",
+									"Tea"
+								]
+							},
+							{
+								"meal_type": "Dinner",
+								"meal_time": "18:00:00",
+								"meal_items": [
+									"Kale Salad",
+									"Lentil Soup",
+									"Water"
+								]
+							}
+						]
+					}
+				},
+				"folder": {
+					"name": "Working with Arrays"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_default_value_array_child')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_durable_function_loop_polling')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Azure Durable Function call",
+						"type": "AzureFunctionActivity",
+						"dependsOn": [
+							{
+								"activity": "Set Input for Function App",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"functionName": "orchestrators/DurableFunctions-Orchestrator",
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "@variables('var_input')",
+								"type": "Expression"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_af",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Check Completed Status",
+						"type": "Until",
+						"dependsOn": [
+							{
+								"activity": "Azure Durable Function call",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@not(or(equals(activity('Get Current Function Status').output.runtimeStatus, 'Pending'), equals(activity('Get Current Function Status').output.runtimeStatus, 'Running')))\n\n",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Wait 5 seconds",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								},
+								{
+									"name": "Get Current Function Status",
+									"type": "WebActivity",
+									"dependsOn": [
+										{
+											"activity": "Wait 5 seconds",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": {
+											"value": "@activity('Azure Durable Function call').output.statusQueryGetUri\n",
+											"type": "Expression"
+										},
+										"method": "GET",
+										"headers": {}
+									}
+								}
+							],
+							"timeout": "7.00:00:00"
+						}
+					},
+					{
+						"name": "Set Input for Function App",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "var_input",
+							"value": "{\"timezone\":\"Eastern Standard Time\"}"
+						}
+					},
+					{
+						"name": "Get Function App Output",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Check Completed Status",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "var_output",
+							"value": {
+								"value": "@activity('Get Current Function Status').output.output.Response",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"var_input": {
+						"type": "String"
+					},
+					"var_output": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "Azure Functions"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_af')]"
+			]
+		}
+	]
+}

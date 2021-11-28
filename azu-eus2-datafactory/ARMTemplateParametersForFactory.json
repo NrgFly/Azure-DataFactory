@@ -1,0 +1,162 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "azu-eus2-datafactory"
+		},
+		"AzureBlobStorage_LS_connectionString": {
+			"value": ""
+		},
+		"AzureDataLakeStorage_Gen2_accountKey": {
+			"value": ""
+		},
+		"AzureSqlDatabase_DV_LS_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabase_LS_connectionString": {
+			"value": ""
+		},
+		"Spark1_password": {
+			"value": ""
+		},
+		"azuredatabricks_bigdata_ls_accessToken": {
+			"value": ""
+		},
+		"ls_af_functionKey": {
+			"value": ""
+		},
+		"ls_af_gettime_functionKey": {
+			"value": ""
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_fileName": {
+			"value": "@dataset().filename"
+		},
+		"AzureBlobStorageSourceFileStore_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"AzureBlob_bgdata_daily_properties_typeProperties_fileName": {
+			"value": "@dataset().FileName"
+		},
+		"AzureBlob_bgdata_daily_properties_typeProperties_folderPath": {
+			"value": "@dataset().FilePath"
+		},
+		"AzureBlob_bgdata_monthly_properties_typeProperties_fileName": {
+			"value": "@dataset().FileName"
+		},
+		"AzureBlob_bgdata_monthly_properties_typeProperties_folderPath": {
+			"value": "@dataset().FilePath"
+		},
+		"AzureBlob_storesales_store01_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"AzureBlob_storesales_store01_properties_typeProperties_folderPath": {
+			"value": "storesales/store_01"
+		},
+		"AzureBlob_storesales_store01_single_properties_typeProperties_fileName": {
+			"value": "storeinventory_01_20181027.csv"
+		},
+		"AzureBlob_storesales_store01_single_properties_typeProperties_folderPath": {
+			"value": "storesales-source/store_01"
+		},
+		"AzureBlob_storesales_store02_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"AzureBlob_storesales_store02_properties_typeProperties_folderPath": {
+			"value": "storesales/store_02"
+		},
+		"AzureBlob_storesales_store03_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"AzureBlob_storesales_store03_properties_typeProperties_folderPath": {
+			"value": "storesales/store_03"
+		},
+		"AzureBlob_storesales_storesall_properties_typeProperties_fileName": {
+			"value": "@dataset().FileName"
+		},
+		"AzureBlob_storesales_storesall_properties_typeProperties_folderPath": {
+			"value": "@dataset().FilePath"
+		},
+		"AzureDataLakeStoreSinkFileStore_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"AzureDataLakeStoreSinkFileStore_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_FileShare_ds_properties_typeProperties_fileName": {
+			"value": "*.txt"
+		},
+		"Template_FileShare_ds_properties_typeProperties_folderPath": {
+			"value": "Move"
+		},
+		"Template_wasb_delete_properties_typeProperties_fileName": {
+			"value": "*"
+		},
+		"Template_wasb_delete_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_delete_time_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_fileName": {
+			"value": "@dataset().filename"
+		},
+		"Template_wasb_single_sink_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_fileName": {
+			"value": "@dataset().filename"
+		},
+		"Template_wasb_single_source_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_fileName": {
+			"value": ""
+		},
+		"Template_wasb_sink_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"Template_wasb_source_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().folder"
+		},
+		"validation_adls_source_ds_properties_typeProperties_folderPath": {
+			"value": "@dataset().FileFolder"
+		},
+		"AzureDataLakeStorage_Gen2_properties_typeProperties_url": {
+			"value": "https://azuesu2edusa.dfs.core.windows.net"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_dataLakeStoreUri": {
+			"value": "https://azueus2devadlsbdatalake.azuredatalakestore.net/webhdfs/v1"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_tenant": {
+			"value": "31d5acce-99ba-40b7-b2a1-f329e04fe742"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_subscriptionId": {
+			"value": "6c405d27-de5e-483c-9a68-0aaaad20b363"
+		},
+		"AzureDataLakeStore_ls_properties_typeProperties_resourceGroupName": {
+			"value": "big_data"
+		},
+		"AzureKeyVault_LS_properties_typeProperties_baseUrl": {
+			"value": "https://azu-eus2-edu-kvt.vault.azure.net/"
+		},
+		"FileSystem_ls_properties_typeProperties_host": {
+			"value": "C:\\Temp"
+		},
+		"FileSystem_ls_properties_typeProperties_userId": {
+			"value": "corp\\rayis.imayev"
+		},
+		"Spark1_properties_typeProperties_host": {
+			"value": "eastus2.azuredatabricks.net"
+		},
+		"Spark1_properties_typeProperties_username": {
+			"value": "token"
+		},
+		"ls_af_properties_typeProperties_functionAppUrl": {
+			"value": "https://azu-eus-edu-fapp.azurewebsites.net"
+		},
+		"ls_af_gettime_properties_typeProperties_functionAppUrl": {
+			"value": "https://bd-eus2-fapp.azurewebsites.net"
+		}
+	}
+}
