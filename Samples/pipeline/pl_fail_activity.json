@@ -120,8 +120,8 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"message": "300",
-					"errorCode": "300 message"
+					"message": "Source file not found",
+					"errorCode": "3000"
 				}
 			},
 			{
