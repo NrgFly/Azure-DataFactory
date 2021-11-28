@@ -14,10 +14,7 @@
 				"secretName": "local-machine-account-password"
 			}
 		},
-		"connectVia": {
-			"referenceName": "integrationRuntimeFileSystem",
-			"type": "IntegrationRuntimeReference"
-		}
+		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/linkedservices"
 }
