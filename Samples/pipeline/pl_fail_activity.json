@@ -27,13 +27,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "File Name",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "Folder Name",
+						"activity": "Check Files",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -128,6 +122,29 @@
 				"typeProperties": {
 					"message": "300",
 					"errorCode": "300 message"
+				}
+			},
+			{
+				"name": "Check Files",
+				"type": "Validation",
+				"dependsOn": [
+					{
+						"activity": "File Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Folder Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"timeout": "7.00:00:00",
+					"sleep": 10
 				}
 			}
 		],
