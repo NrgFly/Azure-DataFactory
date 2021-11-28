@@ -1,0 +1,161 @@
+{
+	"name": "pl_fail_activity_old",
+	"properties": {
+		"activities": [
+			{
+				"name": "File Name",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_filename",
+					"value": "''"
+				}
+			},
+			{
+				"name": "Folder Name",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_foldername",
+					"value": "files"
+				}
+			},
+			{
+				"name": "Copy data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Check Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADLS_Gen2",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@variables('var_foldername')",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@variables('var_filename')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADLS_Gen2",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@variables('var_foldername')",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@variables('var_filename')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Check Files",
+				"type": "Validation",
+				"dependsOn": [
+					{
+						"activity": "File Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Folder Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ADLS_Gen2",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@variables('var_foldername')",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@variables('var_filename')",
+								"type": "Expression"
+							}
+						}
+					},
+					"timeout": "0.00:00:10",
+					"sleep": 2
+				}
+			}
+		],
+		"variables": {
+			"var_filename": {
+				"type": "String"
+			},
+			"var_foldername": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Fail Activity"
+		},
+		"annotations": []
+	}
+}
