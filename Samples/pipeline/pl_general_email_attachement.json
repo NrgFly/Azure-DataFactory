@@ -208,17 +208,10 @@
 							"userProperties": [],
 							"typeProperties": {
 								"dataset": {
-									"referenceName": "ADLS_dvs_internetsales_init_ds",
+									"referenceName": "ASQL_DV_HUB_Customer",
 									"type": "DatasetReference"
 								},
-								"fieldList": [],
-								"storeSettings": {
-									"type": "AzureDataLakeStoreReadSettings",
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
+								"fieldList": []
 							}
 						},
 						{
