@@ -211,7 +211,9 @@
 									"referenceName": "ASQL_DV_HUB_Customer",
 									"type": "DatasetReference"
 								},
-								"fieldList": []
+								"fieldList": [
+									"exists"
+								]
 							}
 						},
 						{
