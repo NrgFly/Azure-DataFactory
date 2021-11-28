@@ -48,8 +48,70 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"enableStaging": false
-				}
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADLS_Gen2",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@variables('var_foldername')",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@variables('var_filename')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADLS_Gen2",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@variables('var_foldername')",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@variables('var_filename')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
 			},
 			{
 				"name": "Fail1",
