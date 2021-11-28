@@ -85,7 +85,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@activity('Azure Durable Function call').output.statusQueryGetUri\n",
+						"value": "@activity('Call Azure Durable Function').output.statusQueryGetUri\n",
 						"type": "Expression"
 					},
 					"method": "GET"
