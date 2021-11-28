@@ -112,7 +112,7 @@
 				"type": "Fail",
 				"dependsOn": [
 					{
-						"activity": "Copy data",
+						"activity": "Check Files",
 						"dependencyConditions": [
 							"Failed"
 						]
@@ -143,7 +143,21 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"timeout": "7.00:00:00",
+					"dataset": {
+						"referenceName": "ADLS_Gen2",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@variables('var_foldername')",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@variables('var_filename')",
+								"type": "Expression"
+							}
+						}
+					},
+					"timeout": "0.00:01:00",
 					"sleep": 10
 				}
 			}
