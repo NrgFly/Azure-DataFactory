@@ -105,14 +105,19 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "JsonSource",
+						"type": "DelimitedTextSource",
 						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
-							"recursive": true
+							"type": "AzureDataLakeStoreReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
-							"type": "JsonReadSettings"
+							"type": "DelimitedTextReadSettings"
 						}
+					},
+					"dataset": {
+						"referenceName": "ADLS_dvs_internetsales_init_ds",
+						"type": "DatasetReference"
 					},
 					"firstRowOnly": true
 				}
@@ -202,12 +207,13 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"fieldList": [
-									"childItems"
-								],
+								"dataset": {
+									"referenceName": "ADLS_dvs_internetsales_init_ds",
+									"type": "DatasetReference"
+								},
+								"fieldList": [],
 								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
+									"type": "AzureDataLakeStoreReadSettings",
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
