@@ -19,7 +19,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "var_foldername",
-					"value": "''"
+					"value": "files"
 				}
 			},
 			{
