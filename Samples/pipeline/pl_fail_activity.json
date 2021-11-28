@@ -1,6 +1,17 @@
 {
 	"name": "pl_fail_activity",
 	"properties": {
+		"variables": {
+			"var_filename": {
+				"type": "String"
+			},
+			"var_foldername": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Fail Activity"
+		},
 		"annotations": []
 	}
 }
